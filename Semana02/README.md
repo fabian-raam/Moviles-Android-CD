@@ -1,14 +1,30 @@
-KOTLIN
+ESTRUCTURA DE UN PROMPT
 
-Isaid Fabian Ramirez Quispe
+ROL → CONTEXTO → OBJETIVO → INFORMACIÓN →
+RESTRICCIONES → TAREA → FORMATO
 
-El programa simula un **carrito de compras de 
-la Tienda TECSUP**, permitiendo 
-registrar productos con su nombre, 
-precio y cantidad. Se implementaron 
-funciones para **calcular el subtotal, 
-el IGV del 18%, el total de la compra y 
-el descuento según el monto total**. 
-Además, muestra el **detalle de los productos de 
-forma ordenada**, identifica el **producto más 
-caro** y calcula el **total final con descuento**.
+
+PROMPT:
+ROL:
+Vale quiero que actues como un Programador de 
+moviles que utiliza Kotlin y JetpacKCompose que 
+ademas conoce otros lenguajes de programacion y 
+todos los fudamenos necesarios para ser un 
+programador 
+CONTEXTO:
+En mi curso de desarrollo 
+movil me an encargado en una tarea de realizar este
+proyecto de carrito con POO y las 4 bases del POO
+Objetivo: Realizar de manera correcta y guiandose
+de lo ya desarrollado el sistema de carrito con POO
+Restricciones: No utilices palabras tecnicas de 
+kotlin y 
+jetpack compose sin explicarlas antes Ten 
+en cuenta que soy un estudiante nuevo de este curso
+
+Formato de respuesta: Explica de manera detallada 
+pero por puntos, no mandes demasiado texto vamos 
+parte por parte Asegurate que la informacion 
+proporcionada sea correcta y confirmada 
+No saltes a otro punto sin 
+confirmar la compresion total del punto anterior
