@@ -90,6 +90,19 @@ class Carrito {
 
         println("---------------------------------------")
     }
+    fun calcularDescuento(): Double {
+        val total = calcularTotal()
+
+        return when {
+            total > 5000 -> total * 0.10
+            total > 3000 -> total * 0.05
+            else -> 0.0
+        }
+    }
+
+    fun calcularTotalConDescuento(): Double {
+        return calcularTotal() - calcularDescuento()
+    }
 }
 
 fun main() {
@@ -115,7 +128,8 @@ fun main() {
     println("Subtotal: S/ %.2f".format(carrito.calcularSubtotal()))
     println("IGV (18%%): S/ %.2f".format(carrito.calcularIGV()))
     println("Total: S/ %.2f".format(carrito.calcularTotal()))
-
+    println("Descuento: S/ %.2f".format(carrito.calcularDescuento()))
+    println("TOTAL CON DESCUENTO: S/ %.2f".format(carrito.calcularTotalConDescuento()))
     println()
     carrito.mostrarDetalle()
     println()
