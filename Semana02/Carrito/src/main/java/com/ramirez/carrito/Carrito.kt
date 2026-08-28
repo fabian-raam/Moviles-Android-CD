@@ -70,6 +70,26 @@ class Carrito {
     fun calcularTotal(): Double {
         return calcularSubtotal() + calcularIGV()
     }
+    fun mostrarDetalle() {
+        println("--------- DETALLE DEL CARRITO ---------")
+
+        var i = 1
+
+        for (producto in productos) {
+            println(
+                String.format(
+                    "%d. %-20s S/ %8.2f",
+                    i,
+                    producto.obtenerNombre(),
+                    producto.calcularImporte()
+                )
+            )
+
+            i++
+        }
+
+        println("---------------------------------------")
+    }
 }
 
 fun main() {
@@ -95,4 +115,8 @@ fun main() {
     println("Subtotal: S/ %.2f".format(carrito.calcularSubtotal()))
     println("IGV (18%%): S/ %.2f".format(carrito.calcularIGV()))
     println("Total: S/ %.2f".format(carrito.calcularTotal()))
+
+    println()
+    carrito.mostrarDetalle()
+    println()
 }
