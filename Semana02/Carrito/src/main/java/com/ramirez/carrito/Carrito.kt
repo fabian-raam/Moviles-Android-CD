@@ -44,6 +44,15 @@ fun mostrarDetalle(productos: List<Producto>) {
 
     println("---------------------------------------")
 }
+
+fun calcularDescuento(total: Double): Double {
+    return when {
+        total > 5000 -> total * 0.10
+        total > 3000 -> total * 0.05
+        else -> 0.0
+    }
+}
+
 fun main(){
     println("=========================================")
     println(" CARRITO DE COMPRAS - TIENDA TECSUP ")
@@ -78,4 +87,19 @@ fun main(){
     println(String.format("%-15s S/ %8.2f", "Subtotal:", subtotal))
     println(String.format("%-15s S/ %8.2f", "IGV (18%):", igv))
     println(String.format("%-15s S/ %8.2f", "TOTAL A PAGAR:", total))
+
+    val masCaro = carrito.maxByOrNull { it.precio }
+
+    if (masCaro != null) {
+        println(
+            "Producto mas caro: ${masCaro.nombre} " +
+                    String.format("(S/ %.2f)", masCaro.precio)
+        )
+    }
+
+    val descuento = calcularDescuento(total)
+    val totalConDescuento = total - descuento
+
+    println(String.format("%-20s S/ %8.2f", "Descuento:", descuento))
+    println(String.format("%-20s S/ %8.2f", "TOTAL CON DESCUENTO:", totalConDescuento))
 }
