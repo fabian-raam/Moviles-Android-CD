@@ -1,6 +1,5 @@
 package com.ramirez.lab03registroproducto
 
-import android.R
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -28,17 +27,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ramirez.lab03registroproducto.ui.theme.Lab03RegistroProductoTheme
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             Lab03RegistroProductoTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+
+                Scaffold(
+                    modifier = Modifier.fillMaxSize()
+                ) { innerPadding ->
+
                     PantallaRegisrtro(
                         modifier = Modifier.padding(innerPadding)
                     )
@@ -49,19 +53,24 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PantallaRegisrtro(modifier: Modifier = Modifier) {
+fun PantallaRegisrtro(
+    modifier: Modifier = Modifier
+) {
 
     var nombre by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
+
     var mostrarResumen by remember { mutableStateOf(false) }
-    var mostrarError by remember { mutableStateOf(false) }
+
+    var mensajeError by remember { mutableStateOf("") }
 
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
+
         Text(
             text = "Nuevo producto",
             style = MaterialTheme.typography.headlineSmall
@@ -75,114 +84,237 @@ fun PantallaRegisrtro(modifier: Modifier = Modifier) {
 
         OutlinedTextField(
             value = nombre,
-            onValueChange = { nombre = it },
-            label = { Text("Nombre Producto") },
+            onValueChange = {
+                nombre = it
+            },
+            label = {
+                Text("Nombre Producto")
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth()
+        ) {
 
             OutlinedTextField(
                 value = precio,
-                onValueChange = { precio = it },
-                label = { Text("Precio (S/)") },
+                onValueChange = {
+                    precio = it
+                },
+                label = {
+                    Text("Precio (S/)")
+                },
                 modifier = Modifier.weight(1f)
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(
+                modifier = Modifier.width(16.dp)
+            )
 
             OutlinedTextField(
                 value = cantidad,
-                onValueChange = { cantidad = it },
-                label = { Text("Cantidad") },
+                onValueChange = {
+                    cantidad = it
+                },
+                label = {
+                    Text("Cantidad")
+                },
                 modifier = Modifier.weight(1f)
             )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         Button(
             onClick = {
+
+                val precioNum = precio.toDoubleOrNull()
+                val cantidadNum = cantidad.toIntOrNull()
+
                 if (
                     nombre.isBlank() ||
                     precio.isBlank() ||
                     cantidad.isBlank()
                 ) {
-                    mostrarError = true
+
+                    mensajeError =
+                        "Debe completar todos los campos"
+
                     mostrarResumen = false
+
+                } else if (
+                    !nombre.all {
+                        it.isLetter() || it.isWhitespace()
+                    }
+                ) {
+
+                    mensajeError =
+                        "El nombre solo puede contener letras"
+
+                    mostrarResumen = false
+
+                } else if (
+                    precioNum == null
+                ) {
+
+                    mensajeError =
+                        "El precio debe ser un número válido"
+
+                    mostrarResumen = false
+
+                } else if (
+                    precioNum <= 0
+                ) {
+
+                    mensajeError =
+                        "El precio debe ser mayor que 0"
+
+                    mostrarResumen = false
+
+                } else if (
+                    cantidadNum == null
+                ) {
+
+                    mensajeError =
+                        "La cantidad debe ser un número entero"
+
+                    mostrarResumen = false
+
+                } else if (
+                    cantidadNum <= 0
+                ) {
+
+                    mensajeError =
+                        "La cantidad debe ser mayor que 0"
+
+                    mostrarResumen = false
+
                 } else {
-                    mostrarError = false
+
+                    mensajeError = ""
+
                     mostrarResumen = true
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("AGREGAR PRODUCTO")
+
+            Text(
+                text = "AGREGAR PRODUCTO"
+            )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
         Button(
             onClick = {
+
                 nombre = ""
                 precio = ""
                 cantidad = ""
+
                 mostrarResumen = false
-                mostrarError = false
+
+                mensajeError = ""
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("LIMPIAR")
+
+            Text(
+                text = "LIMPIAR"
+            )
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
-        if (mostrarError) {
+        if (
+            mensajeError.isNotEmpty()
+        ) {
+
             Text(
-                text = "Debe completar todos los campos",
+                text = mensajeError,
                 color = Color.Red
             )
         }
 
-        if (mostrarResumen) {
+        if (
+            mostrarResumen
+        ) {
 
-            val precioNum = precio.toDoubleOrNull() ?: 0.0
-            val cantidadNum = cantidad.toIntOrNull() ?: 0
-            val importe = precioNum * cantidadNum
+            val precioNum =
+                precio.toDoubleOrNull() ?: 0.0
+
+            val cantidadNum =
+                cantidad.toIntOrNull() ?: 0
+
+            val importe =
+                precioNum * cantidadNum
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
+
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    containerColor =
+                        MaterialTheme.colorScheme.primaryContainer
                 )
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
 
                     Text(
-                        nombre,
-                        style = MaterialTheme.typography.titleLarge
+                        text = nombre,
+                        style =
+                            MaterialTheme.typography.titleLarge
                     )
 
                     Text(
-                        "Precio: S/ " +
-                                String.format("%.2f", precioNum)
+                        text =
+                            "Precio: S/ " +
+                                    String.format(
+                                        "%.2f",
+                                        precioNum
+                                    )
                     )
 
-                    Text("Cantidad: $cantidadNum")
+                    Text(
+                        text =
+                            "Cantidad: $cantidadNum"
+                    )
 
                     Text(
-                        "Importe total: S/ " +
-                                String.format("%.2f", importe),
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        text =
+                            "Importe total: S/ " +
+                                    String.format(
+                                        "%.2f",
+                                        importe
+                                    ),
+                        fontWeight =
+                            FontWeight.Bold,
+                        color =
+                            MaterialTheme.colorScheme.primary
                     )
                 }
 
                 Text(
-                    text = "✓ Producto registrado correctamente",
-                    color = Color(0xFF2E7D32)
+                    text =
+                        "✓ Producto registrado correctamente",
+                    color =
+                        Color(0xFF2E7D32),
+                    modifier =
+                        Modifier.padding(16.dp)
                 )
             }
         }
