@@ -49,11 +49,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun PantallaRegisrtro(modifier: Modifier = Modifier){
+fun PantallaRegisrtro(modifier: Modifier = Modifier) {
+
     var nombre by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
     var mostrarResumen by remember { mutableStateOf(false) }
+    var mostrarError by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -63,27 +66,33 @@ fun PantallaRegisrtro(modifier: Modifier = Modifier){
             text = "Nuevo producto",
             style = MaterialTheme.typography.headlineSmall
         )
+
         Text(
             text = "Completa los datos y presiona Agregar",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.outline
         )
+
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
-            label = { Text("Nombre Producto")},
+            label = { Text("Nombre Producto") },
             modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Row(modifier = Modifier.fillMaxWidth()) {
+
             OutlinedTextField(
                 value = precio,
                 onValueChange = { precio = it },
                 label = { Text("Precio (S/)") },
                 modifier = Modifier.weight(1f)
             )
+
             Spacer(modifier = Modifier.width(16.dp))
+
             OutlinedTextField(
                 value = cantidad,
                 onValueChange = { cantidad = it },
@@ -91,14 +100,51 @@ fun PantallaRegisrtro(modifier: Modifier = Modifier){
                 modifier = Modifier.weight(1f)
             )
         }
+
         Spacer(modifier = Modifier.height(24.dp))
+
         Button(
-            onClick = { mostrarResumen = true },
+            onClick = {
+                if (
+                    nombre.isBlank() ||
+                    precio.isBlank() ||
+                    cantidad.isBlank()
+                ) {
+                    mostrarError = true
+                    mostrarResumen = false
+                } else {
+                    mostrarError = false
+                    mostrarResumen = true
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("AGREGAR PRODUCTO")
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = {
+                nombre = ""
+                precio = ""
+                cantidad = ""
+                mostrarResumen = false
+                mostrarError = false
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("LIMPIAR")
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
+
+        if (mostrarError) {
+            Text(
+                text = "Debe completar todos los campos",
+                color = Color.Red
+            )
+        }
 
         if (mostrarResumen) {
 
@@ -119,16 +165,21 @@ fun PantallaRegisrtro(modifier: Modifier = Modifier){
                         style = MaterialTheme.typography.titleLarge
                     )
 
-                    Text("Precio: S/ " + String.format("%.2f", precioNum))
+                    Text(
+                        "Precio: S/ " +
+                                String.format("%.2f", precioNum)
+                    )
 
                     Text("Cantidad: $cantidadNum")
 
                     Text(
-                        "Importe total: S/ " + String.format("%.2f", importe),
+                        "Importe total: S/ " +
+                                String.format("%.2f", importe),
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
+
                 Text(
                     text = "✓ Producto registrado correctamente",
                     color = Color(0xFF2E7D32)
