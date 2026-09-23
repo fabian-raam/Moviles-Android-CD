@@ -21,15 +21,17 @@ data class Appointment(
 fun AppointmentsScreen() {
 
     val appointments = listOf(
+
         Appointment(
-            "Dra. Ana Torres",
-            "Viernes 27, 10:30 am",
-            "Confirmada"
+            doctor = "Dra. Ana Torres",
+            date = "Viernes 27, 10:30 am",
+            status = "Confirmada"
         ),
+
         Appointment(
-            "Dr. Luis Vega",
-            "Miércoles 15, 3:00 pm",
-            "Completada"
+            doctor = "Dr. Luis Vega",
+            date = "Miércoles 15, 3:00 pm",
+            status = "Completada"
         )
     )
 
@@ -56,16 +58,20 @@ fun AppointmentsScreen() {
                         modifier = Modifier.padding(16.dp)
                     ) {
 
-                        Text(text = appointment.doctor)
+                        Text(
+                            text = appointment.doctor
+                        )
 
                         Text(
                             text = appointment.date,
-                            modifier = Modifier.padding(top = 4.dp)
+                            modifier =
+                                Modifier.padding(top = 4.dp)
                         )
 
                         Text(
                             text = appointment.status,
-                            modifier = Modifier.padding(top = 8.dp)
+                            modifier =
+                                Modifier.padding(top = 8.dp)
                         )
                     }
                 }

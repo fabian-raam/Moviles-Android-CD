@@ -27,28 +27,43 @@ fun DoctorDetailScreen(
     when (doctorName) {
 
         "Dra. Ana Torres" -> {
+
             specialty = "Cardióloga"
+
             experience = "12 años exp."
+
             rating = "4.9"
+
             reviews = "128 reseñas"
+
             description =
                 "Especialista en arritmias e hipertensión, formación en la Clínica Mayo."
         }
 
         "Dr. Luis Vega" -> {
+
             specialty = "Pediatra"
+
             experience = "8 años exp."
+
             rating = "4.7"
+
             reviews = "95 reseñas"
+
             description =
                 "Especialista en atención pediátrica y cuidado integral de niños."
         }
 
         else -> {
+
             specialty = "Dermatóloga"
+
             experience = "10 años exp."
+
             rating = "4.8"
+
             reviews = "110 reseñas"
+
             description =
                 "Especialista en dermatología clínica y cuidado de la piel."
         }
@@ -64,33 +79,47 @@ fun DoctorDetailScreen(
             Text("← Perfil del médico")
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
-        Text(text = doctorName)
+        Text(
+            text = doctorName
+        )
 
         Text(
             text = "$specialty · $experience"
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
 
         Text(
             text = "★ $rating ($reviews)"
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
         Text(
             text = description
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         Button(
             onClick = onAppointmentClick,
+
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Agendar cita")
+
+            Text(
+                text = "Agendar cita"
+            )
         }
     }
 }

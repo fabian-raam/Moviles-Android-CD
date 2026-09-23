@@ -32,8 +32,11 @@ fun AppointmentScreen(
         modifier = Modifier.padding(16.dp)
     ) {
 
-        Text(text = "← Agendar cita")
+        Text(
+            text = "← Agendar cita"
+        )
 
+        // FECHA
         Text(
             text = "Selecciona fecha",
             modifier = Modifier.padding(top = 24.dp)
@@ -43,37 +46,46 @@ fun AppointmentScreen(
 
             FilterChip(
                 selected = selectedDate == "Jue 26",
+
                 onClick = {
                     selectedDate = "Jue 26"
                 },
+
                 label = {
                     Text("Jue 26")
                 },
+
                 modifier = Modifier.padding(end = 8.dp)
             )
 
             FilterChip(
                 selected = selectedDate == "Vie 27",
+
                 onClick = {
                     selectedDate = "Vie 27"
                 },
+
                 label = {
                     Text("Vie 27")
                 },
+
                 modifier = Modifier.padding(end = 8.dp)
             )
 
             FilterChip(
                 selected = selectedDate == "Sáb 28",
+
                 onClick = {
                     selectedDate = "Sáb 28"
                 },
+
                 label = {
                     Text("Sáb 28")
                 }
             )
         }
 
+        // HORA
         Text(
             text = "Selecciona hora",
             modifier = Modifier.padding(top = 24.dp)
@@ -83,45 +95,61 @@ fun AppointmentScreen(
 
             FilterChip(
                 selected = selectedTime == "9:00",
+
                 onClick = {
                     selectedTime = "9:00"
                 },
+
                 label = {
                     Text("9:00")
                 },
+
                 modifier = Modifier.padding(end = 8.dp)
             )
 
             FilterChip(
                 selected = selectedTime == "10:30",
+
                 onClick = {
                     selectedTime = "10:30"
                 },
+
                 label = {
                     Text("10:30")
                 },
+
                 modifier = Modifier.padding(end = 8.dp)
             )
 
             FilterChip(
                 selected = selectedTime == "2:00",
+
                 onClick = {
                     selectedTime = "2:00"
                 },
+
                 label = {
                     Text("2:00")
                 }
             )
         }
 
+        // CONFIRMAR
         Button(
             onClick = onConfirmClick,
-            enabled = selectedDate.isNotEmpty() && selectedTime.isNotEmpty(),
+
+            enabled =
+                selectedDate.isNotEmpty() &&
+                        selectedTime.isNotEmpty(),
+
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 24.dp)
         ) {
-            Text("Confirmar cita")
+
+            Text(
+                text = "Confirmar cita"
+            )
         }
     }
 }

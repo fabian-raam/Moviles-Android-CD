@@ -19,16 +19,34 @@ fun AppNavigation() {
         startDestination = Screen.Home.route
     ) {
 
-        // INICIO - LISTA DE MÉDICOS
+        // INICIO
         composable(Screen.Home.route) {
 
             HomeScreen(
+
                 onDoctorClick = { doctorName ->
+
                     navController.navigate(
                         Screen.DoctorDetail.createRoute(
                             Uri.encode(doctorName)
                         )
                     )
+                },
+
+                onHomeClick = {
+                    navController.navigate(Screen.Home.route)
+                },
+
+                onAppointmentsClick = {
+                    navController.navigate(Screen.Appointments.route)
+                },
+
+                onHistoryClick = {
+                    navController.navigate(Screen.MedicalHistory.route)
+                },
+
+                onProfileClick = {
+                    navController.navigate(Screen.Profile.route)
                 }
             )
         }
@@ -36,17 +54,20 @@ fun AppNavigation() {
         // PERFIL DEL MÉDICO
         composable(
             route = Screen.DoctorDetail.route,
+
             arguments = listOf(
                 navArgument("doctorName") {
                     type = NavType.StringType
                 }
             )
+
         ) { backStackEntry ->
 
             val doctorName =
                 backStackEntry.arguments?.getString("doctorName") ?: ""
 
             DoctorDetailScreen(
+
                 doctorName = Uri.decode(doctorName),
 
                 onBackClick = {
@@ -63,34 +84,48 @@ fun AppNavigation() {
         composable(Screen.Appointment.route) {
 
             AppointmentScreen(
+
                 onConfirmClick = {
-                    navController.navigate(Screen.Confirmation.route)
+                    navController.navigate(
+                        Screen.Confirmation.route
+                    )
                 }
             )
         }
 
-        // CONFIRMACIÓN DE CITA
+        // CONFIRMACIÓN
         composable(Screen.Confirmation.route) {
+
             ConfirmationScreen(
+
                 onAppointmentsClick = {
-                    navController.navigate(Screen.Appointments.route)
+                    navController.navigate(
+                        Screen.Appointments.route
+                    )
                 }
             )
         }
 
         // MIS CITAS
         composable(Screen.Appointments.route) {
+
             AppointmentsScreen()
         }
 
-        // HISTORIAL MÉDICO
+        // HISTORIAL
         composable(Screen.MedicalHistory.route) {
-            Text(text = "Medical History Screen")
+
+            Text(
+                text = "Historial médico"
+            )
         }
 
-        // PERFIL DEL USUARIO
+        // PERFIL
         composable(Screen.Profile.route) {
-            Text(text = "Profile Screen")
+
+            Text(
+                text = "Perfil"
+            )
         }
     }
 }

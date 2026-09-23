@@ -21,28 +21,48 @@ fun ConfirmationScreen(
         modifier = Modifier
             .fillMaxWidth()
             .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+
+        horizontalAlignment =
+            Alignment.CenterHorizontally
     ) {
 
-        Text(text = "✓")
+        Text(
+            text = "✓"
+        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
-        Text(text = "¡Cita agendada!")
+        Text(
+            text = "¡Cita agendada!"
+        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
 
-        Text(text = "Dra. Ana Torres")
+        Text(
+            text = "Dra. Ana Torres"
+        )
 
-        Text(text = "Viernes 27, 10:30 am")
+        Text(
+            text = "Viernes 27, 10:30 am"
+        )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
 
         Button(
             onClick = onAppointmentsClick,
+
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Ver mis citas")
+
+            Text(
+                text = "Ver mis citas"
+            )
         }
     }
 }
