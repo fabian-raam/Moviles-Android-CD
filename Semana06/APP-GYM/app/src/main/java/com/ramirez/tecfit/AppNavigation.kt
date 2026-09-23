@@ -94,7 +94,10 @@ fun AppNavigation() {
                 val className = Uri.decode(rawName)
                 ClassDetailScreen(
                     className = className,
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    onReserveClick = {
+                        // Flujo preparado para reservar cupo en el siguiente bloque
+                    }
                 )
             }
             composable(Screen.Confirmation.route) {
