@@ -139,12 +139,7 @@ fun AppNavigation() {
                 ReservationsScreen()
             }
             composable(Screen.Routines.route) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Rutinas")
-                }
+                RoutinesScreen()
             }
             composable(Screen.Profile.route) {
                 ProfileScreen()
