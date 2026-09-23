@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +25,7 @@ fun ConfirmationScreen(
     doctorName: String,
     date: String,
     time: String,
+    onHomeClick: () -> Unit,
     onAppointmentsClick: () -> Unit
 ) {
 
@@ -94,6 +96,27 @@ fun ConfirmationScreen(
         )
 
         Button(
+            onClick = onHomeClick,
+
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+
+            shape =
+                RoundedCornerShape(14.dp)
+        ) {
+
+            Text(
+                text = "Volver al menú principal",
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        OutlinedButton(
             onClick = onAppointmentsClick,
 
             modifier = Modifier

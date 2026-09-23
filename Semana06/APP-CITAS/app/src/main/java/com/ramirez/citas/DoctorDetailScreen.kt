@@ -79,7 +79,7 @@ fun DoctorDetailScreen(
             modifier =
                 Modifier.align(Alignment.Start)
         ) {
-            Text("←  Perfil del médico")
+            Text("←  Volver")
         }
 
         Spacer(

@@ -47,7 +47,7 @@ fun AppointmentScreen(
         TextButton(
             onClick = onBackClick
         ) {
-            Text("←  Agendar cita")
+            Text("←  Volver")
         }
 
         Spacer(

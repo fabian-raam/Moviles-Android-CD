@@ -119,7 +119,11 @@ fun AppNavigation() {
                             Uri.encode(date),
                             Uri.encode(time)
                         )
-                    )
+                    ) {
+                        popUpTo(Screen.Home.route) {
+                            inclusive = false
+                        }
+                    }
                 }
             )
         }
@@ -161,10 +165,22 @@ fun AppNavigation() {
                 date = date,
                 time = time,
 
+                onHomeClick = {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) {
+                            inclusive = true
+                        }
+                    }
+                },
+
                 onAppointmentsClick = {
                     navController.navigate(
                         Screen.Appointments.route
-                    )
+                    ) {
+                        popUpTo(Screen.Home.route) {
+                            inclusive = false
+                        }
+                    }
                 }
             )
         }
