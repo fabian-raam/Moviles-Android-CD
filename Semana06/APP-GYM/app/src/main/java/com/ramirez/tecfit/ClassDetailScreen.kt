@@ -69,7 +69,7 @@ val classDetailList = listOf(
 fun ClassDetailScreen(
     className: String,
     onBackClick: () -> Unit = {},
-    onReserveClick: () -> Unit = {}
+    onReserveClick: (String, String, String) -> Unit = { _, _, _ -> }
 ) {
     val gymClass = classDetailList.find { it.name.equals(className, ignoreCase = true) }
         ?: GymClass(
@@ -113,7 +113,7 @@ fun ClassDetailScreen(
                     .padding(16.dp)
             ) {
                 Button(
-                    onClick = onReserveClick,
+                    onClick = { onReserveClick(gymClass.name, gymClass.schedule, gymClass.room) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp),

@@ -2,6 +2,7 @@ package com.ramirez.tecfit
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -95,17 +96,42 @@ fun AppNavigation() {
                 ClassDetailScreen(
                     className = className,
                     onBackClick = { navController.popBackStack() },
-                    onReserveClick = {
-                        // Flujo preparado para reservar cupo en el siguiente bloque
+                    onReserveClick = { name, schedule, room ->
+                        val route = Screen.Confirmation.createRoute(
+                            className = Uri.encode(name),
+                            schedule = Uri.encode(schedule),
+                            room = Uri.encode(room)
+                        )
+                        navController.navigate(route)
                     }
                 )
             }
-            composable(Screen.Confirmation.route) {
+            composable(
+                route = Screen.Confirmation.route,
+                arguments = listOf(
+                    navArgument("className") { type = NavType.StringType },
+                    navArgument("schedule") { type = NavType.StringType },
+                    navArgument("room") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val rawName = backStackEntry.arguments?.getString("className") ?: ""
+                val rawSchedule = backStackEntry.arguments?.getString("schedule") ?: ""
+                val rawRoom = backStackEntry.arguments?.getString("room") ?: ""
+
+                val className = Uri.decode(rawName)
+                val schedule = Uri.decode(rawSchedule)
+                val room = Uri.decode(rawRoom)
+
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "Confirmación")
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = "Reserva confirmada")
+                        Text(text = className)
+                        Text(text = schedule)
+                        Text(text = room)
+                    }
                 }
             }
             composable(Screen.Reservations.route) {
