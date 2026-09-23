@@ -24,7 +24,6 @@ fun AppNavigation() {
 
             HomeScreen(
                 onDoctorClick = { doctorName ->
-
                     navController.navigate(
                         Screen.DoctorDetail.createRoute(
                             Uri.encode(doctorName)
@@ -62,10 +61,15 @@ fun AppNavigation() {
 
         // AGENDAR CITA
         composable(Screen.Appointment.route) {
-            Text(text = "Appointment Screen")
+
+            AppointmentScreen(
+                onConfirmClick = {
+                    navController.navigate(Screen.Confirmation.route)
+                }
+            )
         }
 
-        // CONFIRMACIÓN
+        // CONFIRMACIÓN DE CITA
         composable(Screen.Confirmation.route) {
             Text(text = "Confirmation Screen")
         }
