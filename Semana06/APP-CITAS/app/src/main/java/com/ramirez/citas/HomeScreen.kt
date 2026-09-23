@@ -56,7 +56,8 @@ fun HomeScreen(
 
     val specialties = listOf(
         "Cardiología",
-        "Pediatría"
+        "Pediatría",
+        "Dermatología"
     )
 
     var selectedSpecialty by remember {
