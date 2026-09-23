@@ -71,7 +71,11 @@ fun AppNavigation() {
 
         // CONFIRMACIÓN DE CITA
         composable(Screen.Confirmation.route) {
-            Text(text = "Confirmation Screen")
+            ConfirmationScreen(
+                onAppointmentsClick = {
+                    navController.navigate(Screen.Appointments.route)
+                }
+            )
         }
 
         // MIS CITAS
