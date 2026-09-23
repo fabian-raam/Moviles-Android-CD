@@ -4,11 +4,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -20,34 +25,59 @@ fun AppDrawer(
 ) {
 
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(20.dp)
     ) {
 
-        Text(text = "JP")
-        Text(text = "Juan Pérez")
-        Text(text = "Paciente")
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.primaryContainer
+        ) {
+
+            Text(
+                text = "JP",
+                modifier = Modifier.padding(18.dp),
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Bold
+            )
+        }
 
         Spacer(
-            modifier = Modifier.height(16.dp)
+            modifier = Modifier.height(12.dp)
+        )
+
+        Text(
+            text = "Juan Pérez",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        Text(
+            text = "Paciente",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(
+            modifier = Modifier.height(20.dp)
         )
 
         HorizontalDivider()
 
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier = Modifier.height(12.dp)
         )
 
         NavigationDrawerItem(
             label = {
-                Text("Inicio")
+                Text("⌂  Inicio")
             },
-            selected = false,
+            selected = true,
             onClick = onHomeClick
         )
 
         NavigationDrawerItem(
             label = {
-                Text("Mis citas")
+                Text("▣  Mis citas")
             },
             selected = false,
             onClick = onAppointmentsClick
@@ -55,7 +85,7 @@ fun AppDrawer(
 
         NavigationDrawerItem(
             label = {
-                Text("Historial médico")
+                Text("✚  Historial médico")
             },
             selected = false,
             onClick = onHistoryClick
@@ -63,7 +93,7 @@ fun AppDrawer(
 
         NavigationDrawerItem(
             label = {
-                Text("Perfil")
+                Text("●  Perfil")
             },
             selected = false,
             onClick = onProfileClick

@@ -1,14 +1,23 @@
 package com.ramirez.citas
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 data class Appointment(
@@ -18,7 +27,9 @@ data class Appointment(
 )
 
 @Composable
-fun AppointmentsScreen() {
+fun AppointmentsScreen(
+    onBackClick: () -> Unit
+) {
 
     val appointments = listOf(
 
@@ -36,42 +47,105 @@ fun AppointmentsScreen() {
     )
 
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp)
     ) {
+
+        TextButton(
+            onClick = onBackClick
+        ) {
+            Text("←  Volver")
+        }
 
         Text(
             text = "Mis citas",
-            modifier = Modifier.padding(bottom = 16.dp)
+            style = MaterialTheme
+                .typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            modifier =
+                Modifier.padding(vertical = 16.dp)
         )
 
-        LazyColumn {
+        LazyColumn(
+            verticalArrangement =
+                Arrangement.spacedBy(12.dp)
+        ) {
 
             items(appointments) { appointment ->
 
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 12.dp)
+                    modifier =
+                        Modifier.fillMaxWidth(),
+
+                    shape =
+                        RoundedCornerShape(18.dp),
+
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor =
+                                MaterialTheme
+                                    .colorScheme
+                                    .surfaceVariant
+                        )
                 ) {
 
-                    Column(
-                        modifier = Modifier.padding(16.dp)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(18.dp),
+
+                        verticalAlignment =
+                            Alignment.CenterVertically
                     ) {
 
-                        Text(
-                            text = appointment.doctor
-                        )
+                        Column(
+                            modifier =
+                                Modifier.weight(1f)
+                        ) {
+
+                            Text(
+                                text =
+                                    appointment.doctor,
+                                style =
+                                    MaterialTheme
+                                        .typography
+                                        .titleMedium,
+                                fontWeight =
+                                    FontWeight.Bold
+                            )
+
+                            Text(
+                                text =
+                                    appointment.date,
+                                modifier =
+                                    Modifier.padding(
+                                        top = 6.dp
+                                    ),
+                                color =
+                                    MaterialTheme
+                                        .colorScheme
+                                        .onSurfaceVariant
+                            )
+                        }
 
                         Text(
-                            text = appointment.date,
-                            modifier =
-                                Modifier.padding(top = 4.dp)
-                        )
-
-                        Text(
-                            text = appointment.status,
-                            modifier =
-                                Modifier.padding(top = 8.dp)
+                            text =
+                                appointment.status,
+                            color =
+                                if (
+                                    appointment.status ==
+                                    "Confirmada"
+                                ) {
+                                    MaterialTheme
+                                        .colorScheme.primary
+                                } else {
+                                    MaterialTheme
+                                        .colorScheme
+                                        .onSurfaceVariant
+                                },
+                            fontWeight =
+                                FontWeight.Bold
                         )
                     }
                 }

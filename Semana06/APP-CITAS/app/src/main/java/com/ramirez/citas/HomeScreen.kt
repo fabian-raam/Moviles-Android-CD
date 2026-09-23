@@ -1,5 +1,6 @@
 package com.ramirez.citas
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,10 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
@@ -25,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -58,20 +63,17 @@ fun HomeScreen(
         mutableStateOf("")
     }
 
-    val allDoctors = listOf(
-
+    val doctors = listOf(
         Doctor(
             "Dra. Ana Torres",
             "Cardiología",
             4.9
         ),
-
         Doctor(
             "Dr. Luis Vega",
             "Pediatría",
             4.7
         ),
-
         Doctor(
             "Dra. Rosa Díaz",
             "Dermatología",
@@ -79,19 +81,16 @@ fun HomeScreen(
         )
     )
 
-    val filteredDoctors = if (selectedSpecialty.isEmpty()) {
-
-        allDoctors
-
-    } else {
-
-        allDoctors.filter {
-            it.specialty == selectedSpecialty
+    val filteredDoctors =
+        if (selectedSpecialty.isEmpty()) {
+            doctors
+        } else {
+            doctors.filter {
+                it.specialty == selectedSpecialty
+            }
         }
-    }
 
     ModalNavigationDrawer(
-
         drawerState = drawerState,
 
         drawerContent = {
@@ -99,18 +98,36 @@ fun HomeScreen(
             ModalDrawerSheet {
 
                 AppDrawer(
+                    onHomeClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        onHomeClick()
+                    },
 
-                    onHomeClick = onHomeClick,
+                    onAppointmentsClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        onAppointmentsClick()
+                    },
 
-                    onAppointmentsClick = onAppointmentsClick,
+                    onHistoryClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        onHistoryClick()
+                    },
 
-                    onHistoryClick = onHistoryClick,
-
-                    onProfileClick = onProfileClick
+                    onProfileClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        onProfileClick()
+                    }
                 )
             }
         }
-
     ) {
 
         Scaffold(
@@ -120,27 +137,36 @@ fun HomeScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(
+                            horizontal = 16.dp,
+                            vertical = 12.dp
+                        ),
 
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment =
+                        Alignment.CenterVertically
                 ) {
 
                     IconButton(
-
                         onClick = {
-
                             scope.launch {
                                 drawerState.open()
                             }
                         }
-
                     ) {
-
-                        Text("☰")
+                        Text(
+                            text = "☰",
+                            style = MaterialTheme
+                                .typography.titleLarge
+                        )
                     }
 
                     Text(
                         text = "Clínica Salud+",
+                        style = MaterialTheme
+                            .typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme
+                            .colorScheme.primary,
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
@@ -152,87 +178,137 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp)
+                    .padding(horizontal = 20.dp)
             ) {
 
                 Text(
                     text = "Hola, Juan",
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    style = MaterialTheme
+                        .typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(
+                        top = 12.dp,
+                        bottom = 16.dp
+                    )
                 )
 
-                // FILTROS
                 LazyRow(
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    horizontalArrangement =
+                        Arrangement.spacedBy(8.dp),
+                    modifier =
+                        Modifier.padding(bottom = 24.dp)
                 ) {
 
                     items(specialties) { specialty ->
 
                         FilterChip(
-
                             selected =
                                 selectedSpecialty == specialty,
 
                             onClick = {
 
                                 selectedSpecialty =
-                                    if (selectedSpecialty == specialty) {
-
+                                    if (
+                                        selectedSpecialty ==
+                                        specialty
+                                    ) {
                                         ""
-
                                     } else {
-
                                         specialty
                                     }
                             },
 
                             label = {
                                 Text(specialty)
-                            },
-
-                            modifier =
-                                Modifier.padding(end = 8.dp)
+                            }
                         )
                     }
                 }
 
                 Text(
                     text = "Médicos disponibles",
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    style = MaterialTheme
+                        .typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier =
+                        Modifier.padding(bottom = 12.dp)
                 )
 
-                // LISTA DE MÉDICOS
-                LazyColumn {
+                LazyColumn(
+                    verticalArrangement =
+                        Arrangement.spacedBy(12.dp)
+                ) {
 
                     items(filteredDoctors) { doctor ->
 
                         Card(
-
                             onClick = {
                                 onDoctorClick(doctor.name)
                             },
 
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
+                            modifier =
+                                Modifier.fillMaxWidth(),
 
+                            shape =
+                                RoundedCornerShape(18.dp),
+
+                            colors =
+                                CardDefaults.cardColors(
+                                    containerColor =
+                                        MaterialTheme
+                                            .colorScheme
+                                            .surfaceVariant
+                                )
                         ) {
 
-                            Column(
-                                modifier =
-                                    Modifier.padding(16.dp)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(18.dp),
+
+                                verticalAlignment =
+                                    Alignment.CenterVertically
                             ) {
 
                                 Text(
-                                    text = doctor.name
+                                    text = "✚",
+                                    style = MaterialTheme
+                                        .typography.headlineMedium,
+                                    color = MaterialTheme
+                                        .colorScheme.primary,
+                                    modifier =
+                                        Modifier.padding(end = 16.dp)
                                 )
 
-                                Text(
-                                    text = doctor.specialty
-                                )
+                                Column(
+                                    modifier =
+                                        Modifier.weight(1f)
+                                ) {
+
+                                    Text(
+                                        text = doctor.name,
+                                        style = MaterialTheme
+                                            .typography.titleMedium,
+                                        fontWeight =
+                                            FontWeight.Bold
+                                    )
+
+                                    Text(
+                                        text = doctor.specialty,
+                                        style = MaterialTheme
+                                            .typography.bodyMedium,
+                                        color = MaterialTheme
+                                            .colorScheme
+                                            .onSurfaceVariant
+                                    )
+                                }
 
                                 Text(
-                                    text =
-                                        "Valoración: ${doctor.rating} ★"
+                                    text = "★ ${doctor.rating}",
+                                    color = MaterialTheme
+                                        .colorScheme.primary,
+                                    fontWeight =
+                                        FontWeight.Bold
                                 )
                             }
                         }
