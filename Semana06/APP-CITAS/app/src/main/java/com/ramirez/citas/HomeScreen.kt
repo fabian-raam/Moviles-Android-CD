@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 data class Doctor(val name: String, val specialty: String, val rating: Double)
 
 @Composable
-fun HomeScreen(onDoctorClick: () -> Unit) {
+fun HomeScreen(onDoctorClick: (String) -> Unit) {
     val specialties = listOf("Cardiología", "Pediatría")
     var selectedSpecialty by remember { mutableStateOf("") }
 
@@ -58,7 +58,7 @@ fun HomeScreen(onDoctorClick: () -> Unit) {
         LazyColumn {
             items(filteredDoctors) { doctor ->
                 Card(
-                    onClick = onDoctorClick,
+                    onClick = { onDoctorClick(doctor.name) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp)
