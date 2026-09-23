@@ -15,7 +15,7 @@ fun AppNavigation() {
         startDestination = Screen.Home.route
     ) {
         composable(Screen.Home.route) {
-            Text(text = "Home Screen")
+            HomeScreen()
         }
         composable(Screen.DoctorDetail.route) {
             Text(text = "Doctor Detail Screen")
