@@ -27,9 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    classCount: Int
+) {
 
     val greenColor = Color(0xFF2E7D32)
+    val lightGreenColor = Color(0xFFE8F5E9)
 
     Column(
         modifier = Modifier
@@ -53,12 +56,13 @@ fun ProfileScreen() {
             modifier = Modifier.height(32.dp)
         )
 
-        // FOTO / INICIALES
+        // INICIALES
         Box(
             modifier = Modifier
                 .size(96.dp)
                 .clip(CircleShape)
                 .background(greenColor),
+
             contentAlignment = Alignment.Center
         ) {
 
@@ -107,11 +111,9 @@ fun ProfileScreen() {
             Card(
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(16.dp),
+
                 colors = CardDefaults.cardColors(
-                    containerColor =
-                        MaterialTheme.colorScheme.surfaceVariant.copy(
-                            alpha = 0.5f
-                        )
+                    containerColor = lightGreenColor
                 )
             ) {
 
@@ -119,11 +121,12 @@ fun ProfileScreen() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(20.dp),
+
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
                     Text(
-                        text = "14",
+                        text = classCount.toString(),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = greenColor
@@ -136,7 +139,7 @@ fun ProfileScreen() {
                     Text(
                         text = "Clases",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color(0xFF555555)
                     )
                 }
             }
@@ -145,11 +148,9 @@ fun ProfileScreen() {
             Card(
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(16.dp),
+
                 colors = CardDefaults.cardColors(
-                    containerColor =
-                        MaterialTheme.colorScheme.surfaceVariant.copy(
-                            alpha = 0.5f
-                        )
+                    containerColor = lightGreenColor
                 )
             ) {
 
@@ -157,6 +158,7 @@ fun ProfileScreen() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(20.dp),
+
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
@@ -174,7 +176,7 @@ fun ProfileScreen() {
                     Text(
                         text = "Rachas",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color(0xFF555555)
                     )
                 }
             }

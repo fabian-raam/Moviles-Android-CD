@@ -180,6 +180,7 @@ fun AppNavigation() {
                 }
             }
         }
+
     ) { innerPadding ->
 
         NavHost(
@@ -251,19 +252,25 @@ fun AppNavigation() {
                             room ->
 
                         // ==================================
-                        // AGREGAR RESERVA
+                        // COMPROBAR SI YA ESTA RESERVADA
                         // ==================================
 
                         val alreadyReserved =
                             reservations.any {
+
                                 it.className == name &&
                                         it.status == "Confirmada"
                             }
+
+                        // ==================================
+                        // AGREGAR NUEVA RESERVA
+                        // ==================================
 
                         if (!alreadyReserved) {
 
                             reservations.add(
                                 0,
+
                                 Reservation(
                                     className = name,
                                     schedule = "Hoy, $schedule",
@@ -390,7 +397,9 @@ fun AppNavigation() {
                 Screen.Routines.route
             ) {
 
-                RoutinesScreen()
+                RoutinesScreen(
+                    reservations = reservations
+                )
             }
 
             // ==========================================
@@ -401,7 +410,9 @@ fun AppNavigation() {
                 Screen.Profile.route
             ) {
 
-                ProfileScreen()
+                ProfileScreen(
+                    classCount = reservations.size
+                )
             }
         }
     }
