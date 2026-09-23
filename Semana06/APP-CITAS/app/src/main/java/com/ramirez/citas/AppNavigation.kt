@@ -3,11 +3,11 @@ package com.ramirez.citas
 import android.net.Uri
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -39,20 +39,38 @@ fun AppNavigation() {
 
                 onHomeClick = {
                     navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) {
+                            inclusive = false
+                        }
                         launchSingleTop = true
                     }
                 },
 
                 onAppointmentsClick = {
-                    navController.navigate(Screen.Appointments.route)
+                    navController.navigate(Screen.Appointments.route) {
+                        popUpTo(Screen.Home.route) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
                 },
 
                 onHistoryClick = {
-                    navController.navigate(Screen.MedicalHistory.route)
+                    navController.navigate(Screen.MedicalHistory.route) {
+                        popUpTo(Screen.Home.route) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
                 },
 
                 onProfileClick = {
-                    navController.navigate(Screen.Profile.route)
+                    navController.navigate(Screen.Profile.route) {
+                        popUpTo(Screen.Home.route) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
                 }
             )
         }
@@ -76,7 +94,9 @@ fun AppNavigation() {
                 doctorName = doctorName,
 
                 onBackClick = {
-                    navController.popBackStack()
+                    if (!navController.popBackStack()) {
+                        navController.navigate(Screen.Home.route)
+                    }
                 },
 
                 onAppointmentClick = {
@@ -108,7 +128,9 @@ fun AppNavigation() {
                 doctorName = doctorName,
 
                 onBackClick = {
-                    navController.popBackStack()
+                    if (!navController.popBackStack()) {
+                        navController.navigate(Screen.Home.route)
+                    }
                 },
 
                 onConfirmClick = { date, time ->
@@ -166,11 +188,7 @@ fun AppNavigation() {
                 time = time,
 
                 onHomeClick = {
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Home.route) {
-                            inclusive = true
-                        }
-                    }
+                    navController.popBackStack(Screen.Home.route, inclusive = false)
                 },
 
                 onAppointmentsClick = {
@@ -190,7 +208,9 @@ fun AppNavigation() {
 
             AppointmentsScreen(
                 onBackClick = {
-                    navController.popBackStack()
+                    if (!navController.popBackStack()) {
+                        navController.navigate(Screen.Home.route)
+                    }
                 }
             )
         }
@@ -202,7 +222,9 @@ fun AppNavigation() {
                 title = "Historial médico",
                 message = "Aquí podrás consultar tu historial médico.",
                 onBackClick = {
-                    navController.popBackStack()
+                    if (!navController.popBackStack()) {
+                        navController.navigate(Screen.Home.route)
+                    }
                 }
             )
         }
@@ -214,7 +236,9 @@ fun AppNavigation() {
                 title = "Perfil",
                 message = "Juan Pérez\nPaciente",
                 onBackClick = {
-                    navController.popBackStack()
+                    if (!navController.popBackStack()) {
+                        navController.navigate(Screen.Home.route)
+                    }
                 }
             )
         }
