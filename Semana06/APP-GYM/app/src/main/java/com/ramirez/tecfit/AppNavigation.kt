@@ -122,17 +122,11 @@ fun AppNavigation() {
                 val schedule = Uri.decode(rawSchedule)
                 val room = Uri.decode(rawRoom)
 
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(text = "Reserva confirmada")
-                        Text(text = className)
-                        Text(text = schedule)
-                        Text(text = room)
-                    }
-                }
+                ConfirmationScreen(
+                    className = className,
+                    schedule = schedule,
+                    room = room
+                )
             }
             composable(Screen.Reservations.route) {
                 Box(
