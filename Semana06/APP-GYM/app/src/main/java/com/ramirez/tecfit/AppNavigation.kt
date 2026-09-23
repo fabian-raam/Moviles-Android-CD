@@ -92,12 +92,10 @@ fun AppNavigation() {
             ) { backStackEntry ->
                 val rawName = backStackEntry.arguments?.getString("className") ?: ""
                 val className = Uri.decode(rawName)
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Detalle de: $className")
-                }
+                ClassDetailScreen(
+                    className = className,
+                    onBackClick = { navController.popBackStack() }
+                )
             }
             composable(Screen.Confirmation.route) {
                 Box(
