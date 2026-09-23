@@ -147,12 +147,7 @@ fun AppNavigation() {
                 }
             }
             composable(Screen.Profile.route) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Perfil")
-                }
+                ProfileScreen()
             }
         }
     }
