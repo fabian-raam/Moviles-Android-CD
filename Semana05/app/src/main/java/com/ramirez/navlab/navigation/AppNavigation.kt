@@ -10,6 +10,7 @@ import com.ramirez.navlab.screens.DetailScreen
 import com.ramirez.navlab.screens.HomeScreen
 import com.ramirez.navlab.screens.ListScreen
 import com.ramirez.navlab.screens.ProfileScreen
+import com.ramirez.navlab.screens.LoginScreen
 
 @Composable
 fun AppNavigation() {
@@ -18,8 +19,12 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
+        startDestination = Screen.Login.route
     ) {
+
+        composable(Screen.Login.route) {
+            LoginScreen(navController)
+        }
 
         composable(Screen.Home.route) {
             HomeScreen(navController)
