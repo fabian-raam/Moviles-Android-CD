@@ -125,7 +125,15 @@ fun AppNavigation() {
                 ConfirmationScreen(
                     className = className,
                     schedule = schedule,
-                    room = room
+                    room = room,
+                    onViewReservationsClick = {
+                        navController.navigate(Screen.Reservations.route) {
+                            popUpTo(Screen.Home.route) {
+                                inclusive = false
+                            }
+                            launchSingleTop = true
+                        }
+                    }
                 )
             }
             composable(Screen.Reservations.route) {
