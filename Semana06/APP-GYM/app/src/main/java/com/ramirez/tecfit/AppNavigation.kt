@@ -137,12 +137,7 @@ fun AppNavigation() {
                 )
             }
             composable(Screen.Reservations.route) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Mis reservas")
-                }
+                ReservationsScreen()
             }
             composable(Screen.Routines.route) {
                 Box(
