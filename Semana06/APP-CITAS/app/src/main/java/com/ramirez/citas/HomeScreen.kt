@@ -55,13 +55,14 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
 
     val specialties = listOf(
+        "Todos",
         "Cardiología",
         "Pediatría",
         "Dermatología"
     )
 
     var selectedSpecialty by remember {
-        mutableStateOf("")
+        mutableStateOf("Todos")
     }
 
     val doctors = listOf(
@@ -83,7 +84,7 @@ fun HomeScreen(
     )
 
     val filteredDoctors =
-        if (selectedSpecialty.isEmpty()) {
+        if (selectedSpecialty == "Todos" || selectedSpecialty.isEmpty()) {
             doctors
         } else {
             doctors.filter {
@@ -204,16 +205,17 @@ fun HomeScreen(
 
                         FilterChip(
                             selected =
-                                selectedSpecialty == specialty,
+                                selectedSpecialty == specialty ||
+                                        (specialty == "Todos" && selectedSpecialty.isEmpty()),
 
                             onClick = {
 
                                 selectedSpecialty =
                                     if (
-                                        selectedSpecialty ==
-                                        specialty
+                                        selectedSpecialty == specialty ||
+                                        specialty == "Todos"
                                     ) {
-                                        ""
+                                        "Todos"
                                     } else {
                                         specialty
                                     }
