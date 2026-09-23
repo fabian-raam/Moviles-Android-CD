@@ -40,7 +40,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-// Colores principales de TECSUP Fit
 private val TecsupGreen = Color(0xFF2E7D32)
 private val TecsupDarkGreen = Color(0xFF1B5E20)
 private val TecsupLightGreen = Color(0xFFE8F5E9)
@@ -82,16 +81,10 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(BackgroundColor),
-        contentPadding = PaddingValues(
-            bottom = 24.dp
-        )
+        contentPadding = PaddingValues(bottom = 24.dp)
     ) {
 
-        // =========================
-        // ENCABEZADO
-        // =========================
         item {
-
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = TecsupGreen,
@@ -100,7 +93,6 @@ fun HomeScreen(
                     bottomEnd = 28.dp
                 )
             ) {
-
                 Column(
                     modifier = Modifier.padding(
                         start = 20.dp,
@@ -122,7 +114,7 @@ fun HomeScreen(
                     )
 
                     Text(
-                        text = "Hola, Diego",
+                        text = "Hola, Fabian Ramirez",
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White.copy(alpha = 0.85f)
                     )
@@ -141,11 +133,7 @@ fun HomeScreen(
             }
         }
 
-        // =========================
-        // FILTROS
-        // =========================
         item {
-
             Column(
                 modifier = Modifier.padding(
                     start = 20.dp,
@@ -173,13 +161,10 @@ fun HomeScreen(
 
                         FilterChip(
                             selected = selectedFilter == filter,
-
                             onClick = {
                                 selectedFilter = filter
                             },
-
                             label = {
-
                                 Text(
                                     text = filter,
                                     fontWeight =
@@ -190,18 +175,12 @@ fun HomeScreen(
                                         }
                                 )
                             },
-
                             colors = FilterChipDefaults.filterChipColors(
-
                                 containerColor = Color.White,
-
                                 labelColor = Color(0xFF555555),
-
                                 selectedContainerColor = TecsupLightGreen,
-
                                 selectedLabelColor = TecsupDarkGreen
                             ),
-
                             border = FilterChipDefaults.filterChipBorder(
                                 enabled = true,
                                 selected = selectedFilter == filter,
@@ -214,11 +193,7 @@ fun HomeScreen(
             }
         }
 
-        // =========================
-        // TITULO
-        // =========================
         item {
-
             Text(
                 text = "Clases disponibles",
                 style = MaterialTheme.typography.titleLarge,
@@ -233,9 +208,6 @@ fun HomeScreen(
             )
         }
 
-        // =========================
-        // LISTADO DE CLASES
-        // =========================
         items(sampleClasses) { gymClass ->
 
             Box(
@@ -266,11 +238,9 @@ fun ClassCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
-
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
-
         elevation = CardDefaults.cardElevation(
             defaultElevation = 3.dp
         )
@@ -280,22 +250,14 @@ fun ClassCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-
             verticalAlignment = Alignment.CenterVertically
         ) {
-
-            // =========================
-            // ICONO
-            // =========================
 
             Box(
                 modifier = Modifier
                     .size(54.dp)
-                    .clip(
-                        RoundedCornerShape(14.dp)
-                    )
+                    .clip(RoundedCornerShape(14.dp))
                     .background(TecsupLightGreen),
-
                 contentAlignment = Alignment.Center
             ) {
 
@@ -310,10 +272,6 @@ fun ClassCard(
             Spacer(
                 modifier = Modifier.width(14.dp)
             )
-
-            // =========================
-            // INFORMACION
-            // =========================
 
             Column(
                 modifier = Modifier.weight(1f)
@@ -347,10 +305,6 @@ fun ClassCard(
                     color = Color(0xFF666666)
                 )
             }
-
-            // =========================
-            // FLECHA
-            // =========================
 
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
