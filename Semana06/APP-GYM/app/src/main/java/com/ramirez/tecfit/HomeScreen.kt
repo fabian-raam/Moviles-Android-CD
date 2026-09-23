@@ -9,13 +9,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,6 +33,9 @@ fun HomeScreen() {
         GymClass("Cross Training", "6:00 pm", "Sala 1"),
         GymClass("Spinning", "7:30 pm", "Sala 3")
     )
+
+    val filters = listOf("Hoy", "Esta semana")
+    var selectedFilter by remember { mutableStateOf("Hoy") }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -50,7 +59,19 @@ fun HomeScreen() {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(filters) { filter ->
+                    FilterChip(
+                        selected = (selectedFilter == filter),
+                        onClick = { selectedFilter = filter },
+                        label = { Text(text = filter) }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Clases disponibles",
                 style = MaterialTheme.typography.titleLarge,
