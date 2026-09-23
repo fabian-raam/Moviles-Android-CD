@@ -1,5 +1,6 @@
 package com.ramirez.tecfit
 
+import android.net.Uri
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
@@ -17,13 +18,19 @@ fun AppNavigation() {
         startDestination = Screen.Home.route
     ) {
         composable(Screen.Home.route) {
-            HomeScreen()
+            HomeScreen(
+                onClassClick = { className ->
+                    val encodedName = Uri.encode(className)
+                    navController.navigate(Screen.ClassDetail.createRoute(encodedName))
+                }
+            )
         }
         composable(
             route = Screen.ClassDetail.route,
             arguments = listOf(navArgument("className") { type = NavType.StringType })
         ) { backStackEntry ->
-            val className = backStackEntry.arguments?.getString("className") ?: ""
+            val rawName = backStackEntry.arguments?.getString("className") ?: ""
+            val className = Uri.decode(rawName)
             Text(text = "Detalle de: $className")
         }
         composable(Screen.Confirmation.route) {

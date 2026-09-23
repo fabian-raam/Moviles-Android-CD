@@ -27,7 +27,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onClassClick: (String) -> Unit = {}
+) {
     val sampleClasses = listOf(
         GymClass("Yoga funcional", "7:00 am", "Sala 2"),
         GymClass("Cross Training", "6:00 pm", "Sala 1"),
@@ -83,7 +85,10 @@ fun HomeScreen() {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(sampleClasses) { gymClass ->
-                    ClassCard(gymClass = gymClass)
+                    ClassCard(
+                        gymClass = gymClass,
+                        onClick = { onClassClick(gymClass.name) }
+                    )
                 }
             }
         }
@@ -91,8 +96,12 @@ fun HomeScreen() {
 }
 
 @Composable
-fun ClassCard(gymClass: GymClass) {
+fun ClassCard(
+    gymClass: GymClass,
+    onClick: () -> Unit
+) {
     Card(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
