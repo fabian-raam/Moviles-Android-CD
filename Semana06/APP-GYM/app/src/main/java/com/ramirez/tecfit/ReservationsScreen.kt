@@ -24,86 +24,145 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-val sampleReservations = listOf(
-    Reservation(
-        className = "Cross Training",
-        schedule = "Hoy, 6:00 pm",
-        status = "Confirmada"
-    ),
-    Reservation(
-        className = "Yoga funcional",
-        schedule = "Ayer, 7:00 am",
-        status = "Completada"
-    )
-)
-
 @Composable
-fun ReservationsScreen() {
+fun ReservationsScreen(
+    reservations: List<Reservation>
+) {
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
         Text(
             text = "Mis reservas",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn(
-            contentPadding = PaddingValues(bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(sampleReservations) { reservation ->
-                ReservationCard(reservation = reservation)
+
+        Spacer(
+            modifier = Modifier.height(16.dp)
+        )
+
+        if (reservations.isEmpty()) {
+
+            Text(
+                text = "Aún no tienes reservas.",
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.Gray
+            )
+
+        } else {
+
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    bottom = 16.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+
+                items(reservations) { reservation ->
+
+                    ReservationCard(
+                        reservation = reservation
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun ReservationCard(reservation: Reservation) {
-    val isConfirmed = reservation.status.equals("Confirmada", ignoreCase = true)
-    val statusBgColor = if (isConfirmed) Color(0xFFE8F5E9) else Color(0xFFEEEEEE)
-    val statusTextColor = if (isConfirmed) Color(0xFF2E7D32) else Color(0xFF616161)
+fun ReservationCard(
+    reservation: Reservation
+) {
+
+    val isConfirmed =
+        reservation.status.equals(
+            "Confirmada",
+            ignoreCase = true
+        )
+
+    val statusBgColor =
+        if (isConfirmed) {
+            Color(0xFFE8F5E9)
+        } else {
+            Color(0xFFEEEEEE)
+        }
+
+    val statusTextColor =
+        if (isConfirmed) {
+            Color(0xFF2E7D32)
+        } else {
+            Color(0xFF616161)
+        }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFFF5F5F5)
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        )
     ) {
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+
+            horizontalArrangement =
+                Arrangement.SpaceBetween,
+
+            verticalAlignment =
+                Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+
                 Text(
                     text = reservation.className,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+
+                Spacer(
+                    modifier = Modifier.height(4.dp)
+                )
+
                 Text(
                     text = reservation.schedule,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color(0xFF666666)
                 )
             }
 
             Surface(
                 color = statusBgColor,
                 shape = RoundedCornerShape(16.dp),
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(
+                    start = 8.dp
+                )
             ) {
+
                 Text(
                     text = reservation.status,
                     color = statusTextColor,
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                    modifier = Modifier.padding(
+                        horizontal = 12.dp,
+                        vertical = 6.dp
+                    )
                 )
             }
         }
