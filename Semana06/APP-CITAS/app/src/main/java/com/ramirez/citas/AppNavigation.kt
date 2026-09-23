@@ -15,7 +15,11 @@ fun AppNavigation() {
         startDestination = Screen.Home.route
     ) {
         composable(Screen.Home.route) {
-            HomeScreen()
+            HomeScreen(
+                onDoctorClick = {
+                    navController.navigate(Screen.DoctorDetail.route)
+                }
+            )
         }
         composable(Screen.DoctorDetail.route) {
             Text(text = "Doctor Detail Screen")
