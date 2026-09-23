@@ -80,7 +80,7 @@ fun AppNavigation() {
 
         // MIS CITAS
         composable(Screen.Appointments.route) {
-            Text(text = "Appointments Screen")
+            AppointmentsScreen()
         }
 
         // HISTORIAL MÉDICO
