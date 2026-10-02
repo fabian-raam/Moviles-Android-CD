@@ -1,5 +1,6 @@
 package com.ramirez.tecstore.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,15 +11,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -33,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -61,7 +66,7 @@ import java.util.Locale
 val PurpleTecsup = Color(0xFF5A419C)
 
 /**
- * Composable principal de la pantalla del carrito de compras con navegación real.
+ * Composable principal de la pantalla del carrito de compras con NavigationDrawer personalizado.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,46 +93,80 @@ fun PantallaCarrito() {
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Text(
-                    text = "Menú de Navegación",
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                // --- ENCABEZADO PERSONALIZADO DEL DRAWER ---
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(PurpleTecsup)
+                        .padding(24.dp)
+                ) {
+                    Column {
+                        Icon(
+                            imageVector = Icons.Default.Storefront,
+                            contentDescription = "Logo Store",
+                            tint = Color.White,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "TECSUP Store",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "fabian.ramirez@tecsup.edu.pe",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // --- ÍTEMS CON ESTILO PERSONALIZADO Y RESALTADO DE ÍTEM ACTIVO ---
+                val itemColors = NavigationDrawerItemDefaults.colors(
+                    selectedContainerColor = PurpleTecsup.copy(alpha = 0.15f),
+                    selectedIconColor = PurpleTecsup,
+                    selectedTextColor = PurpleTecsup
                 )
-                HorizontalDivider()
-                Spacer(modifier = Modifier.height(8.dp))
 
                 NavigationDrawerItem(
-                    label = { Text("Inicio") },
+                    label = { Text("Inicio", fontWeight = if (seccionActual == "Inicio") FontWeight.Bold else FontWeight.Normal) },
                     icon = { Icon(Icons.Default.Home, contentDescription = null) },
                     selected = (seccionActual == "Inicio"),
                     onClick = {
                         seccionActual = "Inicio"
                         scope.launch { drawerState.close() }
                     },
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    colors = itemColors,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                 )
 
                 NavigationDrawerItem(
-                    label = { Text("Carrito de Compras") },
+                    label = { Text("Carrito de Compras", fontWeight = if (seccionActual == "Carrito") FontWeight.Bold else FontWeight.Normal) },
                     icon = { Icon(Icons.Default.ShoppingCart, contentDescription = null) },
                     selected = (seccionActual == "Carrito"),
                     onClick = {
                         seccionActual = "Carrito"
                         scope.launch { drawerState.close() }
                     },
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    colors = itemColors,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                 )
 
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp, horizontal = 12.dp))
+
                 NavigationDrawerItem(
-                    label = { Text("Configuración") },
+                    label = { Text("Configuración", fontWeight = if (seccionActual == "Configuracion") FontWeight.Bold else FontWeight.Normal) },
                     icon = { Icon(Icons.Default.Settings, contentDescription = null) },
                     selected = (seccionActual == "Configuracion"),
                     onClick = {
                         seccionActual = "Configuracion"
                         scope.launch { drawerState.close() }
                     },
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    colors = itemColors,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 2.dp)
                 )
             }
         }
