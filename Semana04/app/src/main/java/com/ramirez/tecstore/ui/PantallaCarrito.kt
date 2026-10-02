@@ -20,7 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Storefront
 import androidx.compose.material3.AlertDialog
@@ -108,6 +108,7 @@ fun PantallaCarrito() {
                         .padding(24.dp)
                 ) {
                     Column {
+
                         Icon(
                             imageVector = Icons.Default.Storefront,
                             contentDescription = "Logo Store",
@@ -161,6 +162,7 @@ fun PantallaCarrito() {
                     selected = seccionActual == "Inicio",
                     onClick = {
                         seccionActual = "Inicio"
+
                         scope.launch {
                             drawerState.close()
                         }
@@ -172,12 +174,12 @@ fun PantallaCarrito() {
                     )
                 )
 
-                // --- CARRITO ---
+                // --- MIS PEDIDOS ---
                 NavigationDrawerItem(
                     label = {
                         Text(
-                            "Carrito de Compras",
-                            fontWeight = if (seccionActual == "Carrito")
+                            "Mis pedidos",
+                            fontWeight = if (seccionActual == "Pedidos")
                                 FontWeight.Bold
                             else
                                 FontWeight.Normal
@@ -189,9 +191,10 @@ fun PantallaCarrito() {
                             contentDescription = null
                         )
                     },
-                    selected = seccionActual == "Carrito",
+                    selected = seccionActual == "Pedidos",
                     onClick = {
-                        seccionActual = "Carrito"
+                        seccionActual = "Pedidos"
+
                         scope.launch {
                             drawerState.close()
                         }
@@ -230,6 +233,7 @@ fun PantallaCarrito() {
                     selected = seccionActual == "Favoritos",
                     onClick = {
                         seccionActual = "Favoritos"
+
                         scope.launch {
                             drawerState.close()
                         }
@@ -248,12 +252,12 @@ fun PantallaCarrito() {
                     )
                 )
 
-                // --- CONFIGURACIÓN ---
+                // --- PERFIL ---
                 NavigationDrawerItem(
                     label = {
                         Text(
-                            "Configuración",
-                            fontWeight = if (seccionActual == "Configuracion")
+                            "Perfil",
+                            fontWeight = if (seccionActual == "Perfil")
                                 FontWeight.Bold
                             else
                                 FontWeight.Normal
@@ -261,13 +265,14 @@ fun PantallaCarrito() {
                     },
                     icon = {
                         Icon(
-                            Icons.Default.Settings,
+                            Icons.Default.Person,
                             contentDescription = null
                         )
                     },
-                    selected = seccionActual == "Configuracion",
+                    selected = seccionActual == "Perfil",
                     onClick = {
-                        seccionActual = "Configuracion"
+                        seccionActual = "Perfil"
+
                         scope.launch {
                             drawerState.close()
                         }
@@ -289,8 +294,9 @@ fun PantallaCarrito() {
                         Text(
                             text = when (seccionActual) {
                                 "Inicio" -> "Inicio - TECSUP Store"
+                                "Pedidos" -> "Mis pedidos"
                                 "Favoritos" -> "Mis Favoritos"
-                                "Configuracion" -> "Configuración"
+                                "Perfil" -> "Mi Perfil"
                                 else -> "Mi Carrito TECSUP"
                             },
                             color = Color.White,
@@ -348,8 +354,53 @@ fun PantallaCarrito() {
                             )
 
                             Text(
-                                text = "Usa el menú lateral para gestionar tu Carrito de Compras.",
+                                text = "Usa el menú lateral para navegar por la tienda.",
                                 style = MaterialTheme.typography.bodyLarge,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                }
+
+                // =========================
+                // MIS PEDIDOS
+                // =========================
+                "Pedidos" -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ShoppingCart,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = PurpleTecsup
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(8.dp)
+                            )
+
+                            Text(
+                                text = "Mis pedidos",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = PurpleTecsup
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(8.dp)
+                            )
+
+                            Text(
+                                text = "Aquí podrás consultar tus pedidos.",
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Gray
                             )
                         }
@@ -412,7 +463,9 @@ fun PantallaCarrito() {
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
                                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                                contentPadding = PaddingValues(vertical = 4.dp)
+                                contentPadding = PaddingValues(
+                                    vertical = 4.dp
+                                )
                             ) {
                                 items(favoritos) { producto ->
 
@@ -434,9 +487,9 @@ fun PantallaCarrito() {
                 }
 
                 // =========================
-                // CONFIGURACIÓN
+                // PERFIL
                 // =========================
-                "Configuracion" -> {
+                "Perfil" -> {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -447,10 +500,11 @@ fun PantallaCarrito() {
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Text(
-                                text = "Pantalla de Configuración",
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold
+                            Icon(
+                                imageVector = Icons.Default.Person,
+                                contentDescription = null,
+                                modifier = Modifier.size(48.dp),
+                                tint = PurpleTecsup
                             )
 
                             Spacer(
@@ -458,7 +512,18 @@ fun PantallaCarrito() {
                             )
 
                             Text(
-                                text = "Opciones generales de la aplicación.",
+                                text = "Mi perfil",
+                                style = MaterialTheme.typography.headlineMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = PurpleTecsup
+                            )
+
+                            Spacer(
+                                modifier = Modifier.height(8.dp)
+                            )
+
+                            Text(
+                                text = "fabian.ramirez@tecsup.edu.pe",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Gray
                             )
@@ -559,13 +624,13 @@ fun PantallaCarrito() {
                                     cantidadNum > 0
                                 ) {
 
-                                    productos.add(
-                                        Producto(
-                                            nombre.trim(),
-                                            precioNum,
-                                            cantidadNum
-                                        )
+                                    val producto = Producto(
+                                        nombre.trim(),
+                                        precioNum,
+                                        cantidadNum
                                     )
+
+                                    productos.add(producto)
 
                                     nombre = ""
                                     precio = ""
