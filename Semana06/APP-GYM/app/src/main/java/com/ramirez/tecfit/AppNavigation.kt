@@ -27,21 +27,21 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 
+// Modelo de datos para representar cada ítem de la barra de navegación inferior (Bottom Bar)
 data class BottomNavItem(
     val title: String,
     val route: String,
     val icon: ImageVector
 )
 
+// Función principal de navegación que contiene el Scaffold, BottomBar y el NavHost
 @Composable
 fun AppNavigation() {
 
+    // Controlador de navegación para gestionar las transiciones entre pantallas
     val navController = rememberNavController()
 
-    // ==========================================
-    // LISTA DE RESERVAS
-    // ==========================================
-
+    // Lista de reservas (Estado compartido en toda la navegación)
     val reservations = remember {
 
         mutableStateListOf(
@@ -60,10 +60,7 @@ fun AppNavigation() {
         )
     }
 
-    // ==========================================
-    // BOTTOM BAR
-    // ==========================================
-
+    // Definición de las pestañas que aparecerán en la barra de navegación inferior
     val bottomNavItems = listOf(
 
         BottomNavItem(
@@ -91,19 +88,23 @@ fun AppNavigation() {
         )
     )
 
+    // Obtener la entrada actual de la pila de navegación para saber en qué pantalla estamos
     val navBackStackEntry by
     navController.currentBackStackEntryAsState()
 
     val currentRoute =
         navBackStackEntry?.destination?.route
 
+    // Definición de colores personalizados para los elementos seleccionados de la barra
     val greenColor = Color(0xFF2E7D32)
     val lightGreenColor = Color(0xFFE8F5E9)
 
+    // Scaffold principal que incluye la barra de navegación inferior (bottomBar) y el contenido dinámico
     Scaffold(
 
         bottomBar = {
 
+            // Mostrar la barra de navegación inferior únicamente si la ruta actual coincide con alguna de las pestañas principales
             if (
                 bottomNavItems.any {
                     it.route == currentRoute
@@ -114,6 +115,7 @@ fun AppNavigation() {
                     containerColor = Color.White
                 ) {
 
+                    // Iterar sobre cada ítem para renderizarlo en la barra
                     bottomNavItems.forEach { item ->
 
                         NavigationBarItem(
@@ -133,9 +135,11 @@ fun AppNavigation() {
                                 )
                             },
 
+                            // Determinar si este ítem es el seleccionado actualmente
                             selected =
                                 currentRoute == item.route,
 
+                            // Colores para el icono, texto e indicador de selección
                             colors =
                                 NavigationBarItemDefaults.colors(
 
@@ -155,6 +159,7 @@ fun AppNavigation() {
                                         Color.Gray
                                 ),
 
+                            // Acción al hacer clic en un ítem de la barra de navegación
                             onClick = {
 
                                 if (
@@ -165,6 +170,7 @@ fun AppNavigation() {
                                         item.route
                                     ) {
 
+                                        // Evitar acumular múltiples instancias de Home en la pila
                                         popUpTo(
                                             Screen.Home.route
                                         ) {
@@ -183,16 +189,14 @@ fun AppNavigation() {
 
     ) { innerPadding ->
 
+        // NavHost para definir las rutas y pantallas disponibles en la aplicación
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
 
-            // ==========================================
-            // INICIO
-            // ==========================================
-
+            // Pantalla de Inicio (Home)
             composable(
                 Screen.Home.route
             ) {
@@ -201,6 +205,7 @@ fun AppNavigation() {
 
                     onClassClick = { className ->
 
+                        // Codificar el nombre de la clase para pasarla de forma segura por argumento en la ruta
                         val encodedName =
                             Uri.encode(className)
 
@@ -212,10 +217,7 @@ fun AppNavigation() {
                 )
             }
 
-            // ==========================================
-            // DETALLE DE CLASE
-            // ==========================================
-
+            // Pantalla de Detalle de Clase
             composable(
 
                 route = Screen.ClassDetail.route,
@@ -229,6 +231,7 @@ fun AppNavigation() {
 
             ) { backStackEntry ->
 
+                // Recuperar y decodificar el argumento de la clase seleccionada
                 val rawName =
                     backStackEntry.arguments
                         ?.getString("className")
@@ -251,10 +254,7 @@ fun AppNavigation() {
                             schedule,
                             room ->
 
-                        // ==================================
-                        // COMPROBAR SI YA ESTA RESERVADA
-                        // ==================================
-
+                        // Comprobar si la clase ya está reservada con estado confirmada
                         val alreadyReserved =
                             reservations.any {
 
@@ -262,10 +262,7 @@ fun AppNavigation() {
                                         it.status == "Confirmada"
                             }
 
-                        // ==================================
-                        // AGREGAR NUEVA RESERVA
-                        // ==================================
-
+                        // Agregar nueva reserva a la lista si no estaba reservada
                         if (!alreadyReserved) {
 
                             reservations.add(
@@ -279,10 +276,7 @@ fun AppNavigation() {
                             )
                         }
 
-                        // ==================================
-                        // IR A CONFIRMACION
-                        // ==================================
-
+                        // Navegar a la pantalla de confirmación pasando los datos codificados
                         val route =
                             Screen.Confirmation.createRoute(
 
@@ -301,10 +295,7 @@ fun AppNavigation() {
                 )
             }
 
-            // ==========================================
-            // CONFIRMACION
-            // ==========================================
-
+            // Pantalla de Confirmación de Reserva
             composable(
 
                 route = Screen.Confirmation.route,
@@ -326,6 +317,7 @@ fun AppNavigation() {
 
             ) { backStackEntry ->
 
+                // Obtener y decodificar todos los argumentos pasados a la confirmación
                 val rawName =
                     backStackEntry.arguments
                         ?.getString("className")
@@ -360,6 +352,7 @@ fun AppNavigation() {
 
                     onViewReservationsClick = {
 
+                        // Navegar a la pantalla de reservas y limpiar la pila hasta Home
                         navController.navigate(
                             Screen.Reservations.route
                         ) {
@@ -376,10 +369,7 @@ fun AppNavigation() {
                 )
             }
 
-            // ==========================================
-            // RESERVAS
-            // ==========================================
-
+            // Pantalla de Reservas
             composable(
                 Screen.Reservations.route
             ) {
@@ -389,10 +379,7 @@ fun AppNavigation() {
                 )
             }
 
-            // ==========================================
-            // RUTINAS
-            // ==========================================
-
+            // Pantalla de Rutinas
             composable(
                 Screen.Routines.route
             ) {
@@ -402,10 +389,7 @@ fun AppNavigation() {
                 )
             }
 
-            // ==========================================
-            // PERFIL
-            // ==========================================
-
+            // Pantalla de Perfil
             composable(
                 Screen.Profile.route
             ) {
@@ -417,3 +401,4 @@ fun AppNavigation() {
         }
     }
 }
+

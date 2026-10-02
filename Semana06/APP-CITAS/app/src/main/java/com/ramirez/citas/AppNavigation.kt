@@ -29,7 +29,7 @@ fun AppNavigation() {
         composable(Screen.Home.route) {
 
             HomeScreen(
-                onDoctorClick = { doctorName ->
+                onDoctorClick = { doctorName: String ->
                     navController.navigate(
                         Screen.DoctorDetail.createRoute(
                             Uri.encode(doctorName)
@@ -133,7 +133,7 @@ fun AppNavigation() {
                     }
                 },
 
-                onConfirmClick = { date, time ->
+                onConfirmClick = { date: String, time: String ->
 
                     navController.navigate(
                         Screen.Confirmation.createRoute(

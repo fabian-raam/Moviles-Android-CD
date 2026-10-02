@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Report
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -32,25 +34,30 @@ import com.ramirez.tecstore.model.Producto
 import java.util.Locale
 
 /**
- * Composable que dibuja la tarjeta de un producto individual según la anatomía de la Figura 3.
+ * Composable que dibuja la tarjeta de un producto individual.
  *
  * @param producto Instancia del modelo Producto a mostrar.
  * @param onEliminar Lambda que se ejecuta para solicitar la eliminación de este producto.
+ * @param onFavorito Lambda que se ejecuta cuando el producto se marca como favorito.
  */
 @Composable
 fun TarjetaProducto(
     producto: Producto,
     onEliminar: () -> Unit,
+    onFavorito: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     // Estado para controlar la visibilidad del menú
     var expanded by remember { mutableStateOf(false) }
+
     val importe = producto.precio * producto.cantidad
 
     Card(
         modifier = modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Row(
             modifier = Modifier
@@ -58,7 +65,7 @@ fun TarjetaProducto(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Columna con peso (weight(1f)) para nombre y detalle
+            // Columna con peso para nombre y detalle
             Column(
                 modifier = Modifier.weight(1f)
             ) {
@@ -67,8 +74,15 @@ fun TarjetaProducto(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
+
                 Text(
-                    text = "S/ ${String.format(Locale.US, "%.2f", producto.precio)} x ${producto.cantidad}",
+                    text = "S/ ${
+                        String.format(
+                            Locale.US,
+                            "%.2f",
+                            producto.precio
+                        )
+                    } x ${producto.cantidad}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray
                 )
@@ -76,34 +90,79 @@ fun TarjetaProducto(
 
             // Texto de importe total del producto
             Text(
-                text = "S/ ${String.format(Locale.US, "%.2f", importe)}",
+                text = "S/ ${
+                    String.format(
+                        Locale.US,
+                        "%.2f",
+                        importe
+                    )
+                }",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF5A419C),
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
-
-            // Contenedor Box para el botón y su DropdownMenu
+            // Contenedor para el botón y su DropdownMenu
             Box {
-                IconButton(onClick = { expanded = true }) {
+                IconButton(
+                    onClick = {
+                        expanded = true
+                    }
+                ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "Opciones"
                     )
                 }
 
-                // DropdownMenu personalizado con íconos y divisores
                 DropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false }
+                    onDismissRequest = {
+                        expanded = false
+                    }
                 ) {
+                    // Opción Favoritos
                     DropdownMenuItem(
-                        text = { Text("Ver detalle") },
+                        text = {
+                            Text("Favoritos")
+                        },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = "Ver detalle",
-                                tint = Color(0xFF5A419C)
+                                imageVector = Icons.Default.FavoriteBorder,
+                                contentDescription = "Favoritos"
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                            onFavorito()
+                        }
+                    )
+
+                    // Opción Compartir
+                    DropdownMenuItem(
+                        text = {
+                            Text("Compartir")
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Compartir"
+                            )
+                        },
+                        onClick = {
+                            expanded = false
+                        }
+                    )
+
+                    // Opción Reportar
+                    DropdownMenuItem(
+                        text = {
+                            Text("Reportar")
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Report,
+                                contentDescription = "Reportar"
                             )
                         },
                         onClick = {
@@ -113,6 +172,7 @@ fun TarjetaProducto(
 
                     HorizontalDivider()
 
+                    // Opción Eliminar
                     DropdownMenuItem(
                         text = {
                             Text(

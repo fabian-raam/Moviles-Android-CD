@@ -1,7 +1,6 @@
 package com.ramirez.citas
 
 sealed class Screen(val route: String) {
-
     object Home : Screen("home")
 
     object DoctorDetail : Screen("doctor_detail/{doctorName}") {
@@ -16,14 +15,8 @@ sealed class Screen(val route: String) {
         }
     }
 
-    object Confirmation :
-        Screen("confirmation/{doctorName}/{date}/{time}") {
-
-        fun createRoute(
-            doctorName: String,
-            date: String,
-            time: String
-        ): String {
+    object Confirmation : Screen("confirmation/{doctorName}/{date}/{time}") {
+        fun createRoute(doctorName: String, date: String, time: String): String {
             return "confirmation/$doctorName/$date/$time"
         }
     }
