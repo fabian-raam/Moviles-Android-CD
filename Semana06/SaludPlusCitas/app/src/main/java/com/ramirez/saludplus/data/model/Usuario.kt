@@ -1,6 +1,6 @@
 package com.ramirez.saludplus.data.model
 
-data class Usuario (
+data class  Usuario (
     val id: Int,
     val nombre: String,
     val telefono: String,
