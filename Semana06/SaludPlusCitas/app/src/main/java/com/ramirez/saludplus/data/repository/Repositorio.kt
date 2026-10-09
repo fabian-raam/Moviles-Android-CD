@@ -49,6 +49,9 @@ object Repositorio{
     var fechaSeleccionada: String = "Martes 16 de setiembre 2026"
     var horaSeleccionada: String = "09:30 a 10:00"
 
+    // ID de la cita seleccionada para ver su detalle
+    var citaSeleccionadaId: Int = 1
+
     //Registrar usuario
     fun registrarUsuario( usuario: Usuario): Boolean{
         if (usuarios.any { it.correo == usuario.correo}){
