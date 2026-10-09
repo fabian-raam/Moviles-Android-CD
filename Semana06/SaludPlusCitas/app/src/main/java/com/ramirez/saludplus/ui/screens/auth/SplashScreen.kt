@@ -86,7 +86,9 @@ fun SplashScreen(navController: NavHostController) {
         // Parte 2: Contenedor Box que limita la altura de la imagen
         Box(
             modifier = Modifier
+                //Esto le dice al box que use todo el espacio libre horizontal --
                 .fillMaxWidth()
+                //Esto le dice al box que use todo el espacio libre vertical //
                 .weight(1f)
                 .padding(vertical = 12.dp),
             contentAlignment = Alignment.Center
@@ -95,6 +97,7 @@ fun SplashScreen(navController: NavHostController) {
                 painter = painterResource(id = R.drawable.foto_doctor_splash),
                 contentDescription = "Foto doctor",
                 modifier = Modifier
+                    //le dice a la imagen que use 85% del espacio del box
                     .fillMaxHeight(0.85f)
                     .fillMaxWidth(),
                 contentScale = ContentScale.Fit
