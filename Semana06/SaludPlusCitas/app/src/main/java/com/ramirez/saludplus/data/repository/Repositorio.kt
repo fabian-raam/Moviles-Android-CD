@@ -15,6 +15,9 @@ object Repositorio{
     // ID de la especialidad seleccionada para agendar cita
     var especialidadSeleccionadaId: Int = 1
 
+    // ID del médico seleccionado para la cita
+    var medicoSeleccionadoId: Int = 1
+
     val especialidades = listOf<Especialidad>(
         Especialidad(1,"Medicina General"),
         Especialidad(2,"Pediatria"),
