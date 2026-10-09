@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -34,13 +35,13 @@ fun PerfilScreen(navController: NavHostController) {
             )
         },
         bottomBar = {
-            NavigationBar(containerColor = androidx.compose.ui.graphics.Color.White) {
+            NavigationBar(containerColor = Color.White) {
                 val navItemColors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = androidx.compose.ui.graphics.Color.Gray,
+                    unselectedIconColor = Color.Gray,
                     selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedTextColor = androidx.compose.ui.graphics.Color.Gray,
-                    indicatorColor = androidx.compose.ui.graphics.Color(0xFFDBEAFE)
+                    unselectedTextColor = Color.Gray,
+                    indicatorColor = Color(0xFFDBEAFE)
                 )
 
                 NavigationBarItem(
@@ -88,10 +89,10 @@ fun PerfilScreen(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(10.dp))
-                // Avatar grande con iniciales del usuario
+                // Avatar grande con iniciales en tonos azules limpios
                 Surface(
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer,
+                    color = Color(0xFFDBEAFE),
                     modifier = Modifier.size(90.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -114,7 +115,7 @@ fun PerfilScreen(navController: NavHostController) {
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Tarjetas de información de solo lectura
+                // Tarjetas de información de solo lectura con acentos azules
                 PerfilItemInfo(icon = Icons.Default.Person, titulo = "Nombre completo", valor = usuario?.nombre ?: "No registrado")
                 PerfilItemInfo(icon = Icons.Default.Phone, titulo = "Teléfono", valor = usuario?.telefono ?: "No registrado")
                 PerfilItemInfo(icon = Icons.Default.Email, titulo = "Correo electrónico", valor = usuario?.correo ?: "No registrado")
@@ -156,7 +157,7 @@ fun PerfilItemInfo(icon: ImageVector, titulo: String, valor: String) {
         ) {
             Surface(
                 shape = RoundedCornerShape(10.dp),
-                color = MaterialTheme.colorScheme.primaryContainer,
+                color = Color(0xFFDBEAFE),
                 modifier = Modifier.size(40.dp)
             ) {
                 Box(contentAlignment = Alignment.Center) {

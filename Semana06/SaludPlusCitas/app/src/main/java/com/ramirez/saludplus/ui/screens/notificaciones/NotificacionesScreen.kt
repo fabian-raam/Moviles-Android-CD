@@ -74,7 +74,7 @@ fun NotificacionesScreen(navController: NavHostController) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Description, contentDescription = "Resultados") },
                     label = { Text("Resultados") },
-                    selected = true,
+                    selected = false,
                     onClick = { /* Ya estamos aquí */ },
                     colors = navItemColors
                 )
