@@ -1,3 +1,4 @@
+
 package com.ramirez.saludplus.ui.screens.agendamiento
 
 import android.os.Build
@@ -34,7 +35,6 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.util.Locale
-
 
 private val nombresDias = listOf(
     "lunes", "martes", "miércoles", "jueves",
@@ -149,51 +149,111 @@ private fun fechaReservadaCoincide(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FechaHoraScreen(navController: NavHostController) {
-    // Obtener médico y especialidad seleccionada
-    val medicoActual = Repositorio.medicos.find { it.id == Repositorio.medicoSeleccionadoId }
-    val nombreMedico = medicoActual?.let { "Dr. ${it.nombre}" } ?: "Dr. Médico"
 
-    val especialidadActual = Repositorio.especialidades.find { it.id == Repositorio.especialidadSeleccionadaId }
+    // Obtener médico y especialidad seleccionada
+    val medicoActual = Repositorio.medicos.find {
+        it.id == Repositorio.medicoSeleccionadoId
+    }
+
+    val nombreMedico = medicoActual?.let {
+        "Dr. ${it.nombre}"
+    } ?: "Dr. Médico"
+
+    val especialidadActual = Repositorio.especialidades.find {
+        it.id == Repositorio.especialidadSeleccionadaId
+    }
+
     val nombreEspecialidad = especialidadActual?.nombre ?: "Especialidad"
 
-    val imagenDoctor = if (medicoActual?.nombre in listOf("Ana Torres", "Sofia Guevara", "Kiara Lopez", "Noemi Renez", "Paola Bala")) {
+    val imagenDoctor = if (
+        medicoActual?.nombre in listOf(
+            "Ana Torres", "Sofia Guevara", "Kiara Lopez",
+            "Noemi Renez", "Paola Bala"
+        )
+    ) {
         R.drawable.doc_mujer
     } else {
         R.drawable.doc_hombre
     }
 
-    // Estados para fecha y hora seleccionada
-    val fechasDisponibles = listOf("Lun 15", "Mar 16", "Mié 17", "Jue 18", "Vie 19")
-    var fechaSeleccionada by remember { mutableStateOf("Mar 16") }
+    // Fecha real del dispositivo
+    val hoy = remember { LocalDate.now() }
 
-    val horasBase = listOf("08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00")
-    var horaSeleccionada by remember { mutableStateOf<String?>(null) }
+    // 0 = semana actual, 1 = semana siguiente, etc.
+    var semanaOffset by remember { mutableIntStateOf(0) }
 
-    // LÓGICA REACTIVA: Un horario reservado deja de aparecer para ese médico y fecha
+    // Fecha y hora seleccionadas
+    var fechaSeleccionada by remember {
+        mutableStateOf<LocalDate?>(null)
+    }
+
+    var horaSeleccionada by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    // Generar cinco días hábiles
+    val fechasDisponibles = remember(hoy, semanaOffset) {
+        obtenerDiasHabiles(hoy, semanaOffset)
+    }
+
+    // Si no se ha elegido fecha, seleccionar el primer día disponible
+    val fechaActiva = fechaSeleccionada
+        ?.takeIf { it in fechasDisponibles }
+        ?: fechasDisponibles.first()
+
+    // Horarios que ofrece el médico
+    val horasBase = listOf(
+        "08:00", "08:30", "09:00",
+        "09:30", "10:00", "10:30",
+        "11:00", "11:30", "12:00"
+    )
+
+    // Identificar las horas ya reservadas para ese médico y fecha
     val horasOcupadas = Repositorio.citas
-        .filter { it.medicoId == Repositorio.medicoSeleccionadoId && it.fecha.contains(fechaSeleccionada) }
-        .map { it.hora }
+        .filter { cita ->
+            cita.medicoId == Repositorio.medicoSeleccionadoId &&
+                    fechaReservadaCoincide(cita.fecha, fechaActiva)
+        }
+        .map { cita ->
+            cita.hora.substringBefore(" a ").trim()
+        }
 
-    val horasDisponibles = horasBase.filter { it !in horasOcupadas }
+    // Mostrar solo las horas libres
+    val horasDisponibles = horasBase.filter {
+        it !in horasOcupadas
+    }
 
-    // VALIDACIÓN: Continuar solo se habilita con día y hora elegidos
-    val esValido = fechaSeleccionada.isNotBlank() && horaSeleccionada != null
+    val esValido = horaSeleccionada != null &&
+            horaSeleccionada in horasDisponibles
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Selección de fecha y hora", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+                title = {
+                    Text(
+                        text = "Selección de fecha y hora",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Volver")
+                    IconButton(
+                        onClick = { navController.popBackStack() }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Volver"
+                        )
                     }
                 }
             )
         }
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -201,14 +261,19 @@ fun FechaHoraScreen(navController: NavHostController) {
                 .padding(20.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                // Tarjeta informativa del doctor
+
+                // Tarjeta del médico
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme
+                            .surfaceVariant.copy(alpha = 0.5f)
+                    )
                 ) {
                     Row(
                         modifier = Modifier
@@ -225,19 +290,33 @@ fun FechaHoraScreen(navController: NavHostController) {
                                 .clip(CircleShape),
                             contentScale = ContentScale.Crop
                         )
+
                         Column {
-                            Text(text = nombreMedico, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-                            Text(text = nombreEspecialidad, fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(
+                                text = nombreMedico,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Text(
+                                text = nombreEspecialidad,
+                                fontSize = 13.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }
 
-                // Selector de mes y días
+                // Calendario dinámico
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 1.dp
+                    )
                 ) {
                     Column(
                         modifier = Modifier
@@ -245,40 +324,79 @@ fun FechaHoraScreen(navController: NavHostController) {
                             .padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+
+                        // Flechas y mes
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            IconButton(onClick = { }) {
-                                Icon(imageVector = Icons.Default.ChevronLeft, contentDescription = "Mes anterior")
+
+                            IconButton(
+                                onClick = {
+                                    if (semanaOffset > 0) {
+                                        semanaOffset--
+                                        fechaSeleccionada = null
+                                        horaSeleccionada = null
+                                    }
+                                },
+                                enabled = semanaOffset > 0
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ChevronLeft,
+                                    contentDescription = "Semana anterior"
+                                )
                             }
+
                             Text(
-                                text = "Setiembre 2026",
+                                text = formatearMesAnio(
+                                    fechasDisponibles.first()
+                                ),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.primary
                             )
-                            IconButton(onClick = { }) {
-                                Icon(imageVector = Icons.Default.ChevronRight, contentDescription = "Mes siguiente")
+
+                            IconButton(
+                                onClick = {
+                                    semanaOffset++
+                                    fechaSeleccionada = null
+                                    horaSeleccionada = null
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    contentDescription = "Semana siguiente"
+                                )
                             }
                         }
 
+                        // Cinco días disponibles
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceAround
                         ) {
                             fechasDisponibles.forEach { fecha ->
-                                val esSeleccionado = fecha == fechaSeleccionada
+
+                                val esSeleccionado = fecha == fechaActiva
+
                                 Surface(
                                     modifier = Modifier
-                                        .size(width = 50.dp, height = 65.dp)
+                                        .size(
+                                            width = 50.dp,
+                                            height = 65.dp
+                                        )
                                         .clickable {
                                             fechaSeleccionada = fecha
-                                            horaSeleccionada = null // Limpiar hora al cambiar de día
+                                            horaSeleccionada = null
                                         },
                                     shape = RoundedCornerShape(14.dp),
-                                    color = if (esSeleccionado) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                                    color = if (esSeleccionado) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        MaterialTheme.colorScheme
+                                            .surfaceVariant.copy(alpha = 0.3f)
+                                    }
                                 ) {
                                     Column(
                                         modifier = Modifier.fillMaxSize(),
@@ -286,16 +404,28 @@ fun FechaHoraScreen(navController: NavHostController) {
                                         horizontalAlignment = Alignment.CenterHorizontally
                                     ) {
                                         Text(
-                                            text = fecha.split(" ")[0],
+                                            text = formatearDiaCorto(fecha),
                                             fontSize = 12.sp,
-                                            color = if (esSeleccionado) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = if (esSeleccionado) {
+                                                Color.White
+                                            } else {
+                                                MaterialTheme.colorScheme.onSurfaceVariant
+                                            }
                                         )
-                                        Spacer(modifier = Modifier.height(4.dp))
+
+                                        Spacer(
+                                            modifier = Modifier.height(4.dp)
+                                        )
+
                                         Text(
-                                            text = fecha.split(" ")[1],
+                                            text = fecha.dayOfMonth.toString(),
                                             fontSize = 15.sp,
                                             fontWeight = FontWeight.Bold,
-                                            color = if (esSeleccionado) Color.White else MaterialTheme.colorScheme.onSurface
+                                            color = if (esSeleccionado) {
+                                                Color.White
+                                            } else {
+                                                MaterialTheme.colorScheme.onSurface
+                                            }
                                         )
                                     }
                                 }
@@ -304,7 +434,7 @@ fun FechaHoraScreen(navController: NavHostController) {
                     }
                 }
 
-                // Selector de horas con LazyVerticalGrid reactivo
+                // Horarios disponibles
                 Text(
                     text = "Horarios disponibles",
                     fontSize = 16.sp,
@@ -325,29 +455,59 @@ fun FechaHoraScreen(navController: NavHostController) {
                         modifier = Modifier.height(180.dp)
                     ) {
                         items(horasDisponibles) { hora ->
+
                             val esSeleccionado = hora == horaSeleccionada
+
                             OutlinedButton(
-                                onClick = { horaSeleccionada = hora },
+                                onClick = {
+                                    horaSeleccionada = hora
+                                },
                                 shape = RoundedCornerShape(10.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = if (esSeleccionado) MaterialTheme.colorScheme.primary else Color.Transparent,
-                                    contentColor = if (esSeleccionado) Color.White else MaterialTheme.colorScheme.onSurface
+                                    containerColor = if (esSeleccionado) {
+                                        MaterialTheme.colorScheme.primary
+                                    } else {
+                                        Color.Transparent
+                                    },
+                                    contentColor = if (esSeleccionado) {
+                                        Color.White
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurface
+                                    }
                                 ),
-                                border = if (esSeleccionado) null else ButtonDefaults.outlinedButtonBorder
+                                border = if (esSeleccionado) {
+                                    null
+                                } else {
+                                    ButtonDefaults.outlinedButtonBorder
+                                }
                             ) {
-                                Text(text = hora, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                                Text(
+                                    text = hora,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
                             }
                         }
                     }
                 }
             }
 
-            // Botón Continuar (habilitado solo cuando hay fecha y hora)
+            // Continuar a la confirmación
             Button(
                 onClick = {
-                    Repositorio.fechaSeleccionada = "Martes $fechaSeleccionada de setiembre 2026"
-                    Repositorio.horaSeleccionada = horaSeleccionada ?: "09:30"
-                    navController.navigate(Rutas.CONFIRMAR_CITA)
+                    val horaElegida = horaSeleccionada
+
+                    if (
+                        horaElegida != null &&
+                        horaElegida in horasDisponibles
+                    ) {
+                        Repositorio.fechaSeleccionada =
+                            formatearFechaCompleta(fechaActiva)
+
+                        Repositorio.horaSeleccionada = horaElegida
+
+                        navController.navigate(Rutas.CONFIRMAR_CITA)
+                    }
                 },
                 enabled = esValido,
                 modifier = Modifier
@@ -355,7 +515,11 @@ fun FechaHoraScreen(navController: NavHostController) {
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
-                Text(text = "Continuar", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = "Continuar",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
     }
