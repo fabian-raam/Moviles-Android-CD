@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -34,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.ramirez.saludplus.data.model.Usuario
+import com.ramirez.saludplus.data.repository.Repositorio
 import com.ramirez.saludplus.navigation.Rutas
 
 @Composable
@@ -44,10 +44,12 @@ fun RegistroScreen(navController: NavHostController) {
     var correo by remember { mutableStateOf("") }
     var contrasena by remember { mutableStateOf("") }
 
+    var mensajeError by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 60.dp)
+            .padding(vertical = 30.dp)
             .padding(24.dp),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -59,14 +61,14 @@ fun RegistroScreen(navController: NavHostController) {
         ) {
             Text(
                 text = "Crear cuenta",
-                fontSize = 38.sp,
+                fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Regístrate para agendar tus citas",
-                fontSize = 19.sp,
+                fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
@@ -164,25 +166,91 @@ fun RegistroScreen(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
+            // Mensaje de error condicional con margen inferior para separarlo del botón
+            if (mensajeError.isNotBlank()) {
+                Text(
+                    text = mensajeError,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+            }
+
             Button(
                 onClick = {
+                    // 1. Validar que no haya campos vacíos
+                    if (nombre.isBlank() || telefono.isBlank() || correo.isBlank() || contrasena.isBlank()) {
+                        mensajeError = "Por favor, completa todos los campos"
+                        return@Button
+                    }
+
+                    // 2. Validar nombre: cada palabra debe iniciar con mayúscula y el resto en minúsculas
+                    val palabras = nombre.trim().split("\\s+".toRegex())
+                    val nombreValido = palabras.all { palabra ->
+                        palabra.isNotEmpty() && palabra[0].isUpperCase() && palabra.drop(1).all { it.isLowerCase() }
+                    }
+                    if (!nombreValido) {
+                        mensajeError = "Cada palabra debe iniciar con mayúscula y el resto minúsculas"
+                        return@Button
+                    }
+
+                    // 3. Validar teléfono: solo números y exactamente 9 caracteres
+                    if (!telefono.all { it.isDigit() } || telefono.length != 9) {
+                        mensajeError = "El teléfono debe contener exactamente 9 dígitos"
+                        return@Button
+                    }
+
+                    // 4. Validar contraseña: al menos 5 caracteres
+                    if (contrasena.length < 5) {
+                        mensajeError = "La contraseña debe tener al menos 5 caracteres"
+                        return@Button
+                    }
+
+                    // 5. Validar formato básico de correo
+                    if (!correo.contains("@") || !correo.contains(".")) {
+                        mensajeError = "Ingresa un correo electrónico válido"
+                        return@Button
+                    }
+
+                    // 6. Crear usuario e intentar registrarlo en el Repositorio
+                    val nuevoUsuario = Usuario(
+                        id = Repositorio.usuarios.size + 1,
+                        nombre = nombre,
+                        telefono = telefono,
+                        correo = correo,
+                        contrasena = contrasena
+                    )
+
+                    val exito = Repositorio.registrarUsuario(nuevoUsuario)
+
+                    if (exito) {
+                        mensajeError = ""
+                        // Navegar al Home y limpiar el historial de registro
+                        navController.navigate(Rutas.HOME) {
+                            popUpTo(Rutas.REGISTRO) { inclusive = true }
+                        }
+                    } else {
+                        mensajeError = "El correo ya se encuentra registrado"
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp),
+                    .height(50.dp),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
                     text = "Registrarme",
-                    fontSize = 22.sp
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
 
-            Spacer(modifier = Modifier.height(11.dp))
+            Spacer(modifier = Modifier.height(6.dp))
 
             Text(
                 text = "Al registrarte aceptas nuestros",
-                fontSize = 17.sp,
+                fontSize = 13.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
@@ -193,7 +261,7 @@ fun RegistroScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "Términos y Condiciones",
-                    fontSize = 16.sp,
+                    fontSize = 13.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
@@ -205,7 +273,7 @@ fun RegistroScreen(navController: NavHostController) {
             ) {
                 Text(
                     text = "¿Ya tienes una cuenta?",
-                    fontSize = 18.sp
+                    fontSize = 14.sp
                 )
                 TextButton(
                     onClick = {
@@ -214,7 +282,7 @@ fun RegistroScreen(navController: NavHostController) {
                 ) {
                     Text(
                         text = "Iniciar sesión",
-                        fontSize = 18.sp,
+                        fontSize = 14.sp,
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
