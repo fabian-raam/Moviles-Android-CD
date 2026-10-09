@@ -1,5 +1,7 @@
 package com.ramirez.saludplus.ui.screens.agendamiento
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,6 +29,125 @@ import androidx.navigation.NavHostController
 import com.ramirez.saludplus.R
 import com.ramirez.saludplus.data.repository.Repositorio
 import com.ramirez.saludplus.navigation.Rutas
+import java.text.Normalizer
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
+import java.util.Locale
+
+
+private val nombresDias = listOf(
+    "lunes", "martes", "miércoles", "jueves",
+    "viernes", "sábado", "domingo"
+)
+
+private val nombresDiasCortos = listOf(
+    "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"
+)
+
+private val nombresMeses = listOf(
+    "enero", "febrero", "marzo", "abril",
+    "mayo", "junio", "julio", "agosto",
+    "setiembre", "octubre", "noviembre", "diciembre"
+)
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun obtenerDiasHabiles(
+    hoy: LocalDate,
+    semanaOffset: Int
+): List<LocalDate> {
+    val lunesActual = hoy.with(
+        TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
+    )
+
+    val lunesMostrado = lunesActual.plusWeeks(semanaOffset.toLong())
+
+    var fecha = if (semanaOffset == 0) hoy else lunesMostrado
+
+    val dias = mutableListOf<LocalDate>()
+
+    while (dias.size < 5) {
+        if (
+            fecha.dayOfWeek != DayOfWeek.SATURDAY &&
+            fecha.dayOfWeek != DayOfWeek.SUNDAY
+        ) {
+            dias.add(fecha)
+        }
+
+        fecha = fecha.plusDays(1)
+    }
+
+    return dias
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun formatearDiaCorto(fecha: LocalDate): String {
+    return nombresDiasCortos[fecha.dayOfWeek.value - 1]
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun formatearFechaCompleta(fecha: LocalDate): String {
+    val dia = nombresDias[fecha.dayOfWeek.value - 1]
+    val numeroDia = fecha.dayOfMonth
+    val mes = nombresMeses[fecha.monthValue - 1]
+    val anio = fecha.year
+
+    return "${dia.replaceFirstChar { it.uppercase() }} $numeroDia de $mes $anio"
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun formatearMesAnio(fecha: LocalDate): String {
+    val mes = nombresMeses[fecha.monthValue - 1]
+        .replaceFirstChar { it.uppercase() }
+
+    return "$mes ${fecha.year}"
+}
+
+private fun normalizarTexto(texto: String): String {
+    return Normalizer.normalize(texto, Normalizer.Form.NFD)
+        .replace(Regex("\\p{M}+"), "")
+        .lowercase(Locale.ROOT)
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun fechaReservadaCoincide(
+    fechaGuardada: String,
+    fechaBuscada: LocalDate
+): Boolean {
+    val texto = normalizarTexto(fechaGuardada)
+
+    val patron = Regex(
+        """\b(\d{1,2})\s+de\s+(enero|febrero|marzo|abril|mayo|junio|julio|agosto|setiembre|septiembre|octubre|noviembre|diciembre)\s+(\d{4})\b"""
+    )
+
+    val coincidencia = patron.find(texto) ?: return false
+
+    val dia = coincidencia.groupValues[1].toInt()
+    val mesTexto = coincidencia.groupValues[2]
+    val anio = coincidencia.groupValues[3].toInt()
+
+    val numeroMes = when (mesTexto) {
+        "enero" -> 1
+        "febrero" -> 2
+        "marzo" -> 3
+        "abril" -> 4
+        "mayo" -> 5
+        "junio" -> 6
+        "julio" -> 7
+        "agosto" -> 8
+        "setiembre", "septiembre" -> 9
+        "octubre" -> 10
+        "noviembre" -> 11
+        "diciembre" -> 12
+        else -> return false
+    }
+
+    return try {
+        LocalDate.of(anio, numeroMes, dia) == fechaBuscada
+    } catch (_: Exception) {
+        false
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
