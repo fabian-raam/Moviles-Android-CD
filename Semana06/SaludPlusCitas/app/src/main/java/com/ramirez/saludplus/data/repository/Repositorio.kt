@@ -9,6 +9,12 @@ object Repositorio{
 
     val usuarios = mutableListOf<Usuario>()
 
+    // Usuario actualmente logueado en la sesión
+    var usuarioActual: Usuario? = null
+
+    // ID de la especialidad seleccionada para agendar cita
+    var especialidadSeleccionadaId: Int = 1
+
     val especialidades = listOf<Especialidad>(
         Especialidad(1,"Medicina General"),
         Especialidad(2,"Pediatria"),
@@ -41,20 +47,17 @@ object Repositorio{
 
     //Registrar usuario
     fun registrarUsuario( usuario: Usuario): Boolean{
-        //usuarios.any es una funciona que pregunta por algun objeto
-        //de ese tipo, asi q recorre toda la lista, el it hace referencia
-        //al objeto donde estemos en ese momento, asi verifica con todos
         if (usuarios.any { it.correo == usuario.correo}){
             return false
         }
         usuarios.add(usuario)
+        usuarioActual = usuario // Guardar sesión activa
         return true
     }
 
 
     //Obtener medicos por especialidades
     fun getMedicosPorEspecialidad(especialidadId : Int) : List<Medico> {
-        //it. hace referencia al objeto actual q se esta tratando
         return medicos.filter { it.especialidadId == especialidadId }
     }
 
@@ -71,8 +74,11 @@ object Repositorio{
 
     //Busca un usuario con esos datos o devuelve null
     fun login(correo : String, contrasena : String) : Usuario? {
-        //find busca el primer resultado que coincida
-        return usuarios.find { it.correo == correo && it.contrasena == contrasena }
+        val user = usuarios.find { it.correo == correo && it.contrasena == contrasena }
+        if (user != null) {
+            usuarioActual = user // Guardar sesión activa
+        }
+        return user
     }
 
 }
