@@ -1,6 +1,6 @@
 package com.ramirez.saludplus.data.repository
-
 import com.ramirez.saludplus.data.model.Cita
+
 import com.ramirez.saludplus.data.model.Especialidad
 import com.ramirez.saludplus.data.model.Medico
 import com.ramirez.saludplus.data.model.Usuario
