@@ -46,7 +46,8 @@ object Repositorio{
 
     val citas = mutableListOf<Cita>()
 
-
+    var fechaSeleccionada: String = "Martes 16 de setiembre 2026"
+    var horaSeleccionada: String = "09:30 a 10:00"
 
     //Registrar usuario
     fun registrarUsuario( usuario: Usuario): Boolean{
