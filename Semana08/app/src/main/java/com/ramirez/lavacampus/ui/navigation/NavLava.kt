@@ -15,6 +15,8 @@ import com.ramirez.lavacampus.data.local.entity.Usuario
 import com.ramirez.lavacampus.data.prefs.PreferenciasStore
 import com.ramirez.lavacampus.data.repository.LavaRepositoryRoom
 import com.ramirez.lavacampus.model.Rol
+import com.ramirez.lavacampus.ui.administrador.BandejaScreen
+import com.ramirez.lavacampus.ui.administrador.GestionPedidoScreen
 import com.ramirez.lavacampus.ui.administrador.PanelScreen
 import com.ramirez.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.ramirez.lavacampus.ui.estudiante.InicioScreen
@@ -23,7 +25,9 @@ import com.ramirez.lavacampus.ui.estudiante.MisPedidosScreen
 import com.ramirez.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.ramirez.lavacampus.ui.estudiante.SplashScreen
 import com.ramirez.lavacampus.ui.estudiante.TarifasScreen
+import com.ramirez.lavacampus.viewmodel.BandejaViewModel
 import com.ramirez.lavacampus.viewmodel.DetallePedidoViewModel
+import com.ramirez.lavacampus.viewmodel.GestionPedidoViewModel
 import com.ramirez.lavacampus.viewmodel.InicioViewModel
 import com.ramirez.lavacampus.viewmodel.LavaViewModelFactory
 import com.ramirez.lavacampus.viewmodel.MisPedidosViewModel
@@ -160,6 +164,29 @@ fun NavLava() {
             PanelScreen(
                 vm = panelViewModel,
                 onVerBandeja = { navController.navigate(Rutas.AdminBandeja.ruta) }
+            )
+        }
+
+        composable(Rutas.AdminBandeja.ruta) {
+            val bandejaViewModel: BandejaViewModel = viewModel(factory = factory)
+
+            BandejaScreen(
+                vm = bandejaViewModel,
+                onGestionarPedido = { pedidoId -> navController.navigate(Rutas.AdminGestionPedido.crearRuta(pedidoId)) }
+            )
+        }
+
+        composable(
+            route = Rutas.AdminGestionPedido.ruta,
+            arguments = listOf(navArgument("pedidoId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val pedidoId = backStackEntry.arguments?.getInt("pedidoId") ?: 0
+            val gestionFactory = LavaViewModelFactory(repo, prefs, pedidoId = pedidoId)
+            val gestionViewModel: GestionPedidoViewModel = viewModel(factory = gestionFactory)
+
+            GestionPedidoScreen(
+                vm = gestionViewModel,
+                onVolver = { navController.popBackStack() }
             )
         }
     }
