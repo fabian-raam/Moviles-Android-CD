@@ -18,11 +18,14 @@ import com.ramirez.lavacampus.model.Rol
 import com.ramirez.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.ramirez.lavacampus.ui.estudiante.InicioScreen
 import com.ramirez.lavacampus.ui.estudiante.LoginScreen
+import com.ramirez.lavacampus.ui.estudiante.MisPedidosScreen
 import com.ramirez.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.ramirez.lavacampus.ui.estudiante.SplashScreen
+import com.ramirez.lavacampus.ui.estudiante.TarifasScreen
 import com.ramirez.lavacampus.viewmodel.DetallePedidoViewModel
 import com.ramirez.lavacampus.viewmodel.InicioViewModel
 import com.ramirez.lavacampus.viewmodel.LavaViewModelFactory
+import com.ramirez.lavacampus.viewmodel.MisPedidosViewModel
 import com.ramirez.lavacampus.viewmodel.NuevoPedidoViewModel
 import com.ramirez.lavacampus.viewmodel.SesionViewModel
 
@@ -119,6 +122,32 @@ fun NavLava() {
 
             DetallePedidoScreen(
                 vm = detalleViewModel,
+                onVolver = { navController.popBackStack() }
+            )
+        }
+
+        composable(Rutas.EstudianteMisPedidos.ruta) {
+            val usuarioActual by sesionViewModel.usuarioActual.collectAsState()
+            val usuarioId = usuarioActual?.id ?: 1
+            val misPedidosFactory = LavaViewModelFactory(repo, prefs, usuarioId)
+            val misPedidosViewModel: MisPedidosViewModel = viewModel(factory = misPedidosFactory)
+
+            MisPedidosScreen(
+                vm = misPedidosViewModel,
+                onNuevoPedido = { navController.navigate(Rutas.EstudianteNuevoPedido.ruta) },
+                onVerDetalle = { pedidoId -> navController.navigate(Rutas.EstudianteDetallePedido.crearRuta(pedidoId)) },
+                onVolver = { navController.popBackStack() }
+            )
+        }
+
+        composable(Rutas.EstudianteTarifas.ruta) {
+            val usuarioActual by sesionViewModel.usuarioActual.collectAsState()
+            val usuarioId = usuarioActual?.id ?: 1
+            val misPedidosFactory = LavaViewModelFactory(repo, prefs, usuarioId)
+            val misPedidosViewModel: MisPedidosViewModel = viewModel(factory = misPedidosFactory)
+
+            TarifasScreen(
+                vm = misPedidosViewModel,
                 onVolver = { navController.popBackStack() }
             )
         }
