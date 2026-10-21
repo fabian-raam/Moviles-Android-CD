@@ -1,17 +1,22 @@
 package com.ramirez.lavacampus.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ramirez.lavacampus.LavaApp
+import com.ramirez.lavacampus.data.local.entity.Usuario
 import com.ramirez.lavacampus.data.prefs.PreferenciasStore
 import com.ramirez.lavacampus.data.repository.LavaRepositoryRoom
 import com.ramirez.lavacampus.model.Rol
+import com.ramirez.lavacampus.ui.estudiante.InicioScreen
 import com.ramirez.lavacampus.ui.estudiante.LoginScreen
 import com.ramirez.lavacampus.ui.estudiante.SplashScreen
+import com.ramirez.lavacampus.viewmodel.InicioViewModel
 import com.ramirez.lavacampus.viewmodel.LavaViewModelFactory
 import com.ramirez.lavacampus.viewmodel.SesionViewModel
 
@@ -63,6 +68,22 @@ fun NavLava() {
                         }
                     }
                 }
+            )
+        }
+
+        composable(Rutas.EstudianteInicio.ruta) {
+            val usuarioActual by sesionViewModel.usuarioActual.collectAsState()
+            val usuario = usuarioActual ?: Usuario(1, "Ana Torres", "U202310234", "ana@correo.test", "1234", "CLIENTE")
+            val inicioFactory = LavaViewModelFactory(repo, prefs, usuario.id)
+            val inicioViewModel: InicioViewModel = viewModel(factory = inicioFactory)
+
+            InicioScreen(
+                usuario = usuario,
+                vm = inicioViewModel,
+                onNuevoPedido = { navController.navigate(Rutas.EstudianteNuevoPedido.ruta) },
+                onVerPedidos = { navController.navigate(Rutas.EstudianteMisPedidos.ruta) },
+                onVerTarifas = { navController.navigate(Rutas.EstudianteTarifas.ruta) },
+                onVerDetalle = { pedidoId -> navController.navigate(Rutas.EstudianteDetallePedido.crearRuta(pedidoId)) }
             )
         }
     }
