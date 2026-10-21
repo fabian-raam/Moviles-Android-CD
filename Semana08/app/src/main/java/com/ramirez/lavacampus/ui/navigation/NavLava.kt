@@ -15,9 +15,11 @@ import com.ramirez.lavacampus.data.repository.LavaRepositoryRoom
 import com.ramirez.lavacampus.model.Rol
 import com.ramirez.lavacampus.ui.estudiante.InicioScreen
 import com.ramirez.lavacampus.ui.estudiante.LoginScreen
+import com.ramirez.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.ramirez.lavacampus.ui.estudiante.SplashScreen
 import com.ramirez.lavacampus.viewmodel.InicioViewModel
 import com.ramirez.lavacampus.viewmodel.LavaViewModelFactory
+import com.ramirez.lavacampus.viewmodel.NuevoPedidoViewModel
 import com.ramirez.lavacampus.viewmodel.SesionViewModel
 
 @Composable
@@ -84,6 +86,22 @@ fun NavLava() {
                 onVerPedidos = { navController.navigate(Rutas.EstudianteMisPedidos.ruta) },
                 onVerTarifas = { navController.navigate(Rutas.EstudianteTarifas.ruta) },
                 onVerDetalle = { pedidoId -> navController.navigate(Rutas.EstudianteDetallePedido.crearRuta(pedidoId)) }
+            )
+        }
+
+        composable(Rutas.EstudianteNuevoPedido.ruta) {
+            val usuarioActual by sesionViewModel.usuarioActual.collectAsState()
+            val usuarioId = usuarioActual?.id ?: 1
+            val nuevoPedidoFactory = LavaViewModelFactory(repo, prefs, usuarioId)
+            val nuevoPedidoViewModel: NuevoPedidoViewModel = viewModel(factory = nuevoPedidoFactory)
+
+            NuevoPedidoScreen(
+                vm = nuevoPedidoViewModel,
+                onPedidoConfirmado = {
+                    navController.navigate(Rutas.EstudianteMisPedidos.ruta) {
+                        popUpTo(Rutas.EstudianteInicio.ruta)
+                    }
+                }
             )
         }
     }
