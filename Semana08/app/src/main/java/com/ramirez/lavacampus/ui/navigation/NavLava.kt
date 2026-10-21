@@ -15,17 +15,23 @@ import com.ramirez.lavacampus.data.local.entity.Usuario
 import com.ramirez.lavacampus.data.prefs.PreferenciasStore
 import com.ramirez.lavacampus.data.repository.LavaRepositoryRoom
 import com.ramirez.lavacampus.model.Rol
+import com.ramirez.lavacampus.ui.administrador.AjustesScreen
 import com.ramirez.lavacampus.ui.administrador.BandejaScreen
+import com.ramirez.lavacampus.ui.administrador.ClientesScreen
+import com.ramirez.lavacampus.ui.administrador.FormularioServicioScreen
 import com.ramirez.lavacampus.ui.administrador.GestionPedidoScreen
 import com.ramirez.lavacampus.ui.administrador.PanelScreen
+import com.ramirez.lavacampus.ui.administrador.ServiciosScreen
 import com.ramirez.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.ramirez.lavacampus.ui.estudiante.InicioScreen
 import com.ramirez.lavacampus.ui.estudiante.LoginScreen
 import com.ramirez.lavacampus.ui.estudiante.MisPedidosScreen
 import com.ramirez.lavacampus.ui.estudiante.NuevoPedidoScreen
+import com.ramirez.lavacampus.ui.estudiante.PerfilScreen
 import com.ramirez.lavacampus.ui.estudiante.SplashScreen
 import com.ramirez.lavacampus.ui.estudiante.TarifasScreen
 import com.ramirez.lavacampus.viewmodel.BandejaViewModel
+import com.ramirez.lavacampus.viewmodel.ClientesViewModel
 import com.ramirez.lavacampus.viewmodel.DetallePedidoViewModel
 import com.ramirez.lavacampus.viewmodel.GestionPedidoViewModel
 import com.ramirez.lavacampus.viewmodel.InicioViewModel
@@ -33,6 +39,7 @@ import com.ramirez.lavacampus.viewmodel.LavaViewModelFactory
 import com.ramirez.lavacampus.viewmodel.MisPedidosViewModel
 import com.ramirez.lavacampus.viewmodel.NuevoPedidoViewModel
 import com.ramirez.lavacampus.viewmodel.PanelViewModel
+import com.ramirez.lavacampus.viewmodel.ServiciosViewModel
 import com.ramirez.lavacampus.viewmodel.SesionViewModel
 
 @Composable
@@ -86,6 +93,7 @@ fun NavLava() {
             )
         }
 
+        // === ESTUDIANTE ===
         composable(Rutas.EstudianteInicio.ruta) {
             val usuarioActual by sesionViewModel.usuarioActual.collectAsState()
             val usuario = usuarioActual ?: Usuario(1, "Ana Torres", "U202310234", "ana@correo.test", "1234", "CLIENTE")
@@ -158,6 +166,27 @@ fun NavLava() {
             )
         }
 
+        composable(Rutas.EstudiantePerfil.ruta) {
+            val usuarioActual by sesionViewModel.usuarioActual.collectAsState()
+            val usuario = usuarioActual ?: Usuario(1, "Ana Torres", "U202310234", "ana@correo.test", "1234", "CLIENTE")
+
+            PerfilScreen(
+                usuario = usuario,
+                vm = sesionViewModel,
+                onCambiarPerfil = {
+                    navController.navigate(Rutas.AdminPanel.ruta) {
+                        popUpTo(Rutas.EstudianteInicio.ruta) { inclusive = true }
+                    }
+                },
+                onCerrarSesion = {
+                    navController.navigate(Rutas.Login.ruta) {
+                        popUpTo(Rutas.EstudianteInicio.ruta) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // === ADMINISTRADOR ===
         composable(Rutas.AdminPanel.ruta) {
             val panelViewModel: PanelViewModel = viewModel(factory = factory)
 
@@ -187,6 +216,56 @@ fun NavLava() {
             GestionPedidoScreen(
                 vm = gestionViewModel,
                 onVolver = { navController.popBackStack() }
+            )
+        }
+
+        composable(Rutas.AdminServicios.ruta) {
+            val serviciosViewModel: ServiciosViewModel = viewModel(factory = factory)
+
+            ServiciosScreen(
+                vm = serviciosViewModel,
+                onEditarServicio = { id -> navController.navigate(Rutas.AdminFormularioServicio.crearRuta(id)) },
+                onNuevoServicio = { navController.navigate(Rutas.AdminFormularioServicio.crearRuta(0)) }
+            )
+        }
+
+        composable(
+            route = Rutas.AdminFormularioServicio.ruta,
+            arguments = listOf(navArgument("servicioId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val servicioId = backStackEntry.arguments?.getInt("servicioId") ?: 0
+            val serviciosViewModel: ServiciosViewModel = viewModel(factory = factory)
+
+            FormularioServicioScreen(
+                servicioId = servicioId,
+                vm = serviciosViewModel,
+                onVolver = { navController.popBackStack() }
+            )
+        }
+
+        composable(Rutas.AdminClientes.ruta) {
+            val clientesViewModel: ClientesViewModel = viewModel(factory = factory)
+
+            ClientesScreen(vm = clientesViewModel)
+        }
+
+        composable(Rutas.AdminAjustes.ruta) {
+            val usuarioActual by sesionViewModel.usuarioActual.collectAsState()
+            val usuario = usuarioActual ?: Usuario(4, "Administrador", "", "admin@lavacampus.test", "admin", "ADMIN")
+
+            AjustesScreen(
+                usuario = usuario,
+                vm = sesionViewModel,
+                onCambiarPerfil = {
+                    navController.navigate(Rutas.EstudianteInicio.ruta) {
+                        popUpTo(Rutas.AdminPanel.ruta) { inclusive = true }
+                    }
+                },
+                onCerrarSesion = {
+                    navController.navigate(Rutas.Login.ruta) {
+                        popUpTo(Rutas.AdminPanel.ruta) { inclusive = true }
+                    }
+                }
             )
         }
     }
