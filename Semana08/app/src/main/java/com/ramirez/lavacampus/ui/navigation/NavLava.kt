@@ -5,18 +5,22 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.ramirez.lavacampus.LavaApp
 import com.ramirez.lavacampus.data.local.entity.Usuario
 import com.ramirez.lavacampus.data.prefs.PreferenciasStore
 import com.ramirez.lavacampus.data.repository.LavaRepositoryRoom
 import com.ramirez.lavacampus.model.Rol
+import com.ramirez.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.ramirez.lavacampus.ui.estudiante.InicioScreen
 import com.ramirez.lavacampus.ui.estudiante.LoginScreen
 import com.ramirez.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.ramirez.lavacampus.ui.estudiante.SplashScreen
+import com.ramirez.lavacampus.viewmodel.DetallePedidoViewModel
 import com.ramirez.lavacampus.viewmodel.InicioViewModel
 import com.ramirez.lavacampus.viewmodel.LavaViewModelFactory
 import com.ramirez.lavacampus.viewmodel.NuevoPedidoViewModel
@@ -102,6 +106,20 @@ fun NavLava() {
                         popUpTo(Rutas.EstudianteInicio.ruta)
                     }
                 }
+            )
+        }
+
+        composable(
+            route = Rutas.EstudianteDetallePedido.ruta,
+            arguments = listOf(navArgument("pedidoId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val pedidoId = backStackEntry.arguments?.getInt("pedidoId") ?: 0
+            val detalleFactory = LavaViewModelFactory(repo, prefs, pedidoId = pedidoId)
+            val detalleViewModel: DetallePedidoViewModel = viewModel(factory = detalleFactory)
+
+            DetallePedidoScreen(
+                vm = detalleViewModel,
+                onVolver = { navController.popBackStack() }
             )
         }
     }
