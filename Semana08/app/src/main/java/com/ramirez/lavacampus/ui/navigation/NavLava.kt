@@ -15,6 +15,7 @@ import com.ramirez.lavacampus.data.local.entity.Usuario
 import com.ramirez.lavacampus.data.prefs.PreferenciasStore
 import com.ramirez.lavacampus.data.repository.LavaRepositoryRoom
 import com.ramirez.lavacampus.model.Rol
+import com.ramirez.lavacampus.ui.administrador.PanelScreen
 import com.ramirez.lavacampus.ui.estudiante.DetallePedidoScreen
 import com.ramirez.lavacampus.ui.estudiante.InicioScreen
 import com.ramirez.lavacampus.ui.estudiante.LoginScreen
@@ -27,6 +28,7 @@ import com.ramirez.lavacampus.viewmodel.InicioViewModel
 import com.ramirez.lavacampus.viewmodel.LavaViewModelFactory
 import com.ramirez.lavacampus.viewmodel.MisPedidosViewModel
 import com.ramirez.lavacampus.viewmodel.NuevoPedidoViewModel
+import com.ramirez.lavacampus.viewmodel.PanelViewModel
 import com.ramirez.lavacampus.viewmodel.SesionViewModel
 
 @Composable
@@ -149,6 +151,15 @@ fun NavLava() {
             TarifasScreen(
                 vm = misPedidosViewModel,
                 onVolver = { navController.popBackStack() }
+            )
+        }
+
+        composable(Rutas.AdminPanel.ruta) {
+            val panelViewModel: PanelViewModel = viewModel(factory = factory)
+
+            PanelScreen(
+                vm = panelViewModel,
+                onVerBandeja = { navController.navigate(Rutas.AdminBandeja.ruta) }
             )
         }
     }

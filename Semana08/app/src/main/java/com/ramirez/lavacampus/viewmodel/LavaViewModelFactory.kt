@@ -30,6 +30,9 @@ class LavaViewModelFactory(
             modelClass.isAssignableFrom(MisPedidosViewModel::class.java) -> {
                 MisPedidosViewModel(repo, usuarioId) as T
             }
+            modelClass.isAssignableFrom(PanelViewModel::class.java) -> {
+                PanelViewModel(repo) as T
+            }
             else -> throw IllegalArgumentException("ViewModel desconocido: ${modelClass.name}")
         }
     }
