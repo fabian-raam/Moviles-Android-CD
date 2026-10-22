@@ -13,9 +13,9 @@
 **¿Respeta MVVM?:** Sí, la interacción del usuario dispara llamadas al ViewModel y la consulta del promedio responde de forma reactiva con `Flow`.
 
 ## Mejora 3: Gráfico de gasto mensual
-**Texto enviado a Gemini:** "Crea un gráfico de líneas en Canvas dentro del Perfil del estudiante que muestre el gasto acumulado por mes en lavandería obtenido desde Room."
-**Qué generó la IA:** La consulta SQL en `PedidoDao` agrupada por mes (`SUBSTR(fechaRegistro, 6, 2)`), la transformación a `DatoGrafico` en `SesionViewModel`, el componente `GraficoLineas` dibujado con `Canvas` y la integración en `PerfilScreen`.
-**Qué tuve que corregir yo:** Mapear los números de mes ('01', '02', etc.) a nombres legibles en español ('Ene', 'Feb', etc.) y asegurar datos por defecto cuando no hay pedidos pagados.
+**Texto enviado a Gemini:** "Muestra un gráfico de barras en el Perfil del estudiante que presente el gasto acumulado por mes en lavandería utilizando el componente GraficoBarras con datos desde Room."
+**Qué generó la IA:** La consulta SQL en `PedidoDao` agrupada por mes (`SUBSTR(fechaRegistro, 6, 2)`), la transformación a `DatoGrafico` en `SesionViewModel`, el uso de `GraficoBarras` y la integración en `PerfilScreen`.
+**Qué tuve que corregir yo:** Mapear los números de mes ('01', '02', etc.) a nombres legibles en español ('Ene', 'Feb', etc.) y asegurar el color primario del estudiante (`TurquesaPrimary`).
 **¿Respeta MVVM?:** Sí, la vista dibuja la gráfica basándose en la lista de `DatoGrafico` expuesta por `StateFlow` sin tocar directamente la capa de datos.
 
 ## Reflexión

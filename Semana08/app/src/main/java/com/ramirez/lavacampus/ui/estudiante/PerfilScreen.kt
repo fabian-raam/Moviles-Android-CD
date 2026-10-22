@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.sp
 import com.ramirez.lavacampus.data.local.entity.Usuario
 import com.ramirez.lavacampus.model.Rol
 import com.ramirez.lavacampus.ui.components.AppTopBar
-import com.ramirez.lavacampus.ui.components.graficos.GraficoLineas
+import com.ramirez.lavacampus.ui.components.graficos.GraficoBarras
 import com.ramirez.lavacampus.ui.theme.TurquesaPrimary
 import com.ramirez.lavacampus.viewmodel.SesionViewModel
 
@@ -157,7 +157,7 @@ fun PerfilScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(12.dp))
-                        GraficoLineas(datos = gastoMensual)
+                        GraficoBarras(datos = gastoMensual)
                     }
                 }
             }
