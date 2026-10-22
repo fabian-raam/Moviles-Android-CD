@@ -104,7 +104,10 @@ fun DetallePedidoScreen(
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        )
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
@@ -163,7 +166,10 @@ fun DetallePedidoScreen(
                 items(detalles) { item ->
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                        )
                     ) {
                         Row(
                             modifier = Modifier
@@ -262,7 +268,7 @@ fun DetallePedidoScreen(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
                             )
                         ) {
                             Column(
