@@ -11,6 +11,7 @@ import com.ramirez.lavacampus.model.ClienteResumen
 import com.ramirez.lavacampus.model.EstadoPedido
 import com.ramirez.lavacampus.model.IngresoServicio
 import com.ramirez.lavacampus.model.LineaPedido
+import com.ramirez.lavacampus.model.Rol
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
@@ -19,6 +20,26 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
     // === USUARIOS ===
     override suspend fun login(correo: String, clave: String): Usuario? {
         return db.usuarioDao().login(correo, clave)
+    }
+
+    override suspend fun registrarEstudiante(
+        nombre: String,
+        codigo: String,
+        correo: String,
+        clave: String
+    ): Long {
+        val nuevoEstudiante = Usuario(
+            nombre = nombre,
+            codigo = codigo,
+            correo = correo,
+            clave = clave,
+            rol = Rol.CLIENTE.name
+        )
+        return db.usuarioDao().registrar(nuevoEstudiante)
+    }
+
+    override fun observarUsuario(id: Int): Flow<Usuario?> {
+        return db.usuarioDao().observarPorId(id)
     }
 
     override fun observarClientes(): Flow<List<ClienteResumen>> {

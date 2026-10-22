@@ -18,6 +18,9 @@ class LavaViewModelFactory(
             modelClass.isAssignableFrom(SesionViewModel::class.java) -> {
                 SesionViewModel(repo, prefs) as T
             }
+            modelClass.isAssignableFrom(RegistroViewModel::class.java) -> {
+                RegistroViewModel(repo, prefs) as T
+            }
             modelClass.isAssignableFrom(InicioViewModel::class.java) -> {
                 InicioViewModel(repo, usuarioId) as T
             }

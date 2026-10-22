@@ -5,10 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.ramirez.lavacampus.data.local.entity.Usuario
 import com.ramirez.lavacampus.data.prefs.PreferenciasStore
 import com.ramirez.lavacampus.data.repository.LavaRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -17,8 +20,12 @@ class SesionViewModel(
     private val prefs: PreferenciasStore
 ) : ViewModel() {
 
-    private val _usuarioActual = MutableStateFlow<Usuario?>(null)
-    val usuarioActual: StateFlow<Usuario?> = _usuarioActual.asStateFlow()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val usuarioActual: StateFlow<Usuario?> = prefs.usuarioId
+        .flatMapLatest { id ->
+            if (id > 0) repo.observarUsuario(id) else flowOf(null)
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
@@ -43,7 +50,6 @@ class SesionViewModel(
                 _error.value = "El rol seleccionado no corresponde a estas credenciales"
             } else {
                 _error.value = null
-                _usuarioActual.value = usuario
                 prefs.guardarSesion(usuario.rol, usuario.id)
                 onExito()
             }
@@ -52,7 +58,6 @@ class SesionViewModel(
 
     fun cerrarSesion() {
         viewModelScope.launch {
-            _usuarioActual.value = null
             prefs.cerrarSesion()
         }
     }

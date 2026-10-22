@@ -11,19 +11,23 @@ import com.ramirez.lavacampus.model.Rol
 private val EstudianteLightScheme = lightColorScheme(
     primary = TurquesaPrimary,
     primaryContainer = TurquesaContainer,
-    secondaryContainer = Color(0xFFE0F2FE),
+    secondaryContainer = Color(0xFFCFFAFE),
     background = TurquesaBackground,
     surface = Color.White,
-    surfaceVariant = Color(0xFFF1F5F9)
+    surfaceVariant = Color.White,
+    onSurfaceVariant = Color(0xFF0F172A),
+    surfaceTint = Color.Transparent
 )
 
 private val AdminLightScheme = lightColorScheme(
     primary = VioletaPrimary,
     primaryContainer = VioletaContainer,
-    secondaryContainer = Color(0xFFF3E8FF),
-    background = VioletaBackground,
+    secondaryContainer = Color(0xFFEDE9FE),
+    background = Color(0xFFFAF8FF),
     surface = Color.White,
-    surfaceVariant = Color(0xFFF5F3FF)
+    surfaceVariant = Color.White,
+    onSurfaceVariant = Color(0xFF0F172A),
+    surfaceTint = Color.Transparent
 )
 
 private val DarkScheme = darkColorScheme(
@@ -31,7 +35,9 @@ private val DarkScheme = darkColorScheme(
     primaryContainer = Color(0xFF0369A1),
     background = DarkBackground,
     surface = DarkSurface,
-    surfaceVariant = Color(0xFF334155)
+    surfaceVariant = Color(0xFF334155),
+    onSurfaceVariant = Color.White,
+    surfaceTint = Color.Transparent
 )
 
 @Composable

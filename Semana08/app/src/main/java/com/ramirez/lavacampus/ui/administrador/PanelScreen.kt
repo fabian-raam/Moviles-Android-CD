@@ -10,10 +10,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -26,10 +31,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ramirez.lavacampus.ui.components.AppTopBar
 import com.ramirez.lavacampus.ui.components.graficos.GraficoBarras
 import com.ramirez.lavacampus.ui.components.graficos.GraficoDona
+import com.ramirez.lavacampus.ui.theme.VioletaPrimary
 import com.ramirez.lavacampus.viewmodel.PanelViewModel
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun PanelScreen(
@@ -43,9 +51,14 @@ fun PanelScreen(
     val porEstado by vm.porEstado.collectAsState()
     val porServicio by vm.porServicio.collectAsState()
 
-    Scaffold(
-        topBar = { AppTopBar(titulo = "Panel de Administración") }
-    ) { padding ->
+    val fechaFormateada = try {
+        val formatter = DateTimeFormatter.ofPattern("EEE d MMM", Locale("es", "ES"))
+        "Hoy · " + LocalDate.now().format(formatter)
+    } catch (e: Exception) {
+        "Hoy · Mié 21 oct"
+    }
+
+    Scaffold { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -53,75 +66,85 @@ fun PanelScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Ingresos de la Semana (Tarjeta Violeta)
+            // Encabezado con Campana de Notificación
             item {
-                ElevatedCard(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.elevatedCardColors(
-                        containerColor = Color(0xFFEDE9FE)
-                    )
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
+                    Column {
                         Text(
-                            text = "Ingresos de la semana",
-                            fontSize = 14.sp,
-                            color = Color(0xFF6D28D9)
+                            text = "Panel de la lavandería",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "S/ %.2f".format(ingresosSemana),
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF6D28D9)
+                            text = fechaFormateada,
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    IconButton(onClick = { }) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notificaciones",
+                            modifier = Modifier.padding(4.dp)
                         )
                     }
                 }
             }
 
-            // Tarjetas con Contadores Nivelados
+            // 3 Tarjetas Estadísticas Coloreadas
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    TarjetaContador("Hoy", pedidosHoy, Color(0xFF2563EB), Modifier.weight(1f))
-                    TarjetaContador("En proceso", enProceso, Color(0xFFD97706), Modifier.weight(1f))
-                    TarjetaContador("Por recoger", porRecoger, Color(0xFF16A34A), Modifier.weight(1f))
+                    TarjetaContadorColor("Pedidos hoy", pedidosHoy, Color(0xFFEDE9FE), Color(0xFF6D28D9), Modifier.weight(1f))
+                    TarjetaContadorColor("En proceso", enProceso, Color(0xFFDBEAFE), Color(0xFF2563EB), Modifier.weight(1f))
+                    TarjetaContadorColor("Por recoger", porRecoger, Color(0xFFDCFCE7), Color(0xFF16A34A), Modifier.weight(1f))
                 }
             }
 
-            // Alerta si hay ropa en casillero lista
-            if (porRecoger > 0) {
-                item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFDCFCE7))
+            // Ingresos de la Semana (Tarjeta Púrpura Intenso)
+            item {
+                ElevatedCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.elevatedCardColors(
+                        containerColor = VioletaPrimary
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(20.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = "📦 Ropa por recoger",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp,
-                                    color = Color(0xFF16A34A)
-                                )
-                                Text(
-                                    text = "Hay $porRecoger pedido(s) listos esperando en casillero.",
-                                    fontSize = 12.sp
-                                )
-                            }
-                            Button(onClick = onVerBandeja) {
-                                Text("Ver")
-                            }
+                        Column {
+                            Text(
+                                text = "Ingresos de la semana",
+                                fontSize = 13.sp,
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "S/ %.2f".format(ingresosSemana),
+                                fontSize = 26.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
                         }
+
+                        Text(
+                            text = "38 pedidos",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
                     }
                 }
             }
@@ -130,11 +153,12 @@ fun PanelScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Pedidos por Estado",
+                            text = "Pedidos por estado",
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
@@ -148,11 +172,12 @@ fun PanelScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Ingresos por Servicio esta semana",
+                            text = "Ingresos por servicio (S/)",
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp
                         )
@@ -161,27 +186,70 @@ fun PanelScreen(
                     }
                 }
             }
+
+            // Alerta Verde
+            if (porRecoger > 0) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFDCFCE7))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "$porRecoger pedidos esperan recojo",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF16A34A)
+                                )
+                                Text(
+                                    text = "avisa a los estudiantes",
+                                    fontSize = 12.sp,
+                                    color = Color(0xFF16A34A)
+                                )
+                            }
+                            Button(
+                                onClick = onVerBandeja,
+                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF16A34A)),
+                                shape = RoundedCornerShape(12.dp)
+                            ) {
+                                Text("Ver", color = Color.White)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun TarjetaContador(
+private fun TarjetaContadorColor(
     etiqueta: String,
     valor: Int,
-    color: Color,
+    colorFondo: Color,
+    colorTexto: Color,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(16.dp)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = colorFondo)
     ) {
         Column(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = valor.toString(), fontSize = 22.sp, fontWeight = FontWeight.Bold, color = color)
-            Text(text = etiqueta, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = valor.toString(), fontSize = 26.sp, fontWeight = FontWeight.Bold, color = colorTexto)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(text = etiqueta, fontSize = 11.sp, fontWeight = FontWeight.Bold, color = colorTexto)
         }
     }
 }

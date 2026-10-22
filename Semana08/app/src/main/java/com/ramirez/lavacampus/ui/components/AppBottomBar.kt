@@ -9,14 +9,22 @@ import androidx.compose.material.icons.filled.LocalLaundryService
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Sell
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import com.ramirez.lavacampus.model.Rol
 import com.ramirez.lavacampus.ui.navigation.Rutas
+import com.ramirez.lavacampus.ui.theme.TurquesaContainer
+import com.ramirez.lavacampus.ui.theme.TurquesaPrimary
+import com.ramirez.lavacampus.ui.theme.VioletaContainer
+import com.ramirez.lavacampus.ui.theme.VioletaPrimary
 
 private data class ItemBottomBar(
     val titulo: String,
@@ -43,11 +51,17 @@ fun AppBottomBar(
             ItemBottomBar("Pedidos", Rutas.AdminBandeja.ruta, Icons.Default.Inbox),
             ItemBottomBar("Servicios", Rutas.AdminServicios.ruta, Icons.Default.LocalLaundryService),
             ItemBottomBar("Clientes", Rutas.AdminClientes.ruta, Icons.Default.People),
-            ItemBottomBar("Ajustes", Rutas.AdminAjustes.ruta, Icons.Default.Person)
+            ItemBottomBar("Ajustes", Rutas.AdminAjustes.ruta, Icons.Default.Settings)
         )
     }
 
-    NavigationBar {
+    val activeColor = if (rol == Rol.CLIENTE.name) TurquesaPrimary else VioletaPrimary
+    val activeIndicator = if (rol == Rol.CLIENTE.name) TurquesaContainer else VioletaContainer
+
+    NavigationBar(
+        containerColor = Color.White,
+        tonalElevation = 0.dp
+    ) {
         items.forEach { item ->
             val seleccionado = rutaActual == item.ruta
             NavigationBarItem(
@@ -56,7 +70,14 @@ fun AppBottomBar(
                     if (!seleccionado) onNavegar(item.ruta)
                 },
                 icon = { Icon(imageVector = item.icono, contentDescription = item.titulo) },
-                label = { Text(item.titulo) }
+                label = { Text(item.titulo) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = activeColor,
+                    selectedTextColor = activeColor,
+                    indicatorColor = activeIndicator,
+                    unselectedIconColor = Color.Gray,
+                    unselectedTextColor = Color.Gray
+                )
             )
         }
     }

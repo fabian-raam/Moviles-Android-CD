@@ -1,6 +1,7 @@
 package com.ramirez.lavacampus.ui.administrador
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,16 +9,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,6 +31,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +41,8 @@ import com.ramirez.lavacampus.ui.components.AppTopBar
 import com.ramirez.lavacampus.ui.components.EstadoPedidoChip
 import com.ramirez.lavacampus.ui.components.LavaButton
 import com.ramirez.lavacampus.ui.components.StepperEstado
+import com.ramirez.lavacampus.ui.theme.VioletaContainer
+import com.ramirez.lavacampus.ui.theme.VioletaPrimary
 import com.ramirez.lavacampus.viewmodel.GestionPedidoViewModel
 
 @Composable
@@ -47,12 +56,21 @@ fun GestionPedidoScreen(
     val pagado by vm.pagado.collectAsState()
     val error by vm.error.collectAsState()
 
-    Scaffold(
-        topBar = { AppTopBar(titulo = "Gestión del Pedido", onVolver = onVolver) }
-    ) { padding ->
-        val p = pedidoConDetalle?.pedido
-        val u = pedidoConDetalle?.usuario
+    val p = pedidoConDetalle?.pedido
+    val u = pedidoConDetalle?.usuario
 
+    val iniciales = if (u != null) {
+        u.nombre.split(" ").mapNotNull { it.firstOrNull() }.take(2).joinToString("").uppercase()
+    } else "AG"
+
+    Scaffold(
+        topBar = {
+            AppTopBar(
+                titulo = if (p != null) "Gestionar pedido #%03d".format(p.id) else "Gestionar pedido",
+                onVolver = onVolver
+            )
+        }
+    ) { padding ->
         if (p != null && u != null) {
             LazyColumn(
                 modifier = Modifier
@@ -61,71 +79,117 @@ fun GestionPedidoScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Datos del Cliente
+                // Tarjeta del Estudiante con Avatar Iniciales (AG)
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp)
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = u.nombre,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                EstadoPedidoChip(estadoString = p.estado)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Surface(
+                                    modifier = Modifier.size(48.dp),
+                                    shape = CircleShape,
+                                    color = VioletaContainer
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text(
+                                            text = iniciales,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 16.sp,
+                                            color = VioletaPrimary
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.width(12.dp))
+
+                                Column {
+                                    Text(
+                                        text = u.nombre,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    Text(
+                                        text = u.codigo,
+                                        fontSize = 12.sp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
-                            Text(
-                                text = "Código: ${u.codigo} | Correo: ${u.correo}",
-                                fontSize = 13.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+
+                            EstadoPedidoChip(estadoString = p.estado)
                         }
                     }
                 }
 
-                // Seguimiento de estado
+                // Seguimiento Vertical
                 item {
-                    StepperEstado(estadoActualString = p.estado)
-                }
-
-                // Selector de Casilleros (C-01 a C-30)
-                item {
-                    Text(
-                        text = "Asignar Casillero (para estado LISTO)",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 15.sp
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        items(Casilleros.todos) { casillero ->
-                            val estaOcupado = casillerosOcupados.contains(casillero) && casillero != p.casillero
-                            val esElSeleccionado = (casilleroElegido ?: p.casillero) == casillero
-
-                            FilterChip(
-                                selected = esElSeleccionado,
-                                onClick = {
-                                    if (!estaOcupado) vm.elegirCasillero(casillero)
-                                },
-                                enabled = !estaOcupado,
-                                label = { Text(casillero) }
-                            )
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
+                    ) {
+                        Column(modifier = Modifier.padding(20.dp)) {
+                            StepperEstado(estadoActualString = p.estado, esVertical = true)
                         }
                     }
                 }
 
-                // Cobro del Pedido
+                // Selector de Casillero para Recojo
+                item {
+                    Column {
+                        Text(
+                            text = "Casillero para el recojo",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            items(Casilleros.todos) { casillero ->
+                                val estaOcupado = casillerosOcupados.contains(casillero) && casillero != p.casillero
+                                val esElSeleccionado = (casilleroElegido ?: p.casillero) == casillero
+
+                                FilterChip(
+                                    selected = esElSeleccionado,
+                                    onClick = {
+                                        if (!estaOcupado) vm.elegirCasillero(casillero)
+                                    },
+                                    enabled = !estaOcupado,
+                                    label = { Text(casillero, fontWeight = FontWeight.Bold) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = VioletaPrimary,
+                                        selectedLabelColor = Color.White,
+                                        disabledContainerColor = Color(0xFFF1F5F9)
+                                    )
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Los casilleros en gris ya están ocupados",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                // Tarjeta de Cobro
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                        colors = CardDefaults.cardColors(containerColor = Color.White)
                     ) {
                         Row(
                             modifier = Modifier
@@ -136,20 +200,45 @@ fun GestionPedidoScreen(
                         ) {
                             Column {
                                 Text(
-                                    text = "Monto Total: S/ %.2f".format(p.total),
+                                    text = "Total S/ %.2f".format(p.total),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 16.sp
                                 )
                                 Text(
-                                    text = if (p.pagado || pagado) "Cobrado" else "Pendiente de pago",
-                                    fontSize = 13.sp
+                                    text = "Se cobra al entregar",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            Switch(
-                                checked = p.pagado || pagado,
-                                onCheckedChange = { vm.cambiarPagado(it) }
-                            )
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    text = "Cobrado ",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Switch(
+                                    checked = p.pagado || pagado,
+                                    onCheckedChange = { vm.cambiarPagado(it) }
+                                )
+                            }
                         }
+                    }
+                }
+
+                // Banner Informativo de Reglas (Violeta Claro)
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F3FF))
+                    ) {
+                        Text(
+                            text = "Regla: no se entrega un pedido sin cobrar, ni se pasa a Listo sin casillero.",
+                            modifier = Modifier.padding(16.dp),
+                            fontSize = 12.sp,
+                            color = VioletaPrimary
+                        )
                     }
                 }
 
@@ -158,12 +247,12 @@ fun GestionPedidoScreen(
                         Text(
                             text = error!!,
                             color = MaterialTheme.colorScheme.error,
-                            fontSize = 14.sp
+                            fontSize = 13.sp
                         )
                     }
                 }
 
-                // Botones de Acción
+                // Botones de Acción (Bloqueados si no se cumplen las condiciones)
                 item {
                     val estadoActualEnum = try {
                         EstadoPedido.valueOf(p.estado)
@@ -173,9 +262,17 @@ fun GestionPedidoScreen(
 
                     val siguiente = estadoActualEnum.siguiente()
 
+                    val puedeAvanzar = when (siguiente) {
+                        EstadoPedido.LISTO -> !casilleroElegido.isNullOrEmpty() || !p.casillero.isNullOrEmpty()
+                        EstadoPedido.ENTREGADO -> p.pagado || pagado
+                        else -> true
+                    }
+
                     if (siguiente != null) {
                         LavaButton(
-                            texto = "Avanzar a: ${siguiente.titulo}",
+                            texto = "Marcar como ${siguiente.titulo}",
+                            enabled = puedeAvanzar, // BLOQUEADO SI NO CUMPLE LA REGLA
+                            containerColor = if (puedeAvanzar) VioletaPrimary else Color.LightGray,
                             onClick = {
                                 vm.avanzarEstado {
                                     onVolver()
@@ -192,10 +289,12 @@ fun GestionPedidoScreen(
                                 onVolver()
                             }
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Cancelar Pedido", color = MaterialTheme.colorScheme.error)
+                        Text("Cancelar pedido", color = Color.Red, fontWeight = FontWeight.Bold)
                     }
                 }
             }

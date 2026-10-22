@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ramirez.lavacampus.model.Unidad
+import com.ramirez.lavacampus.ui.components.AppTopBar
 import com.ramirez.lavacampus.ui.components.IconoServicio
 import com.ramirez.lavacampus.ui.components.LavaButton
 import com.ramirez.lavacampus.ui.components.LavaTextField
@@ -36,7 +37,8 @@ import com.ramirez.lavacampus.viewmodel.NuevoPedidoViewModel
 @Composable
 fun NuevoPedidoScreen(
     vm: NuevoPedidoViewModel,
-    onPedidoConfirmado: () -> Unit
+    onPedidoConfirmado: () -> Unit,
+    onVolver: () -> Unit
 ) {
     val servicios by vm.serviciosActivos.collectAsState()
     val cantidades by vm.cantidades.collectAsState()
@@ -45,7 +47,9 @@ fun NuevoPedidoScreen(
     val fechaEntrega by vm.fechaEntrega.collectAsState()
     val error by vm.error.collectAsState()
 
-    Scaffold { padding ->
+    Scaffold(
+        topBar = { AppTopBar(titulo = "Nuevo Pedido", onVolver = onVolver) }
+    ) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -54,12 +58,6 @@ fun NuevoPedidoScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Text(
-                    text = "Nuevo Pedido",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
                 Text(
                     text = "Elige los servicios y cantidades que necesitas",
                     fontSize = 14.sp,
@@ -79,7 +77,8 @@ fun NuevoPedidoScreen(
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     Row(
                         modifier = Modifier

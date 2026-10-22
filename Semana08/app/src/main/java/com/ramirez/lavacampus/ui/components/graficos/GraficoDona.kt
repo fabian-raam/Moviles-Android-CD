@@ -31,15 +31,17 @@ fun GraficoDona(
 ) {
     val totalValores = datos.sumOf { it.valor }.coerceAtLeast(1.0)
 
-    Column(
+    Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly
     ) {
+        // Gráfico de Dona a la Izquierda
         Box(
-            modifier = Modifier.size(180.dp),
+            modifier = Modifier.size(150.dp),
             contentAlignment = Alignment.Center
         ) {
-            Canvas(modifier = Modifier.size(160.dp)) {
+            Canvas(modifier = Modifier.size(130.dp)) {
                 var startAngle = -90f
                 datos.forEach { dato ->
                     val sweepAngle = ((dato.valor / totalValores) * 360f).toFloat()
@@ -49,7 +51,7 @@ fun GraficoDona(
                             startAngle = startAngle,
                             sweepAngle = sweepAngle,
                             useCenter = false,
-                            style = Stroke(width = 32f, cap = StrokeCap.Butt)
+                            style = Stroke(width = 28f, cap = StrokeCap.Butt)
                         )
                         startAngle += sweepAngle
                     }
@@ -59,33 +61,42 @@ fun GraficoDona(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = totalValores.toInt().toString(),
-                    fontSize = 24.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "Pedidos",
-                    fontSize = 12.sp
+                    text = "pedidos",
+                    fontSize = 11.sp
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.width(16.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
+        // Leyenda a la Derecha con conteo
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             datos.forEach { dato ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Surface(
-                        modifier = Modifier.size(10.dp),
-                        shape = CircleShape,
-                        color = dato.color
-                    ) {}
-                    Spacer(modifier = Modifier.width(4.dp))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.width(140.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            modifier = Modifier.size(10.dp),
+                            shape = CircleShape,
+                            color = dato.color
+                        ) {}
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = dato.etiqueta,
+                            fontSize = 12.sp
+                        )
+                    }
                     Text(
-                        text = "${dato.etiqueta}: ${dato.valor.toInt()}",
-                        fontSize = 11.sp
+                        text = dato.valor.toInt().toString(),
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }

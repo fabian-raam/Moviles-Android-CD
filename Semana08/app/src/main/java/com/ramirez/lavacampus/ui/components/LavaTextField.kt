@@ -14,6 +14,7 @@ fun LavaTextField(
     onValorChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
+    placeholder: String? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     isError: Boolean = false
@@ -22,6 +23,7 @@ fun LavaTextField(
         value = valor,
         onValueChange = onValorChange,
         label = { Text(label) },
+        placeholder = if (!placeholder.isNullOrEmpty()) { { Text(placeholder) } } else null,
         modifier = modifier.fillMaxWidth(),
         visualTransformation = visualTransformation,
         keyboardOptions = keyboardOptions,

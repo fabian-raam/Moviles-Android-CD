@@ -33,6 +33,7 @@ import com.ramirez.lavacampus.ui.estudiante.LoginScreen
 import com.ramirez.lavacampus.ui.estudiante.MisPedidosScreen
 import com.ramirez.lavacampus.ui.estudiante.NuevoPedidoScreen
 import com.ramirez.lavacampus.ui.estudiante.PerfilScreen
+import com.ramirez.lavacampus.ui.estudiante.RegistroScreen
 import com.ramirez.lavacampus.ui.estudiante.SplashScreen
 import com.ramirez.lavacampus.ui.estudiante.TarifasScreen
 import com.ramirez.lavacampus.ui.theme.LavaTheme
@@ -45,6 +46,7 @@ import com.ramirez.lavacampus.viewmodel.LavaViewModelFactory
 import com.ramirez.lavacampus.viewmodel.MisPedidosViewModel
 import com.ramirez.lavacampus.viewmodel.NuevoPedidoViewModel
 import com.ramirez.lavacampus.viewmodel.PanelViewModel
+import com.ramirez.lavacampus.viewmodel.RegistroViewModel
 import com.ramirez.lavacampus.viewmodel.ServiciosViewModel
 import com.ramirez.lavacampus.viewmodel.SesionViewModel
 
@@ -128,13 +130,31 @@ fun NavLava() {
                                     popUpTo(Rutas.Login.ruta) { inclusive = true }
                                 }
                             }
+                        },
+                        onIrARegistro = {
+                            navController.navigate(Rutas.Registro.ruta)
+                        }
+                    )
+                }
+
+                composable(Rutas.Registro.ruta) {
+                    val registroViewModel: RegistroViewModel = viewModel(factory = factory)
+
+                    RegistroScreen(
+                        vm = registroViewModel,
+                        onRegistroExito = {
+                            // Regresa a LoginScreen para que el usuario inicie sesión con su correo y contraseña
+                            navController.popBackStack()
+                        },
+                        onVolver = {
+                            navController.popBackStack()
                         }
                     )
                 }
 
                 // === ESTUDIANTE ===
                 composable(Rutas.EstudianteInicio.ruta) {
-                    val usuario = usuarioActual ?: Usuario(1, "Ana Torres", "U202310234", "ana@correo.test", "1234", "CLIENTE")
+                    val usuario = usuarioActual ?: Usuario(1, "Ana Torres", "202310", "ana@correo.test", "1234", "CLIENTE")
                     val inicioFactory = LavaViewModelFactory(repo, prefs, usuario.id)
                     val inicioViewModel: InicioViewModel = viewModel(factory = inicioFactory)
 
@@ -159,7 +179,8 @@ fun NavLava() {
                             navController.navigate(Rutas.EstudianteMisPedidos.ruta) {
                                 popUpTo(Rutas.EstudianteInicio.ruta)
                             }
-                        }
+                        },
+                        onVolver = { navController.popBackStack() }
                     )
                 }
 
@@ -202,7 +223,7 @@ fun NavLava() {
                 }
 
                 composable(Rutas.EstudiantePerfil.ruta) {
-                    val usuario = usuarioActual ?: Usuario(1, "Ana Torres", "U202310234", "ana@correo.test", "1234", "CLIENTE")
+                    val usuario = usuarioActual ?: Usuario(1, "Ana Torres", "202310", "ana@correo.test", "1234", "CLIENTE")
 
                     PerfilScreen(
                         usuario = usuario,

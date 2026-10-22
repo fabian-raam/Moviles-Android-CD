@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.Flow
 interface LavaRepository {
     // Usuarios
     suspend fun login(correo: String, clave: String): Usuario?
+    suspend fun registrarEstudiante(nombre: String, codigo: String, correo: String, clave: String): Long
+    fun observarUsuario(id: Int): Flow<Usuario?>
     fun observarClientes(): Flow<List<ClienteResumen>>
 
     // Servicios

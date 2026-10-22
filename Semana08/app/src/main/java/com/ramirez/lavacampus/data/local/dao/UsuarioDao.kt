@@ -14,6 +14,9 @@ interface UsuarioDao {
     @Query("SELECT * FROM usuarios WHERE correo = :correo AND clave = :clave")
     suspend fun login(correo: String, clave: String): Usuario?
 
+    @Query("SELECT * FROM usuarios WHERE id = :id")
+    fun observarPorId(id: Int): Flow<Usuario?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun registrar(u: Usuario): Long
 

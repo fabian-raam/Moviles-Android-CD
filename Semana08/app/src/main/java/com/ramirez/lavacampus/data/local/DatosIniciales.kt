@@ -56,25 +56,25 @@ object DatosIniciales {
         )
         db.servicioDao().insertarTodos(servicios)
 
-        // 2. USUARIOS INICIALES (3 Estudiantes y 1 Admin)
+        // 2. USUARIOS INICIALES (Códigos numéricos de 6 dígitos)
         val usuarios = listOf(
             Usuario(
                 nombre = "Ana Torres",
-                codigo = "U202310234",
+                codigo = "202310",
                 correo = "ana@correo.test",
                 clave = "1234",
                 rol = Rol.CLIENTE.name
             ),
             Usuario(
                 nombre = "Luis Ramos",
-                codigo = "U202210567",
+                codigo = "202210",
                 correo = "luis@correo.test",
                 clave = "1234",
                 rol = Rol.CLIENTE.name
             ),
             Usuario(
                 nombre = "Marta Gómez",
-                codigo = "U202310890",
+                codigo = "202311",
                 correo = "marta@correo.test",
                 clave = "1234",
                 rol = Rol.CLIENTE.name
