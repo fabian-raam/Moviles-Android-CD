@@ -170,4 +170,8 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
     override fun observarPromedioCalificacion(): Flow<Double> {
         return db.pedidoDao().observarPromedioCalificacion()
     }
+
+    override fun observarGastoMensual(usuarioId: Int): Flow<List<com.ramirez.lavacampus.data.local.dao.GastoMensual>> {
+        return db.pedidoDao().observarGastoMensual(usuarioId)
+    }
 }

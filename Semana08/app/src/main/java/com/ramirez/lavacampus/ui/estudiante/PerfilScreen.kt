@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import com.ramirez.lavacampus.data.local.entity.Usuario
 import com.ramirez.lavacampus.model.Rol
 import com.ramirez.lavacampus.ui.components.AppTopBar
+import com.ramirez.lavacampus.ui.components.graficos.GraficoLineas
 import com.ramirez.lavacampus.ui.theme.TurquesaPrimary
 import com.ramirez.lavacampus.viewmodel.SesionViewModel
 
@@ -57,6 +58,7 @@ fun PerfilScreen(
     onCerrarSesion: () -> Unit
 ) {
     val modoOscuro by vm.modoOscuro.collectAsState()
+    val gastoMensual by vm.gastoMensual.collectAsState()
     var avisosListo by remember { mutableStateOf(true) }
 
     Scaffold(
@@ -133,6 +135,30 @@ fun PerfilScreen(
                     TarjetaEstadisticaPerfil("3", "Pedidos activos", Modifier.weight(1f))
                     TarjetaEstadisticaPerfil("18", "Pedidos totales", Modifier.weight(1f))
                     TarjetaEstadisticaPerfil("42 kg", "Lavados", Modifier.weight(1f))
+                }
+            }
+
+            // Gráfico de Gasto Mensual (Canvas GraficoLineas)
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "Gasto mensual en lavandería",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 15.sp
+                        )
+                        Text(
+                            text = "Histórico de consumos (S/)",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        GraficoLineas(datos = gastoMensual)
+                    }
                 }
             }
 

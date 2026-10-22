@@ -55,4 +55,18 @@ interface PedidoDao {
 
     @Query("SELECT COALESCE(AVG(calificacion), 0.0) FROM pedidos WHERE calificacion IS NOT NULL AND calificacion > 0")
     fun observarPromedioCalificacion(): Flow<Double>
+
+    @Query("""
+        SELECT SUBSTR(fechaRegistro, 6, 2) AS mes, COALESCE(SUM(total), 0.0) AS total
+        FROM pedidos
+        WHERE usuarioId = :usuarioId AND estado != 'CANCELADO' AND pagado = 1
+        GROUP BY SUBSTR(fechaRegistro, 6, 2)
+        ORDER BY mes ASC
+    """)
+    fun observarGastoMensual(usuarioId: Int): Flow<List<GastoMensual>>
 }
+
+data class GastoMensual(
+    val mes: String,
+    val total: Double
+)

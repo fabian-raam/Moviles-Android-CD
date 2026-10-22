@@ -49,4 +49,5 @@ interface LavaRepository {
     fun observarIngresosDesde(fechaInicio: String): Flow<Double>
     fun observarIngresosPorServicio(fechaInicio: String): Flow<List<IngresoServicio>>
     fun observarPromedioCalificacion(): Flow<Double>
+    fun observarGastoMensual(usuarioId: Int): Flow<List<com.ramirez.lavacampus.data.local.dao.GastoMensual>>
 }
