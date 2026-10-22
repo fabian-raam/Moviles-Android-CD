@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import com.ramirez.lavacampus.model.EstadoPedido
 import com.ramirez.lavacampus.ui.components.AppTopBar
 import com.ramirez.lavacampus.ui.components.EstadoPedidoChip
+import com.ramirez.lavacampus.ui.components.LavaButton
 import com.ramirez.lavacampus.ui.components.IconoServicio
 import com.ramirez.lavacampus.ui.components.StepperEstado
 import com.ramirez.lavacampus.viewmodel.DetallePedidoViewModel
@@ -254,6 +255,9 @@ fun DetallePedidoScreen(
                 // Sección de Calificación del Servicio (si ya fue entregado)
                 if (p.estado == EstadoPedido.ENTREGADO.name) {
                     item {
+                        val yaCalificado = p.calificacion != null && p.calificacion > 0
+                        var seleccionLocal by remember { mutableStateOf(p.calificacion ?: 5) }
+
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
@@ -268,17 +272,31 @@ fun DetallePedidoScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = if (p.calificacion != null && p.calificacion > 0) "¡Gracias por tu opinión! (⭐ ${p.calificacion}/5)" else "¿Qué tal te pareció el servicio?",
+                                    text = if (yaCalificado) "¡Gracias por tu opinión! (⭐ ${p.calificacion}/5)" else "¿Qué tal te pareció el servicio?",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 15.sp
                                 )
                                 Spacer(modifier = Modifier.height(8.dp))
+
                                 ComponenteCalificacionEstrellas(
-                                    calificacionActual = p.calificacion,
+                                    calificacionActual = if (yaCalificado) p.calificacion else seleccionLocal,
+                                    editable = !yaCalificado,
                                     onCalificar = { estrellas ->
-                                        vm.calificarPedido(estrellas)
+                                        if (!yaCalificado) {
+                                            seleccionLocal = estrellas
+                                        }
                                     }
                                 )
+
+                                if (!yaCalificado) {
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                    LavaButton(
+                                        texto = "Guardar Calificación",
+                                        onClick = {
+                                            vm.calificarPedido(seleccionLocal)
+                                        }
+                                    )
+                                }
                             }
                         }
                     }
@@ -334,7 +352,8 @@ fun DetallePedidoScreen(
 @Composable
 fun ComponenteCalificacionEstrellas(
     calificacionActual: Int?,
-    onCalificar: (Int) -> Unit
+    editable: Boolean = true,
+    onCalificar: (Int) -> Unit = {}
 ) {
     val calificacion = calificacionActual ?: 0
     Row(
@@ -342,14 +361,25 @@ fun ComponenteCalificacionEstrellas(
         verticalAlignment = Alignment.CenterVertically
     ) {
         (1..5).forEach { estrella ->
-            IconButton(
-                onClick = { onCalificar(estrella) }
-            ) {
+            if (editable) {
+                IconButton(
+                    onClick = { onCalificar(estrella) }
+                ) {
+                    Icon(
+                        imageVector = if (estrella <= calificacion) Icons.Filled.Star else Icons.Outlined.Star,
+                        contentDescription = "Calificación $estrella estrellas",
+                        tint = if (estrella <= calificacion) Color(0xFFFFB800) else Color.Gray,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            } else {
                 Icon(
                     imageVector = if (estrella <= calificacion) Icons.Filled.Star else Icons.Outlined.Star,
                     contentDescription = "Calificación $estrella estrellas",
                     tint = if (estrella <= calificacion) Color(0xFFFFB800) else Color.Gray,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier
+                        .padding(4.dp)
+                        .size(32.dp)
                 )
             }
         }
