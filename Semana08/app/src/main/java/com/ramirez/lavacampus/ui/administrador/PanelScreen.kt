@@ -50,6 +50,7 @@ fun PanelScreen(
     val ingresosSemana by vm.ingresosSemana.collectAsState()
     val porEstado by vm.porEstado.collectAsState()
     val porServicio by vm.porServicio.collectAsState()
+    val promedioCalificacion by vm.promedioCalificacion.collectAsState()
 
     val fechaFormateada = try {
         val formatter = DateTimeFormatter.ofPattern("EEE d MMM", Locale("es", "ES"))
@@ -144,6 +145,43 @@ fun PanelScreen(
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+            }
+
+            // Promedio de Satisfacción de Clientes
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFBEB))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = "Satisfacción del cliente",
+                                fontSize = 13.sp,
+                                color = Color(0xFFD97706),
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = if (promedioCalificacion > 0.0) "%.1f / 5.0 estrellas".format(promedioCalificacion) else "Sin valoraciones aún",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFFB45309)
+                            )
+                        }
+                        Text(
+                            text = "⭐",
+                            fontSize = 28.sp
                         )
                     }
                 }

@@ -40,6 +40,7 @@ interface LavaRepository {
     fun observarPedido(id: Int): Flow<PedidoConDetalle?>
     suspend fun cambiarEstado(id: Int, estado: EstadoPedido, casillero: String?)
     suspend fun marcarPagado(id: Int, pagado: Boolean)
+    suspend fun calificarPedido(id: Int, calificacion: Int)
     fun observarCasillerosOcupados(): Flow<List<String>>
 
     // Panel
@@ -47,4 +48,5 @@ interface LavaRepository {
     fun observarCantidadPorEstado(estado: EstadoPedido): Flow<Int>
     fun observarIngresosDesde(fechaInicio: String): Flow<Double>
     fun observarIngresosPorServicio(fechaInicio: String): Flow<List<IngresoServicio>>
+    fun observarPromedioCalificacion(): Flow<Double>
 }

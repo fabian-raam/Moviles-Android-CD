@@ -48,4 +48,10 @@ class MisPedidosViewModel(
             repo.cambiarEstado(pedidoId, EstadoPedido.CANCELADO, null)
         }
     }
+
+    fun calificarPedido(pedidoId: Int, estrellas: Int) {
+        viewModelScope.launch {
+            repo.calificarPedido(pedidoId, estrellas)
+        }
+    }
 }

@@ -29,4 +29,10 @@ class DetallePedidoViewModel(
             onExito()
         }
     }
+
+    fun calificarPedido(estrellas: Int) {
+        viewModelScope.launch {
+            repo.calificarPedido(pedidoId, estrellas)
+        }
+    }
 }

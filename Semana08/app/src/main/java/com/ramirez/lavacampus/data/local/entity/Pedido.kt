@@ -28,6 +28,7 @@ data class Pedido(
     val estado: String,        // EstadoPedido.name (RECIBIDO, EN_PROCESO, LISTO, ENTREGADO, CANCELADO)
     val total: Double,
     val descuento: Double = 0.0,
+    val calificacion: Int? = null,
     val casillero: String? = null,
     val pagado: Boolean = false,
     val nota: String = "",

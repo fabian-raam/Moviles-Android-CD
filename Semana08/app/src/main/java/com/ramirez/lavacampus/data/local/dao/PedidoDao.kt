@@ -49,4 +49,10 @@ interface PedidoDao {
 
     @Query("SELECT COALESCE(SUM(total), 0.0) FROM pedidos WHERE pagado = 1 AND fechaRegistro >= :fechaInicio")
     fun ingresosDesde(fechaInicio: String): Flow<Double>
+
+    @Query("UPDATE pedidos SET calificacion = :calificacion WHERE id = :id")
+    suspend fun calificar(id: Int, calificacion: Int)
+
+    @Query("SELECT COALESCE(AVG(calificacion), 0.0) FROM pedidos WHERE calificacion IS NOT NULL AND calificacion > 0")
+    fun observarPromedioCalificacion(): Flow<Double>
 }

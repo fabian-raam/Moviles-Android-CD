@@ -8,15 +8,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -245,6 +251,39 @@ fun DetallePedidoScreen(
                     )
                 }
 
+                // Sección de Calificación del Servicio (si ya fue entregado)
+                if (p.estado == EstadoPedido.ENTREGADO.name) {
+                    item {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = if (p.calificacion != null && p.calificacion > 0) "¡Gracias por tu opinión! (⭐ ${p.calificacion}/5)" else "¿Qué tal te pareció el servicio?",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                ComponenteCalificacionEstrellas(
+                                    calificacionActual = p.calificacion,
+                                    onCalificar = { estrellas ->
+                                        vm.calificarPedido(estrellas)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
                 // Botón de Cancelación
                 item {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -289,5 +328,30 @@ fun DetallePedidoScreen(
                 }
             }
         )
+    }
+}
+
+@Composable
+fun ComponenteCalificacionEstrellas(
+    calificacionActual: Int?,
+    onCalificar: (Int) -> Unit
+) {
+    val calificacion = calificacionActual ?: 0
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        (1..5).forEach { estrella ->
+            IconButton(
+                onClick = { onCalificar(estrella) }
+            ) {
+                Icon(
+                    imageVector = if (estrella <= calificacion) Icons.Filled.Star else Icons.Outlined.Star,
+                    contentDescription = "Calificación $estrella estrellas",
+                    tint = if (estrella <= calificacion) Color(0xFFFFB800) else Color.Gray,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+        }
     }
 }

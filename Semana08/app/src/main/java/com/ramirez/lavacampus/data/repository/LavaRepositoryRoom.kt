@@ -142,6 +142,10 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
         db.pedidoDao().actualizarPagado(id, pagado)
     }
 
+    override suspend fun calificarPedido(id: Int, calificacion: Int) {
+        db.pedidoDao().calificar(id, calificacion)
+    }
+
     override fun observarCasillerosOcupados(): Flow<List<String>> {
         return db.pedidoDao().observarCasillerosOcupados()
     }
@@ -161,5 +165,9 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
 
     override fun observarIngresosPorServicio(fechaInicio: String): Flow<List<IngresoServicio>> {
         return db.detalleDao().observarIngresosPorServicio(fechaInicio)
+    }
+
+    override fun observarPromedioCalificacion(): Flow<Double> {
+        return db.pedidoDao().observarPromedioCalificacion()
     }
 }
