@@ -196,6 +196,27 @@ fun DetallePedidoScreen(
                     Divider()
                     Spacer(modifier = Modifier.height(8.dp))
 
+                    if (p.descuento > 0.0) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "🏷️ Descuento por volumen (10%):",
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF16A34A)
+                            )
+                            Text(
+                                text = "-S/ %.2f".format(p.descuento),
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF16A34A)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween

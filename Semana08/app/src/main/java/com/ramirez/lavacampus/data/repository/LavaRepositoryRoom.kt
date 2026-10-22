@@ -76,11 +76,17 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
         usuarioId: Int,
         lineas: List<LineaPedido>,
         fechaEntrega: String,
-        nota: String
+        nota: String,
+        descuento: Double
     ): Long {
         return db.withTransaction {
             val lineasValidas = lineas.filter { it.cantidad > 0 }
-            val totalPedido = lineasValidas.sumOf { it.subtotal }
+            val totalBruto = lineasValidas.sumOf { it.subtotal }
+            val descuentoCalculado = if (descuento > 0.0) descuento else {
+                lineasValidas.filter { it.servicio.unidad == "KG" && it.cantidad > 5.0 }
+                    .sumOf { it.subtotal * 0.10 }
+            }
+            val totalNeto = (totalBruto - descuentoCalculado).coerceAtLeast(0.0)
             val fechaHoy = LocalDate.now().toString()
 
             val nuevoPedido = Pedido(
@@ -88,7 +94,8 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
                 fechaRegistro = fechaHoy,
                 fechaEntrega = fechaEntrega,
                 estado = EstadoPedido.RECIBIDO.name,
-                total = totalPedido,
+                total = totalNeto,
+                descuento = descuentoCalculado,
                 casillero = null,
                 pagado = false,
                 nota = nota

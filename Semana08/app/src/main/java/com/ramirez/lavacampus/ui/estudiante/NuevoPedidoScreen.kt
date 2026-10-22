@@ -43,6 +43,8 @@ fun NuevoPedidoScreen(
     val servicios by vm.serviciosActivos.collectAsState()
     val cantidades by vm.cantidades.collectAsState()
     val nota by vm.nota.collectAsState()
+    val subtotalBruto by vm.subtotalBruto.collectAsState()
+    val descuento by vm.descuento.collectAsState()
     val total by vm.total.collectAsState()
     val fechaEntrega by vm.fechaEntrega.collectAsState()
     val error by vm.error.collectAsState()
@@ -130,6 +132,46 @@ fun NuevoPedidoScreen(
                     )
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
+                        if (descuento > 0.0) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Subtotal:",
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = "S/ %.2f".format(subtotalBruto),
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "🏷️ Descuento por volumen (10% en > 5kg):",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = androidx.compose.ui.graphics.Color(0xFF16A34A)
+                                )
+                                Text(
+                                    text = "-S/ %.2f".format(descuento),
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = androidx.compose.ui.graphics.Color(0xFF16A34A)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween

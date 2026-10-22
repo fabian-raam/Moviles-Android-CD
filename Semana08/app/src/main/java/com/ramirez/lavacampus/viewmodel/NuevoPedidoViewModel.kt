@@ -33,12 +33,26 @@ class NuevoPedidoViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    // Cálculo dinámico del total acumulado
-    val total: StateFlow<Double> = combine(serviciosActivos, cantidades) { servicios, mapCantidades ->
+    // Cálculo dinámico del subtotal bruto
+    val subtotalBruto: StateFlow<Double> = combine(serviciosActivos, cantidades) { servicios, mapCantidades ->
         servicios.sumOf { s ->
             val cant = mapCantidades[s.id] ?: 0.0
             cant * s.precio
         }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    // Cálculo dinámico del descuento por volumen (10% si el lavado en KG supera 5kg)
+    val descuento: StateFlow<Double> = combine(serviciosActivos, cantidades) { servicios, mapCantidades ->
+        servicios.filter { s -> s.unidad == Unidad.KG.name && (mapCantidades[s.id] ?: 0.0) > 5.0 }
+            .sumOf { s ->
+                val cant = mapCantidades[s.id] ?: 0.0
+                cant * s.precio * 0.10
+            }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
+
+    // Total neto (Subtotal - Descuento)
+    val total: StateFlow<Double> = combine(subtotalBruto, descuento) { bruto, desc ->
+        (bruto - desc).coerceAtLeast(0.0)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     // Cálculo de la fecha de entrega saltando domingos
@@ -97,7 +111,8 @@ class NuevoPedidoViewModel(
                 usuarioId = usuarioId,
                 lineas = lineas,
                 fechaEntrega = fechaEntrega.value,
-                nota = nota.value.trim()
+                nota = nota.value.trim(),
+                descuento = descuento.value
             )
 
             onExito()

@@ -204,6 +204,14 @@ fun GestionPedidoScreen(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 16.sp
                                 )
+                                if (p.descuento > 0.0) {
+                                    Text(
+                                        text = "Incluye desc. volumen -S/ %.2f".format(p.descuento),
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF16A34A)
+                                    )
+                                }
                                 Text(
                                     text = "Se cobra al entregar",
                                     fontSize = 12.sp,

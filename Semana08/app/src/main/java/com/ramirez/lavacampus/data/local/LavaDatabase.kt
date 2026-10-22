@@ -20,7 +20,7 @@ import com.ramirez.lavacampus.data.local.entity.Usuario
         Pedido::class,
         DetallePedido::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class LavaDatabase : RoomDatabase() {
@@ -40,7 +40,7 @@ abstract class LavaDatabase : RoomDatabase() {
                     context.applicationContext,
                     LavaDatabase::class.java,
                     "lavacampus.db"
-                ).build()
+                ).fallbackToDestructiveMigration(true).build()
                 INSTANCE = instance
                 instance
             }
