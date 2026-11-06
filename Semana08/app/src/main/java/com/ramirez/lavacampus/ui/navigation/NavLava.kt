@@ -36,6 +36,8 @@ import com.ramirez.lavacampus.ui.estudiante.PerfilScreen
 import com.ramirez.lavacampus.ui.estudiante.RegistroScreen
 import com.ramirez.lavacampus.ui.estudiante.SplashScreen
 import com.ramirez.lavacampus.ui.estudiante.TarifasScreen
+import com.ramirez.lavacampus.ui.soporte.RegistroSoporteScreen
+import com.ramirez.lavacampus.ui.soporte.SoporteHomeScreen
 import com.ramirez.lavacampus.ui.theme.LavaTheme
 import com.ramirez.lavacampus.viewmodel.BandejaViewModel
 import com.ramirez.lavacampus.viewmodel.ClientesViewModel
@@ -46,6 +48,7 @@ import com.ramirez.lavacampus.viewmodel.LavaViewModelFactory
 import com.ramirez.lavacampus.viewmodel.MisPedidosViewModel
 import com.ramirez.lavacampus.viewmodel.NuevoPedidoViewModel
 import com.ramirez.lavacampus.viewmodel.PanelViewModel
+import com.ramirez.lavacampus.viewmodel.RegistroSoporteViewModel
 import com.ramirez.lavacampus.viewmodel.RegistroViewModel
 import com.ramirez.lavacampus.viewmodel.ServiciosViewModel
 import com.ramirez.lavacampus.viewmodel.SesionViewModel
@@ -110,19 +113,34 @@ fun NavLava() {
                     SplashScreen(
                         vm = sesionViewModel,
                         onIrALogin = {
-                            navController.navigate(Rutas.Login.ruta) {
+                            navController.navigate("login?rol=CLIENTE&correo=") {
                                 popUpTo(Rutas.Splash.ruta) { inclusive = true }
                             }
                         }
                     )
                 }
 
-                composable(Rutas.Login.ruta) {
+                composable(
+                    route = Rutas.Login.ruta,
+                    arguments = listOf(
+                        navArgument("rol") { defaultValue = Rol.CLIENTE.name; type = NavType.StringType },
+                        navArgument("correo") { defaultValue = ""; type = NavType.StringType }
+                    )
+                ) { backStackEntry ->
+                    val rolArg = backStackEntry.arguments?.getString("rol") ?: Rol.CLIENTE.name
+                    val correoArg = backStackEntry.arguments?.getString("correo") ?: ""
+
                     LoginScreen(
                         vm = sesionViewModel,
+                        rolInicial = rolArg,
+                        correoInicial = correoArg,
                         onLoginExito = { rolUsuario ->
                             if (rolUsuario == Rol.CLIENTE.name) {
                                 navController.navigate(Rutas.EstudianteInicio.ruta) {
+                                    popUpTo(Rutas.Login.ruta) { inclusive = true }
+                                }
+                            } else if (rolUsuario == Rol.SOPORTE.name) {
+                                navController.navigate(Rutas.SoporteInicio.ruta) {
                                     popUpTo(Rutas.Login.ruta) { inclusive = true }
                                 }
                             } else {
@@ -131,8 +149,11 @@ fun NavLava() {
                                 }
                             }
                         },
-                        onIrARegistro = {
+                        onIrARegistroEstudiante = {
                             navController.navigate(Rutas.Registro.ruta)
+                        },
+                        onIrARegistroSoporte = {
+                            navController.navigate(Rutas.RegistroSoporte.ruta)
                         }
                     )
                 }
@@ -148,6 +169,44 @@ fun NavLava() {
                         },
                         onVolver = {
                             navController.popBackStack()
+                        }
+                    )
+                }
+
+                composable(Rutas.RegistroSoporte.ruta) {
+                    val registroSoporteViewModel: RegistroSoporteViewModel = viewModel(factory = factory)
+
+                    RegistroSoporteScreen(
+                        vm = registroSoporteViewModel,
+                        onRegistroExito = { correoRegistrado ->
+                            navController.navigate("login?rol=SOPORTE&correo=$correoRegistrado") {
+                                popUpTo(Rutas.Login.ruta) { inclusive = true }
+                            }
+                        },
+                        onVolver = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+
+                composable(Rutas.SoporteInicio.ruta) {
+                    val usuario = usuarioActual ?: Usuario(
+                        id = 0,
+                        nombre = "Soporte",
+                        codigo = "SOP001",
+                        correo = "soporte@lavacampus.test",
+                        clave = "1234",
+                        rol = Rol.SOPORTE.name,
+                        apellido = ""
+                    )
+
+                    SoporteHomeScreen(
+                        usuario = usuario,
+                        vm = sesionViewModel,
+                        onCerrarSesion = {
+                            navController.navigate("login?rol=CLIENTE&correo=") {
+                                popUpTo(Rutas.SoporteInicio.ruta) { inclusive = true }
+                            }
                         }
                     )
                 }
@@ -234,7 +293,7 @@ fun NavLava() {
                             }
                         },
                         onCerrarSesion = {
-                            navController.navigate(Rutas.Login.ruta) {
+                            navController.navigate("login?rol=CLIENTE&correo=") {
                                 popUpTo(Rutas.EstudianteInicio.ruta) { inclusive = true }
                             }
                         }
@@ -316,7 +375,7 @@ fun NavLava() {
                             }
                         },
                         onCerrarSesion = {
-                            navController.navigate(Rutas.Login.ruta) {
+                            navController.navigate("login?rol=CLIENTE&correo=") {
                                 popUpTo(Rutas.AdminPanel.ruta) { inclusive = true }
                             }
                         }

@@ -30,6 +30,17 @@ private val AdminLightScheme = lightColorScheme(
     surfaceTint = Color.Transparent
 )
 
+private val SoporteLightScheme = lightColorScheme(
+    primary = CoralPrimary,
+    primaryContainer = CoralContainer,
+    secondaryContainer = CoralFondoSelector,
+    background = CoralBackground,
+    surface = Color.White,
+    surfaceVariant = Color.White,
+    onSurfaceVariant = Color(0xFF0F172A),
+    surfaceTint = Color.Transparent
+)
+
 private val DarkScheme = darkColorScheme(
     primary = Color(0xFF38BDF8),
     primaryContainer = Color(0xFF0369A1),
@@ -49,6 +60,7 @@ fun LavaTheme(
     val colorScheme = when {
         modoOscuro -> DarkScheme
         rol == Rol.ADMIN.name -> AdminLightScheme
+        rol == Rol.SOPORTE.name -> SoporteLightScheme
         else -> EstudianteLightScheme
     }
 

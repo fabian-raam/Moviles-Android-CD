@@ -2,8 +2,11 @@ package com.ramirez.lavacampus.ui.navigation
 
 sealed class Rutas(val ruta: String) {
     object Splash : Rutas("splash")
-    object Login : Rutas("login")
+    object Login : Rutas("login?rol={rol}&correo={correo}")
     object Registro : Rutas("registro")
+    object RegistroSoporte : Rutas("registro_soporte")
+    object SoporteInicio : Rutas("soporte_inicio")
+
     object EstudianteInicio : Rutas("estudiante_inicio")
     object EstudianteNuevoPedido : Rutas("estudiante_nuevo_pedido")
     object EstudianteDetallePedido : Rutas("estudiante_detalle_pedido/{pedidoId}") {

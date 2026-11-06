@@ -14,6 +14,9 @@ interface LavaRepository {
     // Usuarios
     suspend fun login(correo: String, clave: String): Usuario?
     suspend fun registrarEstudiante(nombre: String, codigo: String, correo: String, clave: String): Long
+    suspend fun registrarSoporte(nombre: String, apellido: String, codigo: String, correo: String, clave: String): Long
+    suspend fun existeCorreo(correo: String): Boolean
+    suspend fun existeCodigo(codigo: String): Boolean
     fun observarUsuario(id: Int): Flow<Usuario?>
     fun observarClientes(): Flow<List<ClienteResumen>>
 

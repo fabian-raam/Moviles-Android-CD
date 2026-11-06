@@ -2,7 +2,7 @@ package com.ramirez.lavacampus.data.local.entity
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-
+//anotaciones de room
 @Entity(tableName = "usuarios")
 data class Usuario(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,

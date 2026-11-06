@@ -38,6 +38,32 @@ class LavaRepositoryRoom(private val db: LavaDatabase) : LavaRepository {
         return db.usuarioDao().registrar(nuevoEstudiante)
     }
 
+    override suspend fun registrarSoporte(
+        nombre: String,
+        apellido: String,
+        codigo: String,
+        correo: String,
+        clave: String
+    ): Long {
+        val nuevoSoporte = Usuario(
+            nombre = nombre,
+            apellido = apellido,
+            codigo = codigo,
+            correo = correo,
+            clave = clave,
+            rol = Rol.SOPORTE.name
+        )
+        return db.usuarioDao().registrar(nuevoSoporte)
+    }
+
+    override suspend fun existeCorreo(correo: String): Boolean {
+        return db.usuarioDao().obtenerPorCorreo(correo) != null
+    }
+
+    override suspend fun existeCodigo(codigo: String): Boolean {
+        return db.usuarioDao().obtenerPorCodigo(codigo) != null
+    }
+
     override fun observarUsuario(id: Int): Flow<Usuario?> {
         return db.usuarioDao().observarPorId(id)
     }
