@@ -1,6 +1,16 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+}
+
+// Lee la configuracion local sin guardar la clave de Maps en el codigo.
+val localProps = Properties().apply {
+    val archivo = rootProject.file("local.properties")
+    if (archivo.exists()) {
+        archivo.inputStream().use { load(it) }
+    }
 }
 
 android {
@@ -15,6 +25,9 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
+
+        // Gradle sustituye ${MAPS_API_KEY} en el Manifest al construir la app.
+        manifestPlaceholders["MAPS_API_KEY"] = localProps.getProperty("MAPS_API_KEY", "")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -47,7 +60,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     // Obtiene la ubicacion del dispositivo con FusedLocationProviderClient.
-    implementation("com.google.android.gms:play-services-location:21.3.0")  
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 
     // Permite usar await() con las tareas de Google Play Services desde corrutinas.
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.8.1")
