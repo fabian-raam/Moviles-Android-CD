@@ -1,6 +1,9 @@
 package com.ramirez.campusgps.ui
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -135,9 +138,17 @@ fun PantallaMapa(
                     Text("Latitud: ${actual.posicion.latitud}")
                     Text("Longitud: ${actual.posicion.longitud}")
                 }
-                is UbicacionUi.Error -> Text(
-                    text = actual.mensaje,
-                    color = MaterialTheme.colorScheme.error
+                is UbicacionUi.Error -> MensajeError(
+                    error = actual,
+                    onAbrirAjustes = {
+                        contexto.startActivity(
+                            Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.fromParts("package", contexto.packageName, null)
+                            )
+                        )
+                    },
+                    onReintentar = { alPulsar() }
                 )
             }
 

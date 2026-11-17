@@ -8,6 +8,8 @@ import com.ramirez.campusgps.model.LugarConDistancia
 import com.ramirez.campusgps.model.Lugar
 import com.ramirez.campusgps.model.Posicion
 import com.ramirez.campusgps.model.UbicacionUi
+import com.ramirez.campusgps.model.TipoError
+import com.ramirez.campusgps.model.UbicacionNoDisponibleException
 import com.ramirez.campusgps.util.distanciaMetros
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -40,6 +42,14 @@ class MapaViewModel(
     fun buscar() {
         if (_estado.value is UbicacionUi.Buscando) return
 
+        if (!ubicacionRepo.playServicesDisponible()) {
+            _estado.value = UbicacionUi.Error(
+                mensaje = "Este dispositivo no tiene Google Play Services",
+                tipo = TipoError.SIN_PLAY_SERVICES
+            )
+            return
+        }
+
         _estado.value = UbicacionUi.Buscando
         viewModelScope.launch {
             ubicacionRepo.obtenerPosicion()
@@ -48,7 +58,7 @@ class MapaViewModel(
                     actualizarDistancias(posicion)
                 }
                 .onFailure { error ->
-                    _estado.value = UbicacionUi.Error(mensajeDe(error))
+                    _estado.value = errorDe(error)
                 }
         }
     }
@@ -66,7 +76,8 @@ class MapaViewModel(
 
     fun permisoDenegado() {
         _estado.value = UbicacionUi.Error(
-            "Sin permiso de ubicación no puedo mostrar dónde estás"
+            mensaje = "Sin permiso de ubicación no puedo mostrar dónde estás",
+            tipo = TipoError.SIN_PERMISO
         )
     }
 
@@ -74,10 +85,18 @@ class MapaViewModel(
         _seleccionado.value = id
     }
 
-    // TODO Paso 8: consultar Play Services y clasificar los errores.
-
-    private fun mensajeDe(error: Throwable): String = when (error) {
-        is SecurityException -> "Falta el permiso de ubicación"
-        else -> error.message ?: "No se pudo obtener la ubicación"
+    private fun errorDe(error: Throwable): UbicacionUi.Error = when (error) {
+        is SecurityException -> UbicacionUi.Error(
+            mensaje = "Falta el permiso de ubicación",
+            tipo = TipoError.SIN_PERMISO
+        )
+        is UbicacionNoDisponibleException -> UbicacionUi.Error(
+            mensaje = "Activa el GPS e intenta de nuevo",
+            tipo = TipoError.GPS_APAGADO
+        )
+        else -> UbicacionUi.Error(
+            mensaje = error.message ?: "No se pudo obtener la ubicación",
+            tipo = TipoError.OTRO
+        )
     }
 }
