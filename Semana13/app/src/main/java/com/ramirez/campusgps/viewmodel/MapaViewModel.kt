@@ -5,11 +5,15 @@ import androidx.lifecycle.viewModelScope
 import com.ramirez.campusgps.data.LugaresRepository
 import com.ramirez.campusgps.data.UbicacionRepository
 import com.ramirez.campusgps.model.LugarConDistancia
+import com.ramirez.campusgps.model.Lugar
 import com.ramirez.campusgps.model.Posicion
 import com.ramirez.campusgps.model.UbicacionUi
 import com.ramirez.campusgps.util.distanciaMetros
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
@@ -25,6 +29,10 @@ class MapaViewModel(
         lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) }
     )
     val lugares: StateFlow<List<LugarConDistancia>> = _lugares.asStateFlow()
+
+    val masCercano: StateFlow<Lugar?> = lugares
+        .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
@@ -66,7 +74,6 @@ class MapaViewModel(
         _seleccionado.value = id
     }
 
-    // TODO Paso 7: derivar masCercano a partir de lugares.
     // TODO Paso 8: consultar Play Services y clasificar los errores.
 
     private fun mensajeDe(error: Throwable): String = when (error) {
