@@ -62,7 +62,10 @@ class MapaViewModel(
         )
     }
 
-    // TODO Paso 6: agregar seleccionar(id: Int?).
+    fun seleccionar(id: Int?) {
+        _seleccionado.value = id
+    }
+
     // TODO Paso 7: derivar masCercano a partir de lugares.
     // TODO Paso 8: consultar Play Services y clasificar los errores.
 
