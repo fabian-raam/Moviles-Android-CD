@@ -3,12 +3,14 @@ package com.ramirez.campusgps.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
@@ -51,7 +53,22 @@ fun MapaUbicacion(
             )
         }
 
-        // TODO Paso 4: dibujar los marcadores de lugares.
+        lugares.forEach { lugarConDistancia ->
+            val lugar = lugarConDistancia.lugar
+            key(lugar.id) {
+                Marker(
+                    state = rememberUpdatedMarkerState(
+                        position = LatLng(lugar.latitud, lugar.longitud)
+                    ),
+                    title = lugar.nombre,
+                    snippet = lugar.categoria,
+                    icon = BitmapDescriptorFactory.defaultMarker(
+                        BitmapDescriptorFactory.HUE_AZURE
+                    )
+                )
+            }
+        }
+
         // TODO Paso 6: mover la camara al lugar seleccionado.
     }
 }
