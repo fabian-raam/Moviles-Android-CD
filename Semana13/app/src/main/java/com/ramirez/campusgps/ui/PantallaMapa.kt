@@ -7,6 +7,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,6 +35,8 @@ fun PantallaMapa(
     modifier: Modifier = Modifier
 ) {
     val estado by vm.estado.collectAsState()
+    val lugares by vm.lugares.collectAsState()
+    val seleccionado by vm.seleccionado.collectAsState()
     val contexto = LocalContext.current
 
     // Android muestra el dialogo; la pantalla comunica el resultado al ViewModel.
@@ -92,6 +95,15 @@ fun PantallaMapa(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            MapaUbicacion(
+                estado = estado,
+                lugares = lugares,
+                seleccionado = seleccionado,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            )
+
             Button(
                 onClick = { alPulsar() },
                 enabled = estado !is UbicacionUi.Buscando
