@@ -44,6 +44,7 @@ fun PantallaMapa(
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
+    val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
     val contexto = LocalContext.current
 
     // Android muestra el dialogo; la pantalla comunica el resultado al ViewModel.
@@ -102,6 +103,13 @@ fun PantallaMapa(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            FiltroCategorias(
+                categorias = vm.categorias,
+                seleccionada = categoriaSeleccionada,
+                onSeleccionar = { vm.filtrarPorCategoria(it) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             MapaUbicacion(
                 estado = estado,
                 lugares = lugares,

@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class MapaViewModel(
@@ -30,7 +31,17 @@ class MapaViewModel(
     private val _lugares = MutableStateFlow(
         lugaresRepo.obtenerLugares().map { LugarConDistancia(it, null) }
     )
-    val lugares: StateFlow<List<LugarConDistancia>> = _lugares.asStateFlow()
+    // FILTRO POR CATEGORIA: obtiene las categorias de los lugares sin repetirlas.
+    val categorias: List<String> = _lugares.value.map { it.lugar.categoria }.distinct()
+    private val _categoriaSeleccionada = MutableStateFlow<String?>(null)
+    val categoriaSeleccionada: StateFlow<String?> = _categoriaSeleccionada.asStateFlow()
+    val lugares: StateFlow<List<LugarConDistancia>> = combine(
+        _lugares,
+        _categoriaSeleccionada
+    ) { lista, categoria ->
+        // Con "Todas" pasan todos; en otro caso pasan los de la categoria elegida.
+        lista.filter { categoria == null || it.lugar.categoria == categoria }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _lugares.value)
 
     val masCercano: StateFlow<Lugar?> = lugares
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
@@ -83,6 +94,22 @@ class MapaViewModel(
 
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
+    }
+
+    // FILTRO POR CATEGORIA: la pantalla llama esta funcion al pulsar un chip.
+    fun filtrarPorCategoria(categoria: String?) {
+        // Acepta "Todas" (null) o una categoria existente.
+        if (categoria != null && categoria !in categorias) return
+
+        // Este cambio hace que combine publique la nueva lista filtrada.
+        _categoriaSeleccionada.value = categoria
+        val lugarSeleccionado = _lugares.value.firstOrNull {
+            it.lugar.id == _seleccionado.value
+        }?.lugar
+        // Quita la seleccion si el lugar queda oculto por el filtro.
+        if (categoria != null && lugarSeleccionado?.categoria != categoria) {
+            _seleccionado.value = null
+        }
     }
 
     private fun errorDe(error: Throwable): UbicacionUi.Error = when (error) {
