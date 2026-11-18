@@ -43,6 +43,21 @@ class MapaViewModel(
         lista.filter { categoria == null || it.lugar.categoria == categoria }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _lugares.value)
 
+    // RADIO DE CERCANIA: guarda el radio elegido en metros.
+    val radiosDisponibles: List<Int> = listOf(100, 200, 500)
+    private val _radioMetros = MutableStateFlow(100)
+    val radioMetros: StateFlow<Int> = _radioMetros.asStateFlow()
+
+    // Actualiza los lugares dentro del radio cuando cambian las distancias o el radio.
+    val lugaresDentroDelRadio: StateFlow<Set<Int>> = combine(
+        lugares,
+        _radioMetros
+    ) { lista, radio ->
+        lista.filter { elemento ->
+            elemento.metros?.let { it <= radio } == true
+        }.map { it.lugar.id }.toSet()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
     val masCercano: StateFlow<Lugar?> = lugares
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
@@ -94,6 +109,12 @@ class MapaViewModel(
 
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
+    }
+
+    fun seleccionarRadio(metros: Int) {
+        if (metros in radiosDisponibles) {
+            _radioMetros.value = metros
+        }
     }
 
     // FILTRO POR CATEGORIA: la pantalla llama esta funcion al pulsar un chip.

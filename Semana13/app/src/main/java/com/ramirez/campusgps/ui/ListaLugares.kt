@@ -30,6 +30,7 @@ fun ListaLugares(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     onClick: (Int) -> Unit,
+    lugaresDentroDelRadio: Set<Int>,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -73,6 +74,14 @@ fun ListaLugares(
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        if (lugar.id in lugaresDentroDelRadio) {
+                            Text(
+                                text = "Dentro del radio",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
                     }
                     Text(
                         text = elemento.metros?.let { formatearDistancia(it) }

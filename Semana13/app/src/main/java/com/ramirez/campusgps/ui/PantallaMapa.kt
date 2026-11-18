@@ -45,6 +45,8 @@ fun PantallaMapa(
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
     val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
+    val radioMetros by vm.radioMetros.collectAsState()
+    val lugaresDentroDelRadio by vm.lugaresDentroDelRadio.collectAsState()
     val contexto = LocalContext.current
 
     // Android muestra el dialogo; la pantalla comunica el resultado al ViewModel.
@@ -101,7 +103,7 @@ fun PantallaMapa(
                 .padding(espacioInterior)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             FiltroCategorias(
                 categorias = vm.categorias,
@@ -110,11 +112,19 @@ fun PantallaMapa(
                 modifier = Modifier.fillMaxWidth()
             )
 
+            SelectorRadio(
+                radios = vm.radiosDisponibles,
+                seleccionado = radioMetros,
+                onSeleccionar = { vm.seleccionarRadio(it) },
+                modifier = Modifier.fillMaxWidth()
+            )
+
             MapaUbicacion(
                 estado = estado,
                 lugares = lugares,
                 seleccionado = seleccionado,
                 masCercano = masCercano,
+                radioMetros = radioMetros,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
@@ -124,6 +134,7 @@ fun PantallaMapa(
                 lugares = lugares,
                 seleccionado = seleccionado,
                 onClick = { id -> vm.seleccionar(id) },
+                lugaresDentroDelRadio = lugaresDentroDelRadio,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)
