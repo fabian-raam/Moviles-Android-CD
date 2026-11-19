@@ -1,27 +1,37 @@
 package com.ramirez.centrotareas.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.ramirez.centrotareas.data.TareasRepository
 import com.ramirez.centrotareas.model.CargaUi
 import com.ramirez.centrotareas.model.PrimosUi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     // Tarea con progreso (pasos 1 a 4).
     private val _mensaje = MutableStateFlow("Listo")
     val mensaje: StateFlow<String> = _mensaje.asStateFlow()
 
-    // Paso 1: bloqueo intencional para observar el problema del hilo principal.
-    // Se reemplaza por una corrutina en el Paso 2.
-    fun tareaLargaMala() {
-        _mensaje.value = "Trabajando..."
-        Thread.sleep(4000)
-        _mensaje.value = "Terminó"
+    fun tareaLarga() {
+        viewModelScope.launch {
+            _mensaje.value = "Trabajando..."
+            Log.d("HILO", "Antes: ${Thread.currentThread().name}")
+            withContext(Dispatchers.Default) {
+                Log.d("HILO", "Dentro: ${Thread.currentThread().name}")
+                delay(4000)
+            }
+            Log.d("HILO", "Despues: ${Thread.currentThread().name}")
+            _mensaje.value = "Terminó"
+        }
     }
 
-    // TODO Paso 2: reemplazar por fun tareaLarga() con viewModelScope.
     // TODO Paso 3: agregar el progreso.
     // TODO Paso 4: agregar trabajo (Job), corriendo y cancelar().
 
