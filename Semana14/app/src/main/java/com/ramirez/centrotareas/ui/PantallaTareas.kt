@@ -120,9 +120,12 @@ private fun ContenidoTareas(
                 }
                 when (primos) {
                     PrimosUi.Inicial -> Text("Ingresa un número y pulsa Contar.")
-                    PrimosUi.Calculando -> {
-                        CircularProgressIndicator()
-                        Text("Calculando...")
+                    is PrimosUi.Calculando -> {
+                        LinearProgressIndicator(
+                            progress = { primos.progreso },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text("Calculando... ${(primos.progreso * 100).toInt()} %")
                     }
                     PrimosUi.Cancelado -> Text("Cancelado")
                     is PrimosUi.Listo -> Surface(

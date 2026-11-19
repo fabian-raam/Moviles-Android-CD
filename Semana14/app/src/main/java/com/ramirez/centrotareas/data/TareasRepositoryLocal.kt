@@ -18,11 +18,24 @@ class TareasRepositoryLocal : TareasRepository {
         return listOf("Pedido 101", "Pedido 102", "Pedido 103")
     }
 
-    override suspend fun contarPrimos(hasta: Int): Int = withContext(Dispatchers.Default) {
+    override suspend fun contarPrimos(
+        hasta: Int,
+        onProgreso: (Float) -> Unit
+    ): Int = withContext(Dispatchers.Default) {
+        require(hasta >= 2) { "El límite debe ser al menos 2" }
         var cantidad = 0
+        var ultimoPorcentaje = 0
+        val total = hasta.toLong() - 1
+        onProgreso(0f)
         for (n in 2..hasta) {
             ensureActive()
             if (esPrimo(n)) cantidad++
+            val porcentaje = ((n.toLong() - 1) * 100 / total).toInt()
+            // Informar solo cambios de porcentaje evita saturar la interfaz.
+            if (porcentaje > ultimoPorcentaje) {
+                onProgreso(porcentaje / 100f)
+                ultimoPorcentaje = porcentaje
+            }
         }
         cantidad
     }
