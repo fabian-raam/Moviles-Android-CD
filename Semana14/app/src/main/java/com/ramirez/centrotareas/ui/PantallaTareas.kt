@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import com.ramirez.centrotareas.model.PrimosUi
 import com.ramirez.centrotareas.model.CargaUi
+import com.ramirez.centrotareas.model.TiempoCarga
 import com.ramirez.centrotareas.ui.theme.CentrotareasTheme
 import com.ramirez.centrotareas.viewmodel.TareasViewModel
 
@@ -26,6 +27,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val carga by viewModel.carga.collectAsState()
     val simularError by viewModel.simularError.collectAsState()
     val aplicarTiempoMaximo by viewModel.aplicarTiempoMaximo.collectAsState()
+    val tiempos by viewModel.tiempos.collectAsState()
     ContenidoTareas(
         mensaje, progreso, corriendo,
         onTareaLarga = viewModel::tareaLarga,
@@ -39,7 +41,9 @@ fun PantallaTareas(viewModel: TareasViewModel) {
         simularError = simularError,
         onCambiarSimularError = viewModel::cambiarSimularError,
         aplicarTiempoMaximo = aplicarTiempoMaximo,
-        onCambiarTiempoMaximo = viewModel::cambiarAplicarTiempoMaximo
+        onCambiarTiempoMaximo = viewModel::cambiarAplicarTiempoMaximo,
+        tiempos = tiempos,
+        onLimpiarTiempos = viewModel::limpiarTiempos
     )
 }
 
@@ -60,7 +64,9 @@ private fun ContenidoTareas(
     simularError: Boolean,
     onCambiarSimularError: (Boolean) -> Unit,
     aplicarTiempoMaximo: Boolean,
-    onCambiarTiempoMaximo: (Boolean) -> Unit
+    onCambiarTiempoMaximo: (Boolean) -> Unit,
+    tiempos: List<TiempoCarga>,
+    onLimpiarTiempos: () -> Unit
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
@@ -202,6 +208,43 @@ private fun ContenidoTareas(
                     }
                 }
             }
+            TarjetaTarea("Comparación de tiempos") {
+                Text("Desactiva el tiempo máximo y el error simulado para registrar cargas completas.")
+                if (tiempos.isEmpty()) {
+                    Text("Todavía no hay mediciones.")
+                } else {
+                    Row(Modifier.fillMaxWidth()) {
+                        Text("N.º", Modifier.weight(0.5f))
+                        Text("Modo", Modifier.weight(1.5f))
+                        Text("Tiempo (ms)", Modifier.weight(1f))
+                    }
+                    HorizontalDivider()
+                    tiempos.forEachIndexed { indice, tiempo ->
+                        Row(Modifier.fillMaxWidth()) {
+                            Text("${indice + 1}", Modifier.weight(0.5f))
+                            Text(tiempo.modo, Modifier.weight(1.5f))
+                            Text("${tiempo.milisegundos}", Modifier.weight(1f))
+                        }
+                    }
+                    HorizontalDivider()
+                    val secuenciales = tiempos.filter { it.modo == "Una por una" }
+                    val paralelos = tiempos.filter { it.modo == "A la vez" }
+                    val promedioSecuencial = secuenciales.map { it.milisegundos }.average()
+                    val promedioParalelo = paralelos.map { it.milisegundos }.average()
+                    if (secuenciales.isNotEmpty()) {
+                        Text("Promedio una por una: ${promedioSecuencial.toLong()} ms (${secuenciales.size} cargas)")
+                    }
+                    if (paralelos.isNotEmpty()) {
+                        Text("Promedio a la vez: ${promedioParalelo.toLong()} ms (${paralelos.size} cargas)")
+                    }
+                    if (secuenciales.isNotEmpty() && paralelos.isNotEmpty()) {
+                        Text("Diferencia de promedios: ${(promedioSecuencial - promedioParalelo).toLong()} ms")
+                    }
+                    OutlinedButton(onClick = onLimpiarTiempos) { Text("Limpiar tabla") }
+                }
+                Text("Las mediciones se conservan al rotar; se reinician al cerrar la pantalla.",
+                    style = MaterialTheme.typography.bodySmall)
+            }
         }
     }
 }
@@ -229,7 +272,8 @@ private fun PantallaTareasPreview() {
             primos = PrimosUi.Inicial, onContar = {}, onCancelarPrimos = {},
             carga = CargaUi.Inicial, onCargarUnaPorUna = {}, onCargarALaVez = {},
             simularError = false, onCambiarSimularError = {},
-            aplicarTiempoMaximo = true, onCambiarTiempoMaximo = {}
+            aplicarTiempoMaximo = true, onCambiarTiempoMaximo = {},
+            tiempos = emptyList(), onLimpiarTiempos = {}
         )
     }
 }

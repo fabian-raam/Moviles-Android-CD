@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.ramirez.centrotareas.data.TareasRepository
 import com.ramirez.centrotareas.model.CargaUi
 import com.ramirez.centrotareas.model.PrimosUi
+import com.ramirez.centrotareas.model.TiempoCarga
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -92,6 +93,18 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
 
+    private val _tiempos = MutableStateFlow<List<TiempoCarga>>(emptyList())
+    val tiempos: StateFlow<List<TiempoCarga>> = _tiempos.asStateFlow()
+
+    private fun registrarCarga(modo: String, perfil: String, pedidos: Int, milisegundos: Long) {
+        _tiempos.value = _tiempos.value + TiempoCarga(modo, milisegundos)
+        _carga.value = CargaUi.Exito(modo, perfil, pedidos, milisegundos)
+    }
+
+    fun limpiarTiempos() {
+        _tiempos.value = emptyList()
+    }
+
     private val _simularError = MutableStateFlow(false)
     val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
 
@@ -123,7 +136,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                     val pedidos = repo.cargarPedidos(errorSimulado)
                     Pair(perfil, pedidos)
                 }
-                _carga.value = CargaUi.Exito(
+                registrarCarga(
                     "Una por una", perfil, pedidos.size, System.currentTimeMillis() - inicio
                 )
             } catch (e: TimeoutCancellationException) {
@@ -151,7 +164,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                         Pair(perfilAsync.await(), pedidosAsync.await())
                     }
                 }
-                _carga.value = CargaUi.Exito(
+                registrarCarga(
                     "A la vez", perfil, pedidos.size, System.currentTimeMillis() - inicio
                 )
             } catch (e: TimeoutCancellationException) {

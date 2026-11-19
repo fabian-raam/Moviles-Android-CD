@@ -1,5 +1,7 @@
 package com.ramirez.centrotareas.model
 
+data class TiempoCarga(val modo: String, val milisegundos: Long)
+
 sealed interface PrimosUi {
     data object Inicial : PrimosUi
     data class Calculando(val progreso: Float = 0f) : PrimosUi
