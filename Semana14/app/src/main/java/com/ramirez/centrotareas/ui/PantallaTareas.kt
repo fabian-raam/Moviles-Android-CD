@@ -24,6 +24,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
+    val simularError by viewModel.simularError.collectAsState()
     ContenidoTareas(
         mensaje, progreso, corriendo,
         onTareaLarga = viewModel::tareaLarga,
@@ -33,7 +34,9 @@ fun PantallaTareas(viewModel: TareasViewModel) {
         onCancelarPrimos = viewModel::cancelarPrimos,
         carga = carga,
         onCargarUnaPorUna = viewModel::cargarUnaPorUna,
-        onCargarALaVez = viewModel::cargarALaVez
+        onCargarALaVez = viewModel::cargarALaVez,
+        simularError = simularError,
+        onCambiarSimularError = viewModel::cambiarSimularError
     )
 }
 
@@ -50,7 +53,9 @@ private fun ContenidoTareas(
     onCancelarPrimos: () -> Unit,
     carga: CargaUi,
     onCargarUnaPorUna: () -> Unit,
-    onCargarALaVez: () -> Unit
+    onCargarALaVez: () -> Unit,
+    simularError: Boolean,
+    onCambiarSimularError: (Boolean) -> Unit
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
@@ -130,6 +135,13 @@ private fun ContenidoTareas(
             }
             TarjetaTarea("Dos cargas") {
                 val cargando = carga is CargaUi.Cargando
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                ) {
+                    Switch(checked = simularError, onCheckedChange = onCambiarSimularError)
+                    Text("Simular error")
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedButton(onClick = onCargarUnaPorUna, enabled = !cargando) {
                         Text("Una por una")
@@ -155,9 +167,21 @@ private fun ContenidoTareas(
                             Text("Tiempo: ${carga.milisegundos} ms")
                         }
                     }
-                    is CargaUi.Error -> Text(carga.mensaje)
+                    is CargaUi.Error -> Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(carga.mensaje)
+                            OutlinedButton(onClick = onCargarALaVez) { Text("Reintentar") }
+                        }
+                    }
                 }
-                // TODO Paso 7: interruptor Simular error, mensaje y Reintentar.
             }
         }
     }
@@ -184,7 +208,8 @@ private fun PantallaTareasPreview() {
         ContenidoTareas(
             "Listo", 0f, false, onTareaLarga = {}, onCancelar = {},
             primos = PrimosUi.Inicial, onContar = {}, onCancelarPrimos = {},
-            carga = CargaUi.Inicial, onCargarUnaPorUna = {}, onCargarALaVez = {}
+            carga = CargaUi.Inicial, onCargarUnaPorUna = {}, onCargarALaVez = {},
+            simularError = false, onCambiarSimularError = {}
         )
     }
 }
