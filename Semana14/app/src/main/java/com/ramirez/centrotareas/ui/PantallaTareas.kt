@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import com.ramirez.centrotareas.model.PrimosUi
 import com.ramirez.centrotareas.ui.theme.CentrotareasTheme
 import com.ramirez.centrotareas.viewmodel.TareasViewModel
 
@@ -19,10 +21,14 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val mensaje by viewModel.mensaje.collectAsState()
     val progreso by viewModel.progreso.collectAsState()
     val corriendo by viewModel.corriendo.collectAsState()
+    val primos by viewModel.primos.collectAsState()
     ContenidoTareas(
         mensaje, progreso, corriendo,
         onTareaLarga = viewModel::tareaLarga,
-        onCancelar = viewModel::cancelar
+        onCancelar = viewModel::cancelar,
+        primos = primos,
+        onContar = viewModel::contar,
+        onCancelarPrimos = viewModel::cancelarPrimos
     )
 }
 
@@ -33,7 +39,10 @@ private fun ContenidoTareas(
     progreso: Float,
     corriendo: Boolean,
     onTareaLarga: () -> Unit,
-    onCancelar: () -> Unit
+    onCancelar: () -> Unit,
+    primos: PrimosUi,
+    onContar: (Int) -> Unit,
+    onCancelarPrimos: () -> Unit
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
@@ -80,13 +89,36 @@ private fun ContenidoTareas(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
-                // TODO Paso 5: observar primos y conectar cálculo y cancelación.
+                val calculando = primos is PrimosUi.Calculando
+                val limite = hasta.toIntOrNull()
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = {}, enabled = false) { Text("Contar") }
-                    OutlinedButton(onClick = {}, enabled = false) { Text("Cancelar") }
+                    Button(
+                        onClick = { limite?.takeIf { it >= 2 }?.let(onContar) },
+                        enabled = !calculando && limite != null && limite >= 2
+                    ) { Text("Contar") }
+                    OutlinedButton(onClick = onCancelarPrimos, enabled = calculando) {
+                        Text("Cancelar")
+                    }
                 }
-                Text("Pendiente: cálculo de primos.",
-                    style = MaterialTheme.typography.bodySmall)
+                when (primos) {
+                    PrimosUi.Inicial -> Text("Ingresa un número y pulsa Contar.")
+                    PrimosUi.Calculando -> {
+                        CircularProgressIndicator()
+                        Text("Calculando...")
+                    }
+                    PrimosUi.Cancelado -> Text("Cancelado")
+                    is PrimosUi.Listo -> Surface(
+                        color = Color(0xFFE0F2E3),
+                        contentColor = Color(0xFF1B5E20),
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(Modifier.padding(12.dp)) {
+                            Text("Primos: ${primos.cantidad}")
+                            Text("Tiempo: ${primos.milisegundos} ms")
+                        }
+                    }
+                }
             }
             TarjetaTarea("Dos cargas") {
                 // TODO Paso 6: observar carga y conectar ambos modos y sus resultados.
@@ -120,6 +152,9 @@ private fun TarjetaTarea(titulo: String, content: @Composable ColumnScope.() -> 
 @Composable
 private fun PantallaTareasPreview() {
     CentrotareasTheme {
-        ContenidoTareas("Listo", 0f, false, onTareaLarga = {}, onCancelar = {})
+        ContenidoTareas(
+            "Listo", 0f, false, onTareaLarga = {}, onCancelar = {},
+            primos = PrimosUi.Inicial, onContar = {}, onCancelarPrimos = {}
+        )
     }
 }
