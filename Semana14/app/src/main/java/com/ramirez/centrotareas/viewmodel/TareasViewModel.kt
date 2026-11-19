@@ -17,6 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     // Tarea con progreso (pasos 1 a 4).
@@ -95,18 +97,35 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         _simularError.value = valor
     }
 
+    private val _aplicarTiempoMaximo = MutableStateFlow(true)
+    val aplicarTiempoMaximo: StateFlow<Boolean> = _aplicarTiempoMaximo.asStateFlow()
+
+    fun cambiarAplicarTiempoMaximo(valor: Boolean) {
+        _aplicarTiempoMaximo.value = valor
+    }
+
+    private suspend fun <T> conTiempoMaximo(aplicar: Boolean, bloque: suspend () -> T): T {
+        return if (aplicar) withTimeout(2000L) { bloque() } else bloque()
+    }
+
     fun cargarUnaPorUna() {
         if (_carga.value is CargaUi.Cargando) return
         _carga.value = CargaUi.Cargando
         val errorSimulado = _simularError.value
+        val limitarTiempo = _aplicarTiempoMaximo.value
         viewModelScope.launch {
             try {
                 val inicio = System.currentTimeMillis()
-                val perfil = repo.cargarPerfil()
-                val pedidos = repo.cargarPedidos(errorSimulado)
+                val (perfil, pedidos) = conTiempoMaximo(limitarTiempo) {
+                    val perfil = repo.cargarPerfil()
+                    val pedidos = repo.cargarPedidos(errorSimulado)
+                    Pair(perfil, pedidos)
+                }
                 _carga.value = CargaUi.Exito(
                     "Una por una", perfil, pedidos.size, System.currentTimeMillis() - inicio
                 )
+            } catch (e: TimeoutCancellationException) {
+                _carga.value = CargaUi.Error("Tardó demasiado")
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -119,17 +138,22 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         if (_carga.value is CargaUi.Cargando) return
         _carga.value = CargaUi.Cargando
         val errorSimulado = _simularError.value
+        val limitarTiempo = _aplicarTiempoMaximo.value
         viewModelScope.launch {
             try {
                 val inicio = System.currentTimeMillis()
-                val (perfil, pedidos) = coroutineScope {
-                    val perfilAsync = async { repo.cargarPerfil() }
-                    val pedidosAsync = async { repo.cargarPedidos(errorSimulado) }
-                    Pair(perfilAsync.await(), pedidosAsync.await())
+                val (perfil, pedidos) = conTiempoMaximo(limitarTiempo) {
+                    coroutineScope {
+                        val perfilAsync = async { repo.cargarPerfil() }
+                        val pedidosAsync = async { repo.cargarPedidos(errorSimulado) }
+                        Pair(perfilAsync.await(), pedidosAsync.await())
+                    }
                 }
                 _carga.value = CargaUi.Exito(
                     "A la vez", perfil, pedidos.size, System.currentTimeMillis() - inicio
                 )
+            } catch (e: TimeoutCancellationException) {
+                _carga.value = CargaUi.Error("Tardó demasiado")
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {

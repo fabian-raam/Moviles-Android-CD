@@ -25,6 +25,7 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val primos by viewModel.primos.collectAsState()
     val carga by viewModel.carga.collectAsState()
     val simularError by viewModel.simularError.collectAsState()
+    val aplicarTiempoMaximo by viewModel.aplicarTiempoMaximo.collectAsState()
     ContenidoTareas(
         mensaje, progreso, corriendo,
         onTareaLarga = viewModel::tareaLarga,
@@ -36,7 +37,9 @@ fun PantallaTareas(viewModel: TareasViewModel) {
         onCargarUnaPorUna = viewModel::cargarUnaPorUna,
         onCargarALaVez = viewModel::cargarALaVez,
         simularError = simularError,
-        onCambiarSimularError = viewModel::cambiarSimularError
+        onCambiarSimularError = viewModel::cambiarSimularError,
+        aplicarTiempoMaximo = aplicarTiempoMaximo,
+        onCambiarTiempoMaximo = viewModel::cambiarAplicarTiempoMaximo
     )
 }
 
@@ -55,7 +58,9 @@ private fun ContenidoTareas(
     onCargarUnaPorUna: () -> Unit,
     onCargarALaVez: () -> Unit,
     simularError: Boolean,
-    onCambiarSimularError: (Boolean) -> Unit
+    onCambiarSimularError: (Boolean) -> Unit,
+    aplicarTiempoMaximo: Boolean,
+    onCambiarTiempoMaximo: (Boolean) -> Unit
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
@@ -139,6 +144,17 @@ private fun ContenidoTareas(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
                 ) {
+                    Switch(
+                        checked = aplicarTiempoMaximo,
+                        onCheckedChange = onCambiarTiempoMaximo,
+                        enabled = !cargando
+                    )
+                    Text("Aplicar tiempo máximo (2 s)")
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                ) {
                     Switch(checked = simularError, onCheckedChange = onCambiarSimularError)
                     Text("Simular error")
                 }
@@ -209,7 +225,8 @@ private fun PantallaTareasPreview() {
             "Listo", 0f, false, onTareaLarga = {}, onCancelar = {},
             primos = PrimosUi.Inicial, onContar = {}, onCancelarPrimos = {},
             carga = CargaUi.Inicial, onCargarUnaPorUna = {}, onCargarALaVez = {},
-            simularError = false, onCambiarSimularError = {}
+            simularError = false, onCambiarSimularError = {},
+            aplicarTiempoMaximo = true, onCambiarTiempoMaximo = {}
         )
     }
 }
