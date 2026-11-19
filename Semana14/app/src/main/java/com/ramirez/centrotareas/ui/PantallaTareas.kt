@@ -17,12 +17,13 @@ import com.ramirez.centrotareas.viewmodel.TareasViewModel
 @Composable
 fun PantallaTareas(viewModel: TareasViewModel) {
     val mensaje by viewModel.mensaje.collectAsState()
-    ContenidoTareas(mensaje, onTareaLarga = viewModel::tareaLarga)
+    val progreso by viewModel.progreso.collectAsState()
+    ContenidoTareas(mensaje, progreso, onTareaLarga = viewModel::tareaLarga)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ContenidoTareas(mensaje: String, onTareaLarga: () -> Unit) {
+private fun ContenidoTareas(mensaje: String, progreso: Float, onTareaLarga: () -> Unit) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
 
@@ -44,11 +45,16 @@ private fun ContenidoTareas(mensaje: String, onTareaLarga: () -> Unit) {
         ) {
             TarjetaTarea("Tarea con progreso") {
                 Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                Button(onClick = onTareaLarga) { Text("Tarea larga") }
+                Button(onClick = onTareaLarga) { Text("Iniciar") }
+                LinearProgressIndicator(
+                    progress = { progreso },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text("${(progreso * 100).toInt()} %")
                 Text(mensaje)
-                Text("Paso 2: Tócame sigue respondiendo durante la tarea larga.",
+                Text("Paso 3: Tócame sigue respondiendo mientras avanza la barra.",
                     style = MaterialTheme.typography.bodySmall)
-                // TODO Pasos 3 y 4: barra y botones Iniciar/Cancelar.
+                // TODO Paso 4: controlar el doble inicio y agregar Cancelar.
             }
             TarjetaTarea("Contar números primos") {
                 OutlinedTextField(
@@ -100,5 +106,5 @@ private fun TarjetaTarea(titulo: String, content: @Composable ColumnScope.() -> 
 @Preview(showBackground = true)
 @Composable
 private fun PantallaTareasPreview() {
-    CentrotareasTheme { ContenidoTareas("Listo", onTareaLarga = {}) }
+    CentrotareasTheme { ContenidoTareas("Listo", 0f, onTareaLarga = {}) }
 }
