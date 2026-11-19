@@ -18,12 +18,23 @@ import com.ramirez.centrotareas.viewmodel.TareasViewModel
 fun PantallaTareas(viewModel: TareasViewModel) {
     val mensaje by viewModel.mensaje.collectAsState()
     val progreso by viewModel.progreso.collectAsState()
-    ContenidoTareas(mensaje, progreso, onTareaLarga = viewModel::tareaLarga)
+    val corriendo by viewModel.corriendo.collectAsState()
+    ContenidoTareas(
+        mensaje, progreso, corriendo,
+        onTareaLarga = viewModel::tareaLarga,
+        onCancelar = viewModel::cancelar
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ContenidoTareas(mensaje: String, progreso: Float, onTareaLarga: () -> Unit) {
+private fun ContenidoTareas(
+    mensaje: String,
+    progreso: Float,
+    corriendo: Boolean,
+    onTareaLarga: () -> Unit,
+    onCancelar: () -> Unit
+) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
 
@@ -45,16 +56,18 @@ private fun ContenidoTareas(mensaje: String, progreso: Float, onTareaLarga: () -
         ) {
             TarjetaTarea("Tarea con progreso") {
                 Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                Button(onClick = onTareaLarga) { Text("Iniciar") }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = onTareaLarga, enabled = !corriendo) { Text("Iniciar") }
+                    OutlinedButton(onClick = onCancelar, enabled = corriendo) { Text("Cancelar") }
+                }
                 LinearProgressIndicator(
                     progress = { progreso },
                     modifier = Modifier.fillMaxWidth()
                 )
                 Text("${(progreso * 100).toInt()} %")
                 Text(mensaje)
-                Text("Paso 3: Tócame sigue respondiendo mientras avanza la barra.",
+                Text("Tócame sigue respondiendo mientras avanza la barra.",
                     style = MaterialTheme.typography.bodySmall)
-                // TODO Paso 4: controlar el doble inicio y agregar Cancelar.
             }
             TarjetaTarea("Contar números primos") {
                 OutlinedTextField(
@@ -106,5 +119,7 @@ private fun TarjetaTarea(titulo: String, content: @Composable ColumnScope.() -> 
 @Preview(showBackground = true)
 @Composable
 private fun PantallaTareasPreview() {
-    CentrotareasTheme { ContenidoTareas("Listo", 0f, onTareaLarga = {}) }
+    CentrotareasTheme {
+        ContenidoTareas("Listo", 0f, false, onTareaLarga = {}, onCancelar = {})
+    }
 }
