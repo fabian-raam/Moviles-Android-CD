@@ -13,6 +13,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import com.ramirez.centrotareas.model.PrimosUi
+import com.ramirez.centrotareas.model.CargaUi
 import com.ramirez.centrotareas.ui.theme.CentrotareasTheme
 import com.ramirez.centrotareas.viewmodel.TareasViewModel
 
@@ -22,13 +23,17 @@ fun PantallaTareas(viewModel: TareasViewModel) {
     val progreso by viewModel.progreso.collectAsState()
     val corriendo by viewModel.corriendo.collectAsState()
     val primos by viewModel.primos.collectAsState()
+    val carga by viewModel.carga.collectAsState()
     ContenidoTareas(
         mensaje, progreso, corriendo,
         onTareaLarga = viewModel::tareaLarga,
         onCancelar = viewModel::cancelar,
         primos = primos,
         onContar = viewModel::contar,
-        onCancelarPrimos = viewModel::cancelarPrimos
+        onCancelarPrimos = viewModel::cancelarPrimos,
+        carga = carga,
+        onCargarUnaPorUna = viewModel::cargarUnaPorUna,
+        onCargarALaVez = viewModel::cargarALaVez
     )
 }
 
@@ -42,7 +47,10 @@ private fun ContenidoTareas(
     onCancelar: () -> Unit,
     primos: PrimosUi,
     onContar: (Int) -> Unit,
-    onCancelarPrimos: () -> Unit
+    onCancelarPrimos: () -> Unit,
+    carga: CargaUi,
+    onCargarUnaPorUna: () -> Unit,
+    onCargarALaVez: () -> Unit
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
@@ -121,13 +129,34 @@ private fun ContenidoTareas(
                 }
             }
             TarjetaTarea("Dos cargas") {
-                // TODO Paso 6: observar carga y conectar ambos modos y sus resultados.
+                val cargando = carga is CargaUi.Cargando
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = {}, enabled = false) { Text("Una por una") }
-                    Button(onClick = {}, enabled = false) { Text("A la vez") }
+                    OutlinedButton(onClick = onCargarUnaPorUna, enabled = !cargando) {
+                        Text("Una por una")
+                    }
+                    Button(onClick = onCargarALaVez, enabled = !cargando) { Text("A la vez") }
                 }
-                Text("Pendiente: cargas simuladas, errores y reintento.",
-                    style = MaterialTheme.typography.bodySmall)
+                when (carga) {
+                    CargaUi.Inicial -> Text("Elige cómo cargar el perfil y los pedidos.")
+                    CargaUi.Cargando -> {
+                        CircularProgressIndicator()
+                        Text("Cargando...")
+                    }
+                    is CargaUi.Exito -> Surface(
+                        color = Color(0xFFE0F2E3),
+                        contentColor = Color(0xFF1B5E20),
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(Modifier.padding(12.dp)) {
+                            Text("Modo: ${carga.modo}")
+                            Text("Perfil: ${carga.perfil}")
+                            Text("Pedidos: ${carga.pedidos}")
+                            Text("Tiempo: ${carga.milisegundos} ms")
+                        }
+                    }
+                    is CargaUi.Error -> Text(carga.mensaje)
+                }
                 // TODO Paso 7: interruptor Simular error, mensaje y Reintentar.
             }
         }
@@ -154,7 +183,8 @@ private fun PantallaTareasPreview() {
     CentrotareasTheme {
         ContenidoTareas(
             "Listo", 0f, false, onTareaLarga = {}, onCancelar = {},
-            primos = PrimosUi.Inicial, onContar = {}, onCancelarPrimos = {}
+            primos = PrimosUi.Inicial, onContar = {}, onCancelarPrimos = {},
+            carga = CargaUi.Inicial, onCargarUnaPorUna = {}, onCargarALaVez = {}
         )
     }
 }
