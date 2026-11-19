@@ -1,0 +1,105 @@
+package com.ramirez.centrotareas.ui
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.ramirez.centrotareas.ui.theme.CentrotareasTheme
+import com.ramirez.centrotareas.viewmodel.TareasViewModel
+
+@Composable
+fun PantallaTareas(viewModel: TareasViewModel) {
+    val mensaje by viewModel.mensaje.collectAsState()
+    ContenidoTareas(mensaje)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ContenidoTareas(mensaje: String) {
+    var toques by rememberSaveable { mutableStateOf(0) }
+    var hasta by rememberSaveable { mutableStateOf("500000") }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("CentroTareas") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(innerPadding)
+                .verticalScroll(rememberScrollState()).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            TarjetaTarea("Tarea con progreso") {
+                Button(onClick = { toques++ }) { Text("Tócame: $toques") }
+                // TODO Paso 1: conectar el botón a tareaLargaMala().
+                Button(onClick = {}, enabled = false) { Text("Tarea larga (MAL)") }
+                Text(mensaje)
+                Text("Pendiente: tarea larga, progreso y cancelación.",
+                    style = MaterialTheme.typography.bodySmall)
+                // TODO Pasos 2 a 4: corrutina, barra y botones Iniciar/Cancelar.
+            }
+            TarjetaTarea("Contar números primos") {
+                OutlinedTextField(
+                    value = hasta,
+                    onValueChange = { valor ->
+                        if (valor.all { it.isDigit() }) hasta = valor
+                    },
+                    label = { Text("Contar primos hasta") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                // TODO Paso 5: observar primos y conectar cálculo y cancelación.
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = {}, enabled = false) { Text("Contar") }
+                    OutlinedButton(onClick = {}, enabled = false) { Text("Cancelar") }
+                }
+                Text("Pendiente: cálculo de primos.",
+                    style = MaterialTheme.typography.bodySmall)
+            }
+            TarjetaTarea("Dos cargas") {
+                // TODO Paso 6: observar carga y conectar ambos modos y sus resultados.
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(onClick = {}, enabled = false) { Text("Una por una") }
+                    Button(onClick = {}, enabled = false) { Text("A la vez") }
+                }
+                Text("Pendiente: cargas simuladas, errores y reintento.",
+                    style = MaterialTheme.typography.bodySmall)
+                // TODO Paso 7: interruptor Simular error, mensaje y Reintentar.
+            }
+        }
+    }
+}
+
+@Composable
+private fun TarjetaTarea(titulo: String, content: @Composable ColumnScope.() -> Unit) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(titulo, style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary)
+            content()
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun PantallaTareasPreview() {
+    CentrotareasTheme { ContenidoTareas("Listo") }
+}
