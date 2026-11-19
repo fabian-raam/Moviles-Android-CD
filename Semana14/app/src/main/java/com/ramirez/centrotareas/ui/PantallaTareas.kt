@@ -17,12 +17,12 @@ import com.ramirez.centrotareas.viewmodel.TareasViewModel
 @Composable
 fun PantallaTareas(viewModel: TareasViewModel) {
     val mensaje by viewModel.mensaje.collectAsState()
-    ContenidoTareas(mensaje)
+    ContenidoTareas(mensaje, onTareaLargaMala = viewModel::tareaLargaMala)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ContenidoTareas(mensaje: String) {
+private fun ContenidoTareas(mensaje: String, onTareaLargaMala: () -> Unit) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
 
@@ -44,10 +44,9 @@ private fun ContenidoTareas(mensaje: String) {
         ) {
             TarjetaTarea("Tarea con progreso") {
                 Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                // TODO Paso 1: conectar el botón a tareaLargaMala().
-                Button(onClick = {}, enabled = false) { Text("Tarea larga (MAL)") }
+                Button(onClick = onTareaLargaMala) { Text("Tarea larga (MAL)") }
                 Text(mensaje)
-                Text("Pendiente: tarea larga, progreso y cancelación.",
+                Text("Paso 1: observa si Tócame responde durante la tarea larga.",
                     style = MaterialTheme.typography.bodySmall)
                 // TODO Pasos 2 a 4: corrutina, barra y botones Iniciar/Cancelar.
             }
@@ -101,5 +100,5 @@ private fun TarjetaTarea(titulo: String, content: @Composable ColumnScope.() -> 
 @Preview(showBackground = true)
 @Composable
 private fun PantallaTareasPreview() {
-    CentrotareasTheme { ContenidoTareas("Listo") }
+    CentrotareasTheme { ContenidoTareas("Listo", onTareaLargaMala = {}) }
 }
