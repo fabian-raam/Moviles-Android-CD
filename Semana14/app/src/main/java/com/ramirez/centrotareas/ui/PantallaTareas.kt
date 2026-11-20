@@ -75,6 +75,15 @@ private fun ContenidoTareas(
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
     var seccion by rememberSaveable { mutableStateOf(0) }
+    var ultimaCantidad by rememberSaveable { mutableStateOf<Int?>(null) }
+    var ultimoTiempo by rememberSaveable { mutableStateOf<Long?>(null) }
+    var limiteEnCurso by rememberSaveable { mutableStateOf(hasta) }
+    LaunchedEffect(primos) {
+        if (primos is PrimosUi.Listo) {
+            ultimaCantidad = primos.cantidad
+            ultimoTiempo = primos.milisegundos
+        }
+    }
     val scrollProgreso = rememberScrollState()
     val scrollPrimos = rememberScrollState()
     val scrollCargas = rememberScrollState()
@@ -94,8 +103,7 @@ private fun ContenidoTareas(
                         selected = seccion == indice,
                         onClick = { seccion = indice },
                         icon = {
-                            Text(listOf("◌", "#", "ϟ")[indice],
-                                fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                            IconoTarea(indice, seleccionado = seccion == indice)
                         },
                         label = { Text(titulo) },
                         colors = NavigationBarItemDefaults.colors(
@@ -120,68 +128,19 @@ private fun ContenidoTareas(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             if (seccion == 0) {
-            TarjetaTarea("Tarea con progreso") {
-                Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = onTareaLarga, enabled = !corriendo) { Text("Iniciar") }
-                    OutlinedButton(onClick = onCancelar, enabled = corriendo) { Text("Cancelar") }
-                }
-                LinearProgressIndicator(
-                    progress = { progreso },
-                    modifier = Modifier.fillMaxWidth()
+                PanelProgreso(
+                    mensaje, progreso, corriendo, toques,
+                    onTocar = { toques++ }, onIniciar = onTareaLarga, onCancelar = onCancelar
                 )
-                Text("${(progreso * 100).toInt()} %")
-                Text(mensaje)
-                Text("Tócame sigue respondiendo mientras avanza la barra.",
-                    style = MaterialTheme.typography.bodySmall)
-            }
             }
             if (seccion == 1) {
-            TarjetaTarea("Contar números primos") {
-                OutlinedTextField(
-                    value = hasta,
-                    onValueChange = { valor ->
-                        if (valor.all { it.isDigit() }) hasta = valor
-                    },
-                    label = { Text("Contar primos hasta") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
+                PanelPrimos(
+                    hasta = hasta,
+                    onHasta = { valor -> if (valor.all { it.isDigit() }) hasta = valor },
+                    primos = primos, onContar = onContar, onCancelar = onCancelarPrimos,
+                    ultimaCantidad = ultimaCantidad, ultimoTiempo = ultimoTiempo,
+                    limiteEnCurso = limiteEnCurso, onGuardarLimite = { limiteEnCurso = it }
                 )
-                val calculando = primos is PrimosUi.Calculando
-                val limite = hasta.toIntOrNull()
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(
-                        onClick = { limite?.takeIf { it >= 2 }?.let(onContar) },
-                        enabled = !calculando && limite != null && limite >= 2
-                    ) { Text("Contar") }
-                    OutlinedButton(onClick = onCancelarPrimos, enabled = calculando) {
-                        Text("Cancelar")
-                    }
-                }
-                when (primos) {
-                    PrimosUi.Inicial -> Text("Ingresa un número y pulsa Contar.")
-                    is PrimosUi.Calculando -> {
-                        LinearProgressIndicator(
-                            progress = { primos.progreso },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text("Calculando... ${(primos.progreso * 100).toInt()} %")
-                    }
-                    PrimosUi.Cancelado -> Text("Cancelado")
-                    is PrimosUi.Listo -> Surface(
-                        color = MaterialTheme.colorScheme.surfaceContainer,
-                        contentColor = MaterialTheme.colorScheme.tertiary,
-                        shape = MaterialTheme.shapes.small,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(Modifier.padding(12.dp)) {
-                            Text("Primos: ${primos.cantidad}")
-                            Text("Tiempo: ${primos.milisegundos} ms")
-                        }
-                    }
-                }
-            }
             }
             if (seccion == 2) {
             TarjetaTarea("Dos cargas") {
