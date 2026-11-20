@@ -29,7 +29,7 @@ internal fun PanelProgreso(
         PorcentajeGrande(progreso)
         BarraPanel(progreso)
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = onIniciar, enabled = !corriendo, modifier = Modifier.weight(1f).height(48.dp)) {
+            Button(onClick = onIniciar, enabled = !corriendo, modifier = Modifier.weight(1f).heightIn(min = 56.dp)) {
                 Text("Iniciar")
             }
             BotonCancelar(corriendo, onCancelar, Modifier.weight(1f))
@@ -40,15 +40,15 @@ internal fun PanelProgreso(
             horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Insignia(3)
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text("TOQUES", fontSize = 10.sp, letterSpacing = 1.sp,
+                Text("Toques", style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("$toques", fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+                Text("$toques", style = MaterialTheme.typography.headlineSmall)
             }
-            Button(onClick = onTocar, modifier = Modifier.height(44.dp)) { Text("Tocar") }
+            Button(onClick = onTocar, modifier = Modifier.heightIn(min = 52.dp)) { Text("Tocar") }
         }
     }
     Text("La app sigue respondiendo mientras avanza la tarea.",
-        color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp,
+        color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall,
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp))
 }
@@ -66,7 +66,7 @@ internal fun PanelPrimos(
         value = hasta, onValueChange = onHasta,
         label = { Text("Contar hasta") },
         trailingIcon = { Box(Modifier.padding(end = 12.dp)) { Insignia(1) } },
-        textStyle = TextStyle(fontSize = 28.sp, lineHeight = 36.sp, fontWeight = FontWeight.SemiBold),
+        textStyle = MaterialTheme.typography.headlineLarge,
         shape = RoundedCornerShape(20.dp),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
         singleLine = true,
@@ -86,7 +86,7 @@ internal fun PanelPrimos(
                 onContar(it)
             } },
             enabled = !calculando && limite != null && limite >= 2,
-            modifier = Modifier.weight(1f).height(48.dp)
+            modifier = Modifier.weight(1f).heightIn(min = 56.dp)
         ) { Text("Contar") }
         BotonCancelar(calculando, onCancelar, Modifier.weight(1f))
     }
@@ -110,26 +110,26 @@ internal fun PanelPrimos(
             else if (primos is PrimosUi.Cancelado) "Cálculo cancelado"
             else if (primos is PrimosUi.Listo) "Cálculo completado"
             else "Ingresa un número para comenzar",
-            color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()
         )
     }
     Text("Último resultado", color = MaterialTheme.colorScheme.onSurfaceVariant,
-        fontSize = 13.sp, modifier = Modifier.padding(start = 4.dp, top = 8.dp))
+        style = MaterialTheme.typography.bodySmall, modifier = Modifier.padding(start = 4.dp, top = 8.dp))
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         TarjetaPanel(Modifier.weight(1f)) {
-            Text("Primos", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+            Text("Primos", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
             Text(ultimaCantidad?.let { formatearNumero(it.toLong()) } ?: "—",
-                fontSize = 24.sp, fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.headlineSmall,
                 maxLines = 1, overflow = TextOverflow.Ellipsis)
         }
         TarjetaPanel(Modifier.weight(1f)) {
-            Text("Tiempo", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+            Text("Tiempo", color = MaterialTheme.colorScheme.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
             Text(ultimoTiempo?.let { formatearNumero(it) } ?: "—",
                 color = MaterialTheme.colorScheme.tertiary,
-                fontSize = 24.sp, fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.headlineSmall,
                 maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text("milisegundos", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("milisegundos", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -149,8 +149,8 @@ private fun TarjetaPanel(modifier: Modifier = Modifier, content: @Composable Col
 @Composable
 private fun Insignia(tipo: Int) {
     Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(10.dp)) {
-        Box(Modifier.size(36.dp), contentAlignment = Alignment.Center) {
-            IconoTarea(tipo, Modifier.size(20.dp))
+        Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
+            IconoTarea(tipo, Modifier.size(24.dp))
         }
     }
 }
@@ -160,11 +160,11 @@ private fun CabeceraPanel(titulo: String, estado: String) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Insignia(0)
-            Text(titulo, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            Text(titulo, style = MaterialTheme.typography.titleMedium)
         }
         Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
             Surface(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(20.dp)) {
-                Text(estado, color = MaterialTheme.colorScheme.primary, fontSize = 12.sp,
+                Text(estado, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp))
             }
@@ -176,9 +176,8 @@ private fun CabeceraPanel(titulo: String, estado: String) {
 private fun PorcentajeGrande(progreso: Float) {
     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-        Text("${(progreso.coerceIn(0f, 1f) * 100).toInt()}", fontSize = 68.sp,
-            lineHeight = 76.sp, fontWeight = FontWeight.SemiBold, letterSpacing = (-2).sp)
-        Text(" %", fontSize = 24.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        Text("${(progreso.coerceIn(0f, 1f) * 100).toInt()}", style = MaterialTheme.typography.displayLarge, letterSpacing = (-1).sp)
+        Text(" %", fontSize = 28.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 16.dp))
     }
 }
@@ -194,7 +193,7 @@ private fun BarraPanel(progreso: Float) {
 
 @Composable
 private fun BotonCancelar(enabled: Boolean, onClick: () -> Unit, modifier: Modifier) {
-    FilledTonalButton(onClick = onClick, enabled = enabled, modifier = modifier.height(48.dp),
+    FilledTonalButton(onClick = onClick, enabled = enabled, modifier = modifier.heightIn(min = 56.dp),
         colors = ButtonDefaults.filledTonalButtonColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.primary

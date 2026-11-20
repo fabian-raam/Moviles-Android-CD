@@ -75,6 +75,7 @@ private fun ContenidoTareas(
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
     var seccion by rememberSaveable { mutableStateOf(0) }
+    var modoParalelo by rememberSaveable { mutableStateOf(true) }
     var ultimaCantidad by rememberSaveable { mutableStateOf<Int?>(null) }
     var ultimoTiempo by rememberSaveable { mutableStateOf<Long?>(null) }
     var limiteEnCurso by rememberSaveable { mutableStateOf(hasta) }
@@ -105,7 +106,7 @@ private fun ContenidoTareas(
                         icon = {
                             IconoTarea(indice, seleccionado = seccion == indice)
                         },
-                        label = { Text(titulo) },
+                        label = { Text(titulo, style = MaterialTheme.typography.labelMedium) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = MaterialTheme.colorScheme.primary,
                             selectedTextColor = MaterialTheme.colorScheme.primary,
@@ -143,123 +144,14 @@ private fun ContenidoTareas(
                 )
             }
             if (seccion == 2) {
-            TarjetaTarea("Dos cargas") {
-                val cargando = carga is CargaUi.Cargando
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-                ) {
-                    Switch(
-                        checked = aplicarTiempoMaximo,
-                        onCheckedChange = onCambiarTiempoMaximo,
-                        enabled = !cargando
-                    )
-                    Text("Aplicar tiempo máximo (2 s)")
-                }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-                ) {
-                    Switch(checked = simularError, onCheckedChange = onCambiarSimularError)
-                    Text("Simular error")
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = onCargarUnaPorUna, enabled = !cargando) {
-                        Text("Una por una")
-                    }
-                    Button(onClick = onCargarALaVez, enabled = !cargando) { Text("A la vez") }
-                }
-                when (carga) {
-                    CargaUi.Inicial -> Text("Elige cómo cargar el perfil y los pedidos.")
-                    CargaUi.Cargando -> {
-                        CircularProgressIndicator()
-                        Text("Cargando...")
-                    }
-                    is CargaUi.Exito -> Surface(
-                        color = MaterialTheme.colorScheme.surfaceContainer,
-                        contentColor = MaterialTheme.colorScheme.tertiary,
-                        shape = MaterialTheme.shapes.small,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(Modifier.padding(12.dp)) {
-                            Text("Modo: ${carga.modo}")
-                            Text("Perfil: ${carga.perfil}")
-                            Text("Pedidos: ${carga.pedidos}")
-                            Text("Tiempo: ${carga.milisegundos} ms")
-                        }
-                    }
-                    is CargaUi.Error -> Surface(
-                        color = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                        shape = MaterialTheme.shapes.small,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(carga.mensaje)
-                            OutlinedButton(onClick = onCargarALaVez) { Text("Reintentar") }
-                        }
-                    }
-                }
+                PanelCargas(
+                    carga = carga, paralelo = modoParalelo, onModo = { modoParalelo = it },
+                    limitarTiempo = aplicarTiempoMaximo, onLimitarTiempo = onCambiarTiempoMaximo,
+                    simularError = simularError, onSimularError = onCambiarSimularError,
+                    onSecuencial = onCargarUnaPorUna, onParalelo = onCargarALaVez,
+                    tiempos = tiempos, onLimpiar = onLimpiarTiempos
+                )
             }
-            TarjetaTarea("Comparación de tiempos") {
-                Text("Desactiva el tiempo máximo y el error simulado para registrar cargas completas.")
-                if (tiempos.isEmpty()) {
-                    Text("Todavía no hay mediciones.")
-                } else {
-                    Row(Modifier.fillMaxWidth()) {
-                        Text("N.º", Modifier.weight(0.5f))
-                        Text("Modo", Modifier.weight(1.5f))
-                        Text("Tiempo (ms)", Modifier.weight(1f))
-                    }
-                    HorizontalDivider()
-                    tiempos.forEachIndexed { indice, tiempo ->
-                        Row(Modifier.fillMaxWidth()) {
-                            Text("${indice + 1}", Modifier.weight(0.5f))
-                            Text(tiempo.modo, Modifier.weight(1.5f))
-                            Text("${tiempo.milisegundos}", Modifier.weight(1f))
-                        }
-                    }
-                    HorizontalDivider()
-                    val secuenciales = tiempos.filter { it.modo == "Una por una" }
-                    val paralelos = tiempos.filter { it.modo == "A la vez" }
-                    val promedioSecuencial = secuenciales.map { it.milisegundos }.average()
-                    val promedioParalelo = paralelos.map { it.milisegundos }.average()
-                    if (secuenciales.isNotEmpty()) {
-                        Text("Promedio una por una: ${promedioSecuencial.toLong()} ms (${secuenciales.size} cargas)")
-                    }
-                    if (paralelos.isNotEmpty()) {
-                        Text("Promedio a la vez: ${promedioParalelo.toLong()} ms (${paralelos.size} cargas)")
-                    }
-                    if (secuenciales.isNotEmpty() && paralelos.isNotEmpty()) {
-                        Text("Diferencia de promedios: ${(promedioSecuencial - promedioParalelo).toLong()} ms")
-                    }
-                    OutlinedButton(onClick = onLimpiarTiempos) { Text("Limpiar tabla") }
-                }
-                Text("Las mediciones se conservan al rotar; se reinician al cerrar la pantalla.",
-                    style = MaterialTheme.typography.bodySmall)
-            }
-            }
-        }
-    }
-}
-
-@Composable
-private fun TarjetaTarea(titulo: String, content: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(titulo, style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary)
-            content()
         }
     }
 }
