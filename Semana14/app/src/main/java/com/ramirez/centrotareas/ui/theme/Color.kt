@@ -2,9 +2,11 @@
 
 import androidx.compose.ui.graphics.Color
 
-val Azul40 = Color(0xFF156B9A)
-val Azul80 = Color(0xFF91CDF5)
-val AzulGris40 = Color(0xFF50606E)
-val AzulGris80 = Color(0xFFB8C8D8)
-val Verde40 = Color(0xFF386A45)
-val Verde80 = Color(0xFF9FD5A8)
+val Naranja = Color(0xFFFFA500)
+val Fondo = Color(0xFF090B10)
+val Tarjeta = Color(0xFF151821)
+val Superficie = Color(0xFF1C202D)
+val NaranjaSuave = Color(0xFF40301C)
+val Texto = Color(0xFFF2F3F8)
+val TextoSecundario = Color(0xFF9AA5C2)
+val Verde = Color(0xFF38DB7C)

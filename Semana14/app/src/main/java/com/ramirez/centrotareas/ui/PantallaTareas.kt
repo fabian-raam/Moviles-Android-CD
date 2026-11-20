@@ -4,6 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -70,23 +74,52 @@ private fun ContenidoTareas(
 ) {
     var toques by rememberSaveable { mutableStateOf(0) }
     var hasta by rememberSaveable { mutableStateOf("500000") }
+    var seccion by rememberSaveable { mutableStateOf(0) }
+    val scrollProgreso = rememberScrollState()
+    val scrollPrimos = rememberScrollState()
+    val scrollCargas = rememberScrollState()
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("CentroTareas") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
+        containerColor = MaterialTheme.colorScheme.background,
+        bottomBar = {
+            NavigationBar(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
+                    .navigationBarsPadding().clip(RoundedCornerShape(32.dp)),
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                tonalElevation = 0.dp,
+                windowInsets = WindowInsets(0, 0, 0, 0)
+            ) {
+                listOf("Progreso", "Primos", "Cargas").forEachIndexed { indice, titulo ->
+                    NavigationBarItem(
+                        selected = seccion == indice,
+                        onClick = { seccion = indice },
+                        icon = {
+                            Text(listOf("◌", "#", "ϟ")[indice],
+                                fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                        },
+                        label = { Text(titulo) },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    )
+                }
+            }
         }
     ) { innerPadding ->
         Column(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
-                .verticalScroll(rememberScrollState()).padding(16.dp),
+                .verticalScroll(when (seccion) {
+                    0 -> scrollProgreso
+                    1 -> scrollPrimos
+                    else -> scrollCargas
+                }).padding(horizontal = 20.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            if (seccion == 0) {
             TarjetaTarea("Tarea con progreso") {
                 Button(onClick = { toques++ }) { Text("Tócame: $toques") }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -102,6 +135,8 @@ private fun ContenidoTareas(
                 Text("Tócame sigue respondiendo mientras avanza la barra.",
                     style = MaterialTheme.typography.bodySmall)
             }
+            }
+            if (seccion == 1) {
             TarjetaTarea("Contar números primos") {
                 OutlinedTextField(
                     value = hasta,
@@ -135,8 +170,8 @@ private fun ContenidoTareas(
                     }
                     PrimosUi.Cancelado -> Text("Cancelado")
                     is PrimosUi.Listo -> Surface(
-                        color = Color(0xFFE0F2E3),
-                        contentColor = Color(0xFF1B5E20),
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        contentColor = MaterialTheme.colorScheme.tertiary,
                         shape = MaterialTheme.shapes.small,
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -147,6 +182,8 @@ private fun ContenidoTareas(
                     }
                 }
             }
+            }
+            if (seccion == 2) {
             TarjetaTarea("Dos cargas") {
                 val cargando = carga is CargaUi.Cargando
                 Row(
@@ -180,8 +217,8 @@ private fun ContenidoTareas(
                         Text("Cargando...")
                     }
                     is CargaUi.Exito -> Surface(
-                        color = Color(0xFFE0F2E3),
-                        contentColor = Color(0xFF1B5E20),
+                        color = MaterialTheme.colorScheme.surfaceContainer,
+                        contentColor = MaterialTheme.colorScheme.tertiary,
                         shape = MaterialTheme.shapes.small,
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -245,13 +282,18 @@ private fun ContenidoTareas(
                 Text("Las mediciones se conservan al rotar; se reinician al cerrar la pantalla.",
                     style = MaterialTheme.typography.bodySmall)
             }
+            }
         }
     }
 }
 
 @Composable
 private fun TarjetaTarea(titulo: String, content: @Composable ColumnScope.() -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
