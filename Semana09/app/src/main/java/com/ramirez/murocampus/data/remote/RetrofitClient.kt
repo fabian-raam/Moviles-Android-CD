@@ -1,17 +1,31 @@
 ﻿package com.ramirez.murocampus.data.remote
 
+import com.ramirez.murocampus.BuildConfig
 import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
-// [G] Paso 4. UsuarioRemote.kt contiene el ejemplo resuelto.
 object RetrofitClient {
     private val json = Json { ignoreUnknownKeys = true }
     private val cliente = OkHttpClient.Builder()
-        // TODO: agregar HttpLoggingInterceptor con nivel BODY solo en desarrollo.
+        .addInterceptor(HttpLoggingInterceptor().apply {
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
+        })
         .build()
 
-    // TODO: después de crear PostApi en el paso 3, declarar:
-    // val api: PostApi by lazy { ... }
-    // Usar baseUrl HTTPS terminada en /, cliente y conversor kotlinx.serialization.
-    // No usar este esqueleto hasta completar el paso 4.
+    val api: PostApi by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://jsonplaceholder.typicode.com/")
+            .client(cliente)
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
+            .build()
+            .create(PostApi::class.java)
+    }
 }
