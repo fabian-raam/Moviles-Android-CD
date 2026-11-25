@@ -6,6 +6,7 @@ import com.ramirez.murocampus.data.PostRepository
 import com.ramirez.murocampus.data.mensajeDe
 import com.ramirez.murocampus.model.Post
 import com.ramirez.murocampus.model.Comentario
+import com.ramirez.murocampus.model.NuevoPost
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +24,9 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     val detalle = _detalle.asStateFlow()
     private var detalleId: Int? = null
     private var detalleJob: Job? = null
+    private val _publicacion = MutableStateFlow<UiState<Post>?>(null)
+    val publicacion = _publicacion.asStateFlow()
+    private var publicacionJob: Job? = null
 
     init { cargar() }
 
@@ -69,5 +73,26 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
         detalleJob = null
         detalleId = null
         _detalle.value = UiState.Cargando
+    }
+
+    fun publicar(titulo: String, texto: String) {
+        if (titulo.isBlank() || texto.isBlank() || publicacionJob?.isActive == true) return
+        val nuevo = NuevoPost(userId = 1, title = titulo, body = texto)
+        _publicacion.value = UiState.Cargando
+        publicacionJob = viewModelScope.launch {
+            repo.crear(nuevo)
+                .onSuccess { _publicacion.value = UiState.Exito(it) }
+                .onFailure { _publicacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    fun limpiarResultadoPublicacion() {
+        if (_publicacion.value != UiState.Cargando) _publicacion.value = null
+    }
+
+    fun reiniciarPublicacion() {
+        publicacionJob?.cancel()
+        publicacionJob = null
+        _publicacion.value = null
     }
 }
