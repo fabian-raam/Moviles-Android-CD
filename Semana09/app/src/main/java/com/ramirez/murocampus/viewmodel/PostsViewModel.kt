@@ -1,4 +1,4 @@
-﻿package com.ramirez.murocampus.viewmodel
+package com.ramirez.murocampus.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -27,6 +27,9 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _publicacion = MutableStateFlow<UiState<Post>?>(null)
     val publicacion = _publicacion.asStateFlow()
     private var publicacionJob: Job? = null
+    private val _eliminacion = MutableStateFlow<UiState<Unit>?>(null)
+    val eliminacion = _eliminacion.asStateFlow()
+    private var eliminacionJob: Job? = null
 
     init { cargar() }
 
@@ -53,6 +56,7 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
     fun abrir(id: Int) {
         detalleJob?.cancel()
+        reiniciarEliminacion()
         detalleId = id
         _detalle.value = UiState.Cargando
         detalleJob = viewModelScope.launch {
@@ -70,9 +74,34 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
     fun cerrarDetalle() {
         detalleJob?.cancel()
+        reiniciarEliminacion()
         detalleJob = null
         detalleId = null
         _detalle.value = UiState.Cargando
+    }
+
+    fun eliminar(id: Int) {
+        val actual = _detalle.value as? UiState.Exito ?: return
+        if (actual.datos.post.id != id || eliminacionJob?.isActive == true ||
+            _eliminacion.value is UiState.Exito) return
+        _eliminacion.value = UiState.Cargando
+        eliminacionJob = viewModelScope.launch {
+            repo.eliminar(id)
+                .onSuccess {
+                    val listaActual = _lista.value
+                    if (listaActual is UiState.Exito) {
+                        _lista.value = UiState.Exito(listaActual.datos.filterNot { it.id == id })
+                    }
+                    _eliminacion.value = UiState.Exito(Unit)
+                }
+                .onFailure { _eliminacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    private fun reiniciarEliminacion() {
+        eliminacionJob?.cancel()
+        eliminacionJob = null
+        _eliminacion.value = null
     }
 
     fun publicar(titulo: String, texto: String) {

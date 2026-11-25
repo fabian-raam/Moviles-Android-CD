@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +24,7 @@ import com.ramirez.murocampus.viewmodel.UiState
 @Composable
 fun PantallaDetalle(vm: PostsViewModel, id: Int, modifier: Modifier = Modifier) {
     val estado by vm.detalle.collectAsStateWithLifecycle()
+    val eliminacion by vm.eliminacion.collectAsStateWithLifecycle()
 
     when (val actual = estado) {
         UiState.Cargando -> Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -40,6 +42,27 @@ fun PantallaDetalle(vm: PostsViewModel, id: Int, modifier: Modifier = Modifier) 
                 Text(actual.datos.post.title, style = MaterialTheme.typography.headlineSmall)
             }
             item { Text(actual.datos.post.body) }
+            item {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { vm.eliminar(id) },
+                        enabled = eliminacion != UiState.Cargando && eliminacion !is UiState.Exito
+                    ) {
+                        Text(if (eliminacion == UiState.Cargando) "Eliminando…" else "Eliminar")
+                    }
+                    when (val resultado = eliminacion) {
+                        null, UiState.Cargando -> Unit
+                        is UiState.Exito -> Text(
+                            "Publicación eliminada",
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        is UiState.Error -> ErrorConReintento(
+                            resultado.mensaje,
+                            onReintentar = { vm.eliminar(id) }
+                        )
+                    }
+                }
+            }
             item { HorizontalDivider() }
             item {
                 Text(
