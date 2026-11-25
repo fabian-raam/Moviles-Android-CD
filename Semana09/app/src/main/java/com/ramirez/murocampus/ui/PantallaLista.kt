@@ -17,7 +17,11 @@ import com.ramirez.murocampus.viewmodel.PostsViewModel
 import com.ramirez.murocampus.viewmodel.UiState
 
 @Composable
-fun PantallaLista(vm: PostsViewModel, modifier: Modifier = Modifier) {
+fun PantallaLista(
+    vm: PostsViewModel,
+    onAbrir: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val estado by vm.lista.collectAsStateWithLifecycle()
 
     when (val actual = estado) {
@@ -33,7 +37,12 @@ fun PantallaLista(vm: PostsViewModel, modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(actual.datos, key = { it.id }) { post ->
-                TarjetaPost(userId = post.userId, titulo = post.title, texto = post.body)
+                TarjetaPost(
+                    userId = post.userId,
+                    titulo = post.title,
+                    texto = post.body,
+                    onClick = { onAbrir(post.id) }
+                )
             }
         }
     }
