@@ -3,6 +3,19 @@
 Preparación previa a los pasos del PDF, creada porque no se entregó el proyecto base.
 El paquete de este proyecto es `com.ramirez.murocampus`.
 
+## Inicio de la Fase 1 - Paso 0
+
+La base de partida corresponde al commit `f6a0ee9`, después de los tres commits de preparación.
+Se conserva en la carpeta `Semana09` del repositorio `Moviles-Android-CD`, en la rama `main`.
+No se necesita crear otro repositorio ni volver a importar los archivos.
+
+El primer commit de la guía, `chore: importa proyecto base MuroCampus`, registra este punto de inicio.
+La base pasó `:app:assembleDebug` y `:app:lintDebug` durante su preparación.
+Antes de continuar, abrir `Semana09` en Android Studio, sincronizar y ejecutar `app`:
+debe aparecer la barra azul MuroCampus y el área de contenido vacía.
+Comprobación visual confirmada por el usuario: la aplicación abre con la barra azul MuroCampus
+y el área de contenido vacía.
+
 ## Tres commits de preparación
 
 1. Proyecto Android con Compose, tema azul y pantalla inicial vacía con barra MuroCampus.
