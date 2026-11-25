@@ -20,6 +20,9 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _usuarioFiltro = MutableStateFlow<Int?>(null)
     val usuarioFiltro = _usuarioFiltro.asStateFlow()
     private var listaJob: Job? = null
+    private var postsDescargados = emptyList<Post>()
+    private val _busqueda = MutableStateFlow("")
+    val busqueda = _busqueda.asStateFlow()
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle = _detalle.asStateFlow()
     private var detalleId: Int? = null
@@ -36,13 +39,28 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     fun cargar() {
         listaJob?.cancel()
         val userId = _usuarioFiltro.value
+        _lista.value = UiState.Cargando
         listaJob = viewModelScope.launch {
-            _lista.value = UiState.Cargando
             val resultado = if (userId == null) repo.listar() else repo.porUsuario(userId)
             resultado
-                .onSuccess { _lista.value = UiState.Exito(it) }
+                .onSuccess {
+                    postsDescargados = it
+                    actualizarListaVisible()
+                }
                 .onFailure { _lista.value = UiState.Error(mensajeDe(it)) }
         }
+    }
+
+    fun buscar(texto: String) {
+        _busqueda.value = texto
+        if (_lista.value is UiState.Exito) actualizarListaVisible()
+    }
+
+    private fun actualizarListaVisible() {
+        val consulta = _busqueda.value.trim()
+        _lista.value = UiState.Exito(
+            postsDescargados.filter { it.title.contains(consulta, ignoreCase = true) }
+        )
     }
 
     fun filtrar(userId: Int?) {
@@ -88,10 +106,8 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
         eliminacionJob = viewModelScope.launch {
             repo.eliminar(id)
                 .onSuccess {
-                    val listaActual = _lista.value
-                    if (listaActual is UiState.Exito) {
-                        _lista.value = UiState.Exito(listaActual.datos.filterNot { it.id == id })
-                    }
+                    postsDescargados = postsDescargados.filterNot { it.id == id }
+                    if (_lista.value is UiState.Exito) actualizarListaVisible()
                     _eliminacion.value = UiState.Exito(Unit)
                 }
                 .onFailure { _eliminacion.value = UiState.Error(mensajeDe(it)) }
