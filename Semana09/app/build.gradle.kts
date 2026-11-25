@@ -1,6 +1,7 @@
 ﻿plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    // Paso 1: serialización usa la misma versión de Kotlin definida en el catálogo.
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -38,12 +39,15 @@ android {
 }
 
 dependencies {
+    // Paso 1: las seis dependencias de red y observación de estado de la guía.
     implementation("com.squareup.retrofit2:retrofit:2.11.0")
     implementation("com.squareup.retrofit2:converter-kotlinx-serialization:2.11.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.1")
+
+    // Dependencia adicional del ejemplo entregado de ViewModel con Compose.
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.1")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

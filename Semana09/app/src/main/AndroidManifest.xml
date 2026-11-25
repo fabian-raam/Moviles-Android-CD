@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Paso 1: permiso de red declarado antes de application. -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
