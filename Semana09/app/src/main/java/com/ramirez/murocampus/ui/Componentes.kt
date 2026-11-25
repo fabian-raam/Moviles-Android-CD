@@ -21,7 +21,12 @@ fun TarjetaPost(
     Card(onClick = onClick, modifier = modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Usuario $userId", color = MaterialTheme.colorScheme.primary)
-            Text(titulo, fontWeight = FontWeight.Bold)
+            Text(
+                titulo,
+                fontWeight = FontWeight.Bold,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
             Text(texto, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
