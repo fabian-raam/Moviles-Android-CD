@@ -161,4 +161,41 @@ La publicación quedaría persistida y debería aparecer en futuras consultas. D
 
 La Fase 1 se desarrolla en `main`, con un commit por paso. La base se creó en tres commits previos porque no se entregó un proyecto inicial; el detalle está en [BASE.md](BASE.md). El permiso y las dependencias necesarios para el ejemplo de Usuario quedaron incluidos desde esa preparación y se revisaron en el paso 1.
 
-Este README documenta la Fase 1. La rama `mejora-ia`, sus mejoras y `PROMPTS.md` corresponden a la Fase 2 y todavía no están preparados.
+## Fase 2 - Rama mejora-ia-sem9
+
+La Fase 1 queda conservada en `main`. Por indicación del usuario, la Fase 2 usa la rama `mejora-ia-sem9`.
+
+| Mejora | Estado |
+| --- | --- |
+| Eliminar publicación con DELETE y verificación del código HTTP | Implementada y verificada |
+| Búsqueda por título en los datos descargados | Implementada y verificada |
+| Paginación de 20 en 20 y botón Cargar más | Implementada y verificada |
+
+En el detalle, **Eliminar** muestra carga, éxito o error con reintento. Al confirmarse el éxito HTTP, se retira la publicación de la lista local. JSONPlaceholder simula la operación, por lo que puede reaparecer al volver a descargar los datos.
+
+**Buscar por título** filtra únicamente las publicaciones ya cargadas, sin hacer peticiones nuevas. Ignora mayúsculas y espacios al inicio y al final. **Limpiar** restaura las filas descargadas. La búsqueda se mantiene al cambiar de usuario y también se aplica a las páginas nuevas; una lista sin coincidencias todavía permite Cargar más.
+
+La lista inicia con **20 publicaciones**. **Cargar más** solicita la siguiente página y la agrega a las anteriores mediante `GET posts?_start=N&_limit=20`, añadiendo `userId` cuando se filtra. Cambiar de usuario reinicia el cursor. Si falla una página adicional, las filas previas se conservan y Reintentar vuelve a solicitar el mismo inicio. El cursor cuenta los recursos recibidos del servidor, por lo que buscar o eliminar no hace saltar publicaciones.
+
+El botón deja de aparecer cuando llega una página con menos de 20 elementos. Si el total es múltiplo de 20, se detecta el final con una petición adicional vacía. Por ejemplo, para las 100 publicaciones del servicio se cargan cinco bloques de 20 y una consulta vacía confirma el final. Al filtrar por usuario, sus 10 publicaciones caben en una página.
+
+Rutas añadidas en esta fase:
+
+| Operación | Método y ruta | Contrato |
+| --- | --- | --- |
+| Eliminar | `DELETE posts/{id}` | API: Response&lt;Unit&gt;; Repository: Result&lt;Unit&gt; |
+| Paginar | `GET posts?_start=N&_limit=20&userId=U` | Lista de publicaciones; userId opcional |
+
+Verificación de las mejoras:
+
+```powershell
+.\gradlew.bat :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+```
+
+Compilación y lint correctos. **12 pruebas unitarias aprobadas:** una de la plantilla, tres de eliminación y ocho de integración del ViewModel (búsqueda, paginación, errores, cancelación de filtros, fin de datos y eliminación sin desplazar el cursor). Los archivos de prueba están en `app/src/test/java/com/ramirez/murocampus/`.
+
+Comprobación adicional en el emulador con el servicio real: inicio con 20 publicaciones; búsqueda sin coincidencias conservando esas 20; Cargar más eleva el contador a 40; buscar `sunt` devuelve títulos coincidentes; eliminar la publicación 1 muestra éxito y deja 39 filas cargadas; cambiar a Usuario 2 carga sus 10 publicaciones desde el inicio.
+
+Las cinco capturas anteriores muestran la Fase 1 conservada en `main`; en esta rama aparecen además el buscador, el contador, Cargar más y Eliminar. Las tres mejoras se prepararon juntas por petición del usuario y el historial se organiza en tres commits: eliminación, búsqueda y paginación. Cada uno se comprobó con compilación y pruebas antes de registrarlo; el conjunto también pasó lint.
+
+El análisis y las decisiones de asistencia de IA se documentan en [PROMPTS.md](PROMPTS.md).

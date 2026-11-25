@@ -1,4 +1,4 @@
-package com.ramirez.murocampus.ui
+﻿package com.ramirez.murocampus.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,6 +34,9 @@ fun PantallaLista(
     val estado by vm.lista.collectAsStateWithLifecycle()
     val usuarioFiltro by vm.usuarioFiltro.collectAsStateWithLifecycle()
     val busqueda by vm.busqueda.collectAsStateWithLifecycle()
+    val cantidadDescargada by vm.cantidadDescargada.collectAsStateWithLifecycle()
+    val hayMas by vm.hayMas.collectAsStateWithLifecycle()
+    val cargaMas by vm.cargaMas.collectAsStateWithLifecycle()
 
     Column(modifier.fillMaxSize()) {
         OutlinedTextField(
@@ -65,6 +70,13 @@ fun PantallaLista(
                 )
             }
         }
+        if (estado is UiState.Exito) {
+            Text(
+                "$cantidadDescargada publicaciones cargadas",
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+        }
         Box(Modifier.weight(1f)) {
             when (val actual = estado) {
                 UiState.Cargando -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -93,6 +105,24 @@ fun PantallaLista(
                             texto = post.body,
                             onClick = { onAbrir(post.id) }
                         )
+                    }
+                    item(key = "paginacion") {
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            when (val siguiente = cargaMas) {
+                                UiState.Cargando -> Cargando(mensaje = "Cargando más publicaciones…")
+                                is UiState.Error -> ErrorConReintento(
+                                    siguiente.mensaje,
+                                    onReintentar = vm::cargarMas
+                                )
+                                else -> if (hayMas) {
+                                    Button(onClick = vm::cargarMas, modifier = Modifier.fillMaxWidth()) {
+                                        Text("Cargar más")
+                                    }
+                                } else {
+                                    Text("No hay más publicaciones")
+                                }
+                            }
+                        }
                     }
                 }
             }

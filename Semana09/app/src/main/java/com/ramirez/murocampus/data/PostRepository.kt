@@ -1,4 +1,4 @@
-package com.ramirez.murocampus.data
+﻿package com.ramirez.murocampus.data
 
 import com.ramirez.murocampus.data.remote.PostApi
 import com.ramirez.murocampus.model.Comentario
@@ -9,6 +9,7 @@ import retrofit2.HttpException
 
 interface PostRepository {
     suspend fun listar(): Result<List<Post>>
+    suspend fun pagina(inicio: Int, limite: Int, userId: Int? = null): Result<List<Post>>
     suspend fun detalle(id: Int): Result<Post>
     suspend fun comentarios(id: Int): Result<List<Comentario>>
     suspend fun porUsuario(userId: Int): Result<List<Post>>
@@ -18,6 +19,9 @@ interface PostRepository {
 
 class PostRepositoryRemote(private val api: PostApi) : PostRepository {
     override suspend fun listar(): Result<List<Post>> = llamar { api.listar() }
+
+    override suspend fun pagina(inicio: Int, limite: Int, userId: Int?): Result<List<Post>> =
+        llamar { api.pagina(inicio, limite, userId) }
 
     override suspend fun detalle(id: Int): Result<Post> = llamar { api.detalle(id) }
 

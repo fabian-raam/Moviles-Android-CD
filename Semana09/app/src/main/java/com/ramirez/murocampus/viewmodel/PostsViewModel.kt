@@ -1,4 +1,4 @@
-package com.ramirez.murocampus.viewmodel
+﻿package com.ramirez.murocampus.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,8 +21,16 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     val usuarioFiltro = _usuarioFiltro.asStateFlow()
     private var listaJob: Job? = null
     private var postsDescargados = emptyList<Post>()
+    private var siguienteInicio = 0
+    private val tamanoPagina = 20
     private val _busqueda = MutableStateFlow("")
     val busqueda = _busqueda.asStateFlow()
+    private val _cantidadDescargada = MutableStateFlow(0)
+    val cantidadDescargada = _cantidadDescargada.asStateFlow()
+    private val _hayMas = MutableStateFlow(true)
+    val hayMas = _hayMas.asStateFlow()
+    private val _cargaMas = MutableStateFlow<UiState<Unit>?>(null)
+    val cargaMas = _cargaMas.asStateFlow()
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle = _detalle.asStateFlow()
     private var detalleId: Int? = null
@@ -39,16 +47,39 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     fun cargar() {
         listaJob?.cancel()
         val userId = _usuarioFiltro.value
+        postsDescargados = emptyList()
+        siguienteInicio = 0
+        _cantidadDescargada.value = 0
+        _hayMas.value = true
+        _cargaMas.value = null
         _lista.value = UiState.Cargando
         listaJob = viewModelScope.launch {
-            val resultado = if (userId == null) repo.listar() else repo.porUsuario(userId)
-            resultado
-                .onSuccess {
-                    postsDescargados = it
-                    actualizarListaVisible()
-                }
+            repo.pagina(inicio = 0, limite = tamanoPagina, userId = userId)
+                .onSuccess { agregarPagina(it) }
                 .onFailure { _lista.value = UiState.Error(mensajeDe(it)) }
         }
+    }
+
+    fun cargarMas() {
+        if (listaJob?.isActive == true || !_hayMas.value || _lista.value !is UiState.Exito) return
+        val inicio = siguienteInicio
+        val userId = _usuarioFiltro.value
+        _cargaMas.value = UiState.Cargando
+        listaJob = viewModelScope.launch {
+            repo.pagina(inicio, tamanoPagina, userId)
+                .onSuccess { agregarPagina(it) }
+                .onFailure { _cargaMas.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    private fun agregarPagina(nuevos: List<Post>) {
+        // El cursor depende de la respuesta, no del resultado de buscar o eliminar.
+        siguienteInicio += nuevos.size
+        postsDescargados = (postsDescargados + nuevos).distinctBy { it.id }
+        _cantidadDescargada.value = postsDescargados.size
+        _hayMas.value = nuevos.size == tamanoPagina
+        _cargaMas.value = null
+        actualizarListaVisible()
     }
 
     fun buscar(texto: String) {
@@ -107,6 +138,7 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
             repo.eliminar(id)
                 .onSuccess {
                     postsDescargados = postsDescargados.filterNot { it.id == id }
+                    _cantidadDescargada.value = postsDescargados.size
                     if (_lista.value is UiState.Exito) actualizarListaVisible()
                     _eliminacion.value = UiState.Exito(Unit)
                 }

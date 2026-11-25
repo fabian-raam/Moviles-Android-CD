@@ -47,6 +47,8 @@ class PostRepositoryEliminarTest {
     private class ApiEliminar(private val respuesta: suspend (Int) -> Response<Unit>) : PostApi {
         override suspend fun eliminar(id: Int): Response<Unit> = respuesta(id)
         override suspend fun listar(): List<Post> = error("Llamada no esperada")
+        override suspend fun pagina(inicio: Int, limite: Int, userId: Int?): List<Post> =
+            error("Llamada no esperada")
         override suspend fun detalle(id: Int): Post = error("Llamada no esperada")
         override suspend fun comentarios(id: Int): List<Comentario> = error("Llamada no esperada")
         override suspend fun porUsuario(userId: Int): List<Post> = error("Llamada no esperada")

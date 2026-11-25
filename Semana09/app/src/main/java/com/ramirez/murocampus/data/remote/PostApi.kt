@@ -1,4 +1,4 @@
-package com.ramirez.murocampus.data.remote
+﻿package com.ramirez.murocampus.data.remote
 
 import com.ramirez.murocampus.model.Comentario
 import com.ramirez.murocampus.model.NuevoPost
@@ -14,6 +14,13 @@ import retrofit2.http.Query
 interface PostApi {
     @GET("posts")
     suspend fun listar(): List<Post>
+
+    @GET("posts")
+    suspend fun pagina(
+        @Query("_start") inicio: Int,
+        @Query("_limit") limite: Int,
+        @Query("userId") userId: Int? = null
+    ): List<Post>
 
     @GET("posts/{id}")
     suspend fun detalle(@Path("id") id: Int): Post
