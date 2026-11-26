@@ -48,6 +48,7 @@ app/src/main/java/com/ramirez/murocampus/
 │   └── UsuariosViewModel.kt       # Ejemplo de la base
 └── ui/
     ├── Componentes.kt
+    ├── Iconos.kt                  # Iconos propios dibujados como composables
     ├── PantallaLista.kt
     ├── PantallaDetalle.kt
     ├── PantallaCrear.kt
@@ -99,7 +100,7 @@ Base: `https://jsonplaceholder.typicode.com/`
 
 ## Capturas
 
-Capturas reales del emulador Medium Phone, sin modificar las imágenes.
+Capturas reales del emulador Medium Phone con el rediseño coral, sin modificar las imágenes.
 
 | Lista | Detalle con comentarios | Filtro por Usuario 2 |
 | --- | --- | --- |
@@ -196,6 +197,14 @@ Compilación y lint correctos. **12 pruebas unitarias aprobadas:** una de la pla
 
 Comprobación adicional en el emulador con el servicio real: inicio con 20 publicaciones; búsqueda sin coincidencias conservando esas 20; Cargar más eleva el contador a 40; buscar `sunt` devuelve títulos coincidentes; eliminar la publicación 1 muestra éxito y deja 39 filas cargadas; cambiar a Usuario 2 carga sus 10 publicaciones desde el inicio.
 
-Las cinco capturas anteriores muestran la Fase 1 conservada en `main`; en esta rama aparecen además el buscador, el contador, Cargar más y Eliminar. Las tres mejoras se prepararon juntas por petición del usuario y el historial se organiza en tres commits: eliminación, búsqueda y paginación. Cada uno se comprobó con compilación y pruebas antes de registrarlo; el conjunto también pasó lint.
+Las cinco capturas anteriores muestran el diseño actual de esta rama. La versión inicial queda conservada en `main`. Las tres mejoras se prepararon juntas por petición del usuario y el historial se organiza en tres commits: eliminación, búsqueda y paginación. Cada uno se comprobó con compilación y pruebas antes de registrarlo; el conjunto también pasó lint.
 
 El análisis y las decisiones de asistencia de IA se documentan en [PROMPTS.md](PROMPTS.md).
+
+## Diseño visual
+
+El tema utiliza una paleta fija basada en las referencias del usuario: fondo `#F2F2F7`, tarjetas blancas, acento coral `#FF3B30`, marca coral `#FF5952` y grises para el texto secundario. No se aplican los colores dinámicos del dispositivo ni la paleta azul/morada de la plantilla. La tipografía sans serif usa títulos de 26 a 36 sp y texto principal de 16 a 18 sp.
+
+El menú inferior Muro/Nueva, las tarjetas con avatar, los comentarios en burbujas, el formulario y los mensajes de éxito/error comparten estos estilos. `ui/Iconos.kt` contiene composables dibujados con Canvas, incluidos `IconoMuro`, `IconoNueva` e `IconoSinConexion`; se reutilizan en las pantallas. No se dibujan barras de desplazamiento.
+
+El rediseño conserva búsqueda, paginación, creación y eliminación. Se comprobó la navegación, el POST con id 101 y el estado sin conexión en el emulador; la conexión se restauró después de la prueba. Compilación, lint y las 12 pruebas unitarias aprobados.

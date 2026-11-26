@@ -41,3 +41,11 @@ La paginación reemplaza la propuesta inicial de agregar un encabezado HTTP.
 - La prueba automatizada usa un Repository controlado para provocar errores y respuestas demoradas sin depender de la red.
 - En el emulador se comprobó además el servicio real: carga inicial de 20, segunda página hasta 40, búsqueda por título, DELETE exitoso y eliminación local hasta 39, y cambio a Usuario 2 con 10 resultados.
 - Tras la instrucción «sube los 3 commits», se separó el trabajo en eliminación, búsqueda y paginación. Se compilaron y probaron los estados intermedios, se verificó que el código final coincidiera con el conjunto aprobado y se conservaron los resultados y decisiones en este registro.
+
+## Rediseño posterior
+
+| Prompt que escribí | Qué respondió la IA (Codex) | Qué cambié o descarté | Por qué |
+| --- | --- | --- | --- |
+| «ASEGURATE DE CAMBIARLE EL TEMA DE LA APP A ESTOS COLORES Y USARLOS EN TODA LA APP […] CREA LOS ICONOS DE MENU Y SIN CONEXION COMO COMPSABLES […] EL TEXTO SEA GRANDE» y cinco referencias visuales | Aplicó un tema coral y gris claro, tipografía sans serif grande, tarjetas y formulario blancos, avatares y comentarios en burbujas. Dibujó iconos reutilizables con Canvas. | Se eliminaron los colores de plantilla y dinámicos. El menú inferior reemplaza al botón flotante. Se conservan búsqueda, Cargar más y eliminación, integrados con la nueva paleta; no se recrean las barras de desplazamiento de las referencias. | Mantener la identidad visual en todas las pantallas sin perder las funciones verificadas ni cambiar las capas de datos y ViewModel. |
+
+Se revisaron las cinco pantallas en el emulador y se actualizaron sus capturas reales. La creación sigue devolviendo id 101, y el modo avión muestra el icono de desconexión y Reintentar. Compilación, lint y 12 pruebas unitarias aprobados. El usuario autorizó registrar y subir el rediseño en un único commit con la instrucción «SUBE UN COMMIT DE ESTO».
