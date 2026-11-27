@@ -30,7 +30,8 @@ app/src/main/java/com/ramirez/avisoscampus/
 ├── notificacion/
 │   └── Notificador.kt
 ├── receiver/
-│   └── ModoAvionReceiver.kt
+│   ├── ModoAvionReceiver.kt
+│   └── CargadorReceiver.kt
 ├── viewmodel/
 │   ├── AvisosViewModel.kt
 │   └── AvisosViewModelFactory.kt
@@ -40,7 +41,10 @@ app/src/main/java/com/ramirez/avisoscampus/
     └── theme/
 
 app/src/main/res/drawable/ic_notificacion.xml
-app/src/androidTest/java/com/ramirez/avisoscampus/AceptacionTest.kt
+app/src/androidTest/java/com/ramirez/avisoscampus/
+├── AceptacionTest.kt
+├── CargadorTest.kt
+└── MejorasNotificacionTest.kt
 docs/capturas/
 ```
 
@@ -58,6 +62,8 @@ flowchart TD
     NOT --> SISTEMA[Android: canal y notificaciones]
     ANDROID[Android: cambio del modo avión] --> RX[ModoAvionReceiver]
     RX -->|callback booleano| VM
+    CARGA[Android: alimentación conectada o desconectada] --> RXC[CargadorReceiver]
+    RXC -->|callback booleano| VM
     UI --> HIST[HistorialAvisos: recibe una lista]
 ```
 
@@ -68,7 +74,7 @@ flowchart TD
 
 ## Capturas
 
-Capturas reales del emulador, obtenidas durante las pruebas instrumentadas.
+Capturas reales del emulador, obtenidas durante las pruebas instrumentadas de la fase 1.
 
 ### Notificación en el panel
 
@@ -167,8 +173,19 @@ Como no se recibió el proyecto base, se preparó en tres commits adicionales an
 
 1. **Texto expandible:** todas las notificaciones usan `BigTextStyle` con el texto completo del aviso. Los mensajes breves de la fase 1 se conservan; la prueba `MejorasNotificacionTest` publica un texto largo para comprobar el contenido expandido.
 2. **Dos canales:** `avisos` conserva importancia predeterminada y `urgentes` usa importancia alta. El Notificador envía los avisos de origen Recordatorio al canal Urgentes, manteniendo Avisos para los demás. En API 24 y 25 se utiliza prioridad alta para los recordatorios. La ventana emergente puede depender de No molestar y de los ajustes del usuario; recrear el canal no sobrescribe sus preferencias.
+3. **Receptor del cargador:** una tarjeta con el switch **Escuchar el cargador** activa la escucha de conexión y desconexión de la alimentación. Cada cambio genera un aviso Cargador / Conectado o Desconectado, por el canal Avisos y con origen propio en el historial. El switch empieza apagado y su estado se conserva al recrear la Activity. Tiene su propio `DisposableEffect` y `unregisterReceiver`; el ViewModel solo recibe un booleano.
+
+Las pruebas `MejorasNotificacionTest` y `CargadorTest` comprueban el contenido expandido, la selección de canales y la escucha del cargador. Esta última utiliza `dumpsys battery` en un emulador dedicado y restaura la batería con `reset` al terminar. La suite de aceptación de la fase 1 identifica cada switch por su descripción accesible para distinguir las dos funciones.
 
 El registro de la asistencia y las decisiones está en [PROMPTS.md](PROMPTS.md).
+
+Validación en el emulador API 37: compilación y Lint correctos; **4 pruebas instrumentadas aprobadas**, incluyendo la regresión de la fase 1. [Resultado completo](docs/pruebas/fase2-mejoras.txt).
+
+Para ejecutar las pruebas de las mejoras y la regresión de la fase 1 después de instalar los APK de depuración y de pruebas, con el permiso de notificaciones concedido:
+
+```powershell
+adb shell am instrument -w -r -e class "com.ramirez.avisoscampus.MejorasNotificacionTest,com.ramirez.avisoscampus.CargadorTest,com.ramirez.avisoscampus.AceptacionConPermisoTest" com.ramirez.avisoscampus.test/androidx.test.runner.AndroidJUnitRunner
+```
 
 ## Referencias
 
@@ -177,4 +194,5 @@ El registro de la asistencia y las decisiones está en [PROMPTS.md](PROMPTS.md).
 - [Pruebas de interfaces Compose](https://developer.android.com/develop/ui/compose/testing/apis)
 - [Notificaciones expandibles](https://developer.android.com/develop/ui/compose/notifications/expanded)
 - [Canales de notificación](https://developer.android.com/develop/ui/compose/notifications/channels)
+- [Estado de carga y alimentación](https://developer.android.com/training/monitoring-device-state/battery-monitoring)
 - [AndroidX Test: notas de versión](https://developer.android.com/jetpack/androidx/releases/test). Espresso 3.7.0 corrige el uso de `InputManager.getInstance` que impedía iniciar las pruebas con la versión anterior en este emulador.

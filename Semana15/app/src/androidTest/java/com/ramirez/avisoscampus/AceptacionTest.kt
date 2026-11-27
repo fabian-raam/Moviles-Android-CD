@@ -9,9 +9,9 @@ import android.os.ParcelFileDescriptor
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -39,6 +39,8 @@ class AceptacionConPermisoTest {
         regla.runOnIdle { vm = ViewModelProvider(regla.activity)[AvisosViewModel::class.java] }
         assertTrue("Conceder POST_NOTIFICATIONS antes de esta prueba", Notificador.tienePermiso(ayuda.contexto))
         val manager = ayuda.contexto.getSystemService(NotificationManager::class.java)
+        // Cada escenario parte sin notificaciones de otras pruebas de esta misma app.
+        manager.cancelAll()
         assertEquals("Avisos", manager.getNotificationChannel(Notificador.CANAL).name.toString())
 
         // El permiso ya concedido debe limpiar un mensaje previo sin mostrar otro diálogo.
@@ -49,7 +51,11 @@ class AceptacionConPermisoTest {
 
         regla.onNodeWithText("Mostrar aviso").performScrollTo().performClick()
         regla.onNodeWithText("Mostrar aviso").performClick()
-        regla.waitUntil { manager.activeNotifications.count { it.id in 1..2 } == 2 }
+        regla.waitUntil(5_000) {
+            manager.activeNotifications.count {
+                it.id in 1..2 && it.notification.extras.getString(Notification.EXTRA_TITLE) == "Tarea lista"
+            } == 2
+        }
         assertEquals(2, vm.avisos.value.size)
         assertEquals(Origen.BOTON, vm.avisos.value.first().origen)
         assertEquals("Tarea lista", manager.activeNotifications.first { it.id == 2 }.notification.extras.getString(Notification.EXTRA_TITLE))
@@ -96,7 +102,7 @@ class AceptacionConPermisoTest {
         val modoOriginal = ayuda.shell("settings get global airplane_mode_on").trim() == "1"
         try {
             ayuda.shell("cmd connectivity airplane-mode disable")
-            regla.onNode(isToggleable()).performScrollTo().performClick()
+            regla.onNodeWithContentDescription("Escuchar el modo avión").performScrollTo().performClick()
             regla.waitUntil { vm.escuchandoAvion.value }
             regla.waitForIdle()
             ayuda.shell("cmd connectivity airplane-mode enable")
@@ -112,7 +118,7 @@ class AceptacionConPermisoTest {
             ayuda.shell("cmd connectivity airplane-mode enable")
             regla.waitUntil(5_000) { vm.avisos.value.first().texto == "Activado" }
 
-            regla.onNode(isToggleable()).performScrollTo().performClick()
+            regla.onNodeWithContentDescription("Escuchar el modo avión").performScrollTo().performClick()
             regla.waitUntil { !vm.escuchandoAvion.value }
             regla.waitForIdle()
             val cantidad = vm.avisos.value.size

@@ -39,11 +39,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.ramirez.avisoscampus.model.PermisoUi
 import com.ramirez.avisoscampus.notificacion.Notificador
 import com.ramirez.avisoscampus.receiver.ModoAvionReceiver
+import com.ramirez.avisoscampus.receiver.CargadorReceiver
 import com.ramirez.avisoscampus.viewmodel.AvisosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,6 +56,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
+    val escuchandoCargador by vm.escuchandoCargador.collectAsState()
     val avisos by vm.avisos.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
     val lanzador = rememberLauncherForActivityResult(
@@ -84,6 +88,20 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
                 ContextCompat.RECEIVER_NOT_EXPORTED
             )
+            onDispose { contexto.unregisterReceiver(receptor) }
+        } else {
+            onDispose { }
+        }
+    }
+
+    DisposableEffect(contexto, escuchandoCargador, vm) {
+        if (escuchandoCargador) {
+            val receptor = CargadorReceiver { conectado -> vm.alCambiarCargador(conectado) }
+            val filtro = IntentFilter().apply {
+                addAction(Intent.ACTION_POWER_CONNECTED)
+                addAction(Intent.ACTION_POWER_DISCONNECTED)
+            }
+            ContextCompat.registerReceiver(contexto, receptor, filtro, ContextCompat.RECEIVER_NOT_EXPORTED)
             onDispose { contexto.unregisterReceiver(receptor) }
         } else {
             onDispose { }
@@ -184,7 +202,26 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
                 ) {
                     Text("Escuchar el modo avión", modifier = Modifier.weight(1f))
-                    Switch(checked = escuchando, onCheckedChange = { vm.cambiarEscucha(it) })
+                    Switch(
+                        checked = escuchando,
+                        onCheckedChange = { vm.cambiarEscucha(it) },
+                        modifier = Modifier.semantics { contentDescription = "Escuchar el modo avión" }
+                    )
+                }
+            }
+
+            TarjetaAvisos("Cargador") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                ) {
+                    Text("Escuchar el cargador", modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = escuchandoCargador,
+                        onCheckedChange = { vm.cambiarEscuchaCargador(it) },
+                        modifier = Modifier.semantics { contentDescription = "Escuchar el cargador" }
+                    )
                 }
             }
 
