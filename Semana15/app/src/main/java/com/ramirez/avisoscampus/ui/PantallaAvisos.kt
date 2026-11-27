@@ -43,6 +43,7 @@ import com.ramirez.avisoscampus.viewmodel.AvisosViewModel
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     val permiso by vm.permiso.collectAsState()
+    val faltan by vm.faltan.collectAsState()
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { concedido ->
@@ -63,7 +64,6 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         }
     }
 
-    // TODO Paso 5: observar vm.faltan con collectAsState().
     // TODO Paso 6: observar escuchandoAvion y registrar el receptor con DisposableEffect.
     // TODO Paso 7: observar vm.avisos y pasarlos a HistorialAvisos.
     // TODO Paso 8: observar vm.mensaje y mostrar el recuadro de error.
@@ -121,10 +121,15 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             }
 
             TarjetaAvisos("Recordatorio") {
-                Text("Sin recordatorio activo")
-                // TODO Paso 5: mostrar Faltan N s y conectar los botones al ViewModel.
-                Button(onClick = { }, enabled = false) { Text("Recordar en 10 s") }
-                OutlinedButton(onClick = { }, enabled = false) { Text("Cancelar") }
+                Text(faltan?.let { "Faltan $it s" } ?: "Sin recordatorio activo")
+                Button(
+                    onClick = { vm.recordarEn() },
+                    enabled = faltan == null
+                ) { Text("Recordar en 10 s") }
+                OutlinedButton(
+                    onClick = { vm.cancelarRecordatorio() },
+                    enabled = faltan != null
+                ) { Text("Cancelar") }
             }
 
             TarjetaAvisos("Receptor de anuncios") {
