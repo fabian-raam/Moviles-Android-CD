@@ -3,7 +3,9 @@ package com.ramirez.avisoscampus.ui
 import android.Manifest
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -25,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -51,6 +54,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
     val avisos by vm.avisos.collectAsState()
+    val mensaje by vm.mensaje.collectAsState()
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { concedido ->
@@ -67,7 +71,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     LaunchedEffect(vm) {
         vm.eventos.collect { aviso ->
             val mostrado = Notificador.mostrar(contexto, aviso)
-            // TODO Paso 8: si !mostrado, llamar a vm.noSePudoMostrar().
+            if (!mostrado) vm.noSePudoMostrar()
         }
     }
 
@@ -85,8 +89,6 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             onDispose { }
         }
     }
-
-    // TODO Paso 8: observar vm.mensaje y mostrar el recuadro de error.
 
     Scaffold(
         topBar = {
@@ -121,6 +123,16 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                         .background(color, RoundedCornerShape(8.dp))
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 )
+                mensaje?.let { texto ->
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    ) {
+                        Text(texto, modifier = Modifier.padding(12.dp))
+                    }
+                }
                 Button(
                     onClick = {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -130,7 +142,20 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                         }
                     }
                 ) { Text("Permitir notificaciones") }
-                // TODO Paso 8: agregar el botón Abrir ajustes.
+                OutlinedButton(
+                    onClick = {
+                        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+                        } else {
+                            Intent(
+                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.fromParts("package", contexto.packageName, null)
+                            )
+                        }
+                        contexto.startActivity(intent)
+                    }
+                ) { Text("Abrir ajustes") }
             }
 
             TarjetaAvisos("Avisos") {
