@@ -148,7 +148,7 @@ adb pull /sdcard/Android/data/com.ramirez.avisoscampus/files/capturas docs/
 
 ## Historial de la fase 1
 
-Como no se recibió el proyecto base, se preparó en tres commits adicionales antes de los diez de la guía. El desarrollo de esta carpeta está en `main`; la fase 2 y la rama `mejora-ia` aún no han comenzado.
+Como no se recibió el proyecto base, se preparó en tres commits adicionales antes de los diez de la guía. La fase 1 está en `main`; la fase 2 se desarrolla en `mejora-ia-sem15`.
 
 | N.º PDF | Mensaje |
 | --- | --- |
@@ -163,9 +163,16 @@ Como no se recibió el proyecto base, se preparó en tres commits adicionales an
 | 9 | `feat(errores): maneja el permiso de notificaciones denegado` |
 | 10 | `docs: agrega README con estructura y capturas` |
 
+## Fase 2 - Mejoras
+
+1. **Texto expandible:** todas las notificaciones usan `BigTextStyle` con el texto completo del aviso. Los mensajes breves de la fase 1 se conservan; la prueba `MejorasNotificacionTest` publica un texto largo para comprobar el contenido expandido.
+
+El registro de la asistencia y las decisiones está en [PROMPTS.md](PROMPTS.md).
+
 ## Referencias
 
 - [Notificaciones de Android](https://developer.android.com/develop/ui/views/notifications)
 - [Permiso de notificaciones](https://developer.android.com/develop/ui/views/notifications/notification-permission)
 - [Pruebas de interfaces Compose](https://developer.android.com/develop/ui/compose/testing/apis)
+- [Notificaciones expandibles](https://developer.android.com/develop/ui/compose/notifications/expanded)
 - [AndroidX Test: notas de versión](https://developer.android.com/jetpack/androidx/releases/test). Espresso 3.7.0 corrige el uso de `InputManager.getInstance` que impedía iniciar las pruebas con la versión anterior en este emulador.
