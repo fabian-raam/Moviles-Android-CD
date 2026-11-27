@@ -116,9 +116,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
             TarjetaAvisos("Avisos") {
                 Text("Muestra un aviso de entrega registrada.")
                 Button(
-                    // TODO Paso 3: habilitar y llamar a vm.avisarAhora().
-                    onClick = { },
-                    enabled = false
+                    onClick = { vm.avisarAhora() }
                 ) { Text("Mostrar aviso") }
             }
 
