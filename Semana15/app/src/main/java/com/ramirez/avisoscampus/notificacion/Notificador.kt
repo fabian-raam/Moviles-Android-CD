@@ -1,15 +1,22 @@
 package com.ramirez.avisoscampus.notificacion
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import com.ramirez.avisoscampus.model.Aviso
 
-/** Esqueleto del laboratorio: todavía no interactúa con las notificaciones de Android. */
+/** Crea el canal de Android; el permiso y los avisos se completan en los próximos pasos. */
 @Suppress("UNUSED_PARAMETER")
 object Notificador {
     const val CANAL = "avisos"
 
     fun crearCanal(context: Context) {
-        // TODO Paso 1: crear y registrar el canal Avisos en Android 8+.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val canal = NotificationChannel(CANAL, "Avisos", NotificationManager.IMPORTANCE_DEFAULT)
+            val manager = context.getSystemService(NotificationManager::class.java)
+            manager.createNotificationChannel(canal)
+        }
     }
 
     fun tienePermiso(context: Context): Boolean {
