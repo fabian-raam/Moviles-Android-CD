@@ -1,12 +1,15 @@
 package com.ramirez.avisoscampus.notificacion
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.content.ContextCompat
 import com.ramirez.avisoscampus.model.Aviso
 
-/** Crea el canal de Android; el permiso y los avisos se completan en los próximos pasos. */
+/** Canal y permiso de notificaciones. La presentación del aviso se completa en el paso 3. */
 @Suppress("UNUSED_PARAMETER")
 object Notificador {
     const val CANAL = "avisos"
@@ -20,8 +23,9 @@ object Notificador {
     }
 
     fun tienePermiso(context: Context): Boolean {
-        // TODO Paso 2: comprobar POST_NOTIFICATIONS en API 33+; true antes de API 33.
-        return false
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
     }
 
     fun mostrar(context: Context, aviso: Aviso): Boolean {

@@ -1,5 +1,9 @@
 package com.ramirez.avisoscampus.ui
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -39,6 +43,17 @@ import com.ramirez.avisoscampus.viewmodel.AvisosViewModel
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     val permiso by vm.permiso.collectAsState()
+    val lanzador = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { concedido ->
+        vm.permisoRespondido(concedido)
+    }
+
+    LaunchedEffect(vm) {
+        if (Notificador.tienePermiso(contexto)) {
+            vm.permisoRespondido(true)
+        }
+    }
 
     // Ejemplo resuelto: el ViewModel emite y la View interactúa con Android.
     LaunchedEffect(vm) {
@@ -48,7 +63,6 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         }
     }
 
-    // TODO Paso 2: agregar RequestPermission y consultar el permiso al iniciar.
     // TODO Paso 5: observar vm.faltan con collectAsState().
     // TODO Paso 6: observar escuchandoAvion y registrar el receptor con DisposableEffect.
     // TODO Paso 7: observar vm.avisos y pasarlos a HistorialAvisos.
@@ -88,9 +102,13 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                         .padding(horizontal = 12.dp, vertical = 6.dp)
                 )
                 Button(
-                    // TODO Paso 2: habilitar y solicitar el permiso.
-                    onClick = { },
-                    enabled = false
+                    onClick = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            lanzador.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        } else {
+                            vm.permisoRespondido(true)
+                        }
+                    }
                 ) { Text("Permitir notificaciones") }
                 // TODO Paso 8: agregar el botón Abrir ajustes.
             }
