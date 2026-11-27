@@ -50,6 +50,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val permiso by vm.permiso.collectAsState()
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
+    val avisos by vm.avisos.collectAsState()
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { concedido ->
@@ -85,7 +86,6 @@ fun PantallaAvisos(vm: AvisosViewModel) {
         }
     }
 
-    // TODO Paso 7: observar vm.avisos y pasarlos a HistorialAvisos.
     // TODO Paso 8: observar vm.mensaje y mostrar el recuadro de error.
 
     Scaffold(
@@ -163,10 +163,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }
             }
 
-            // TODO Paso 7: crear HistorialAvisos.kt y reemplazar esta tarjeta.
-            TarjetaAvisos("Historial") {
-                Text("Sin avisos todavía")
-            }
+            HistorialAvisos(avisos)
         }
     }
 }
