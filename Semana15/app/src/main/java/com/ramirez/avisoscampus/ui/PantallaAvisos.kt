@@ -1,0 +1,152 @@
+package com.ramirez.avisoscampus.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import com.ramirez.avisoscampus.model.PermisoUi
+import com.ramirez.avisoscampus.notificacion.Notificador
+import com.ramirez.avisoscampus.viewmodel.AvisosViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PantallaAvisos(vm: AvisosViewModel) {
+    val contexto = LocalContext.current
+    val permiso by vm.permiso.collectAsState()
+
+    // Ejemplo resuelto: el ViewModel emite y la View interactúa con Android.
+    LaunchedEffect(vm) {
+        vm.eventos.collect { aviso ->
+            val mostrado = Notificador.mostrar(contexto, aviso)
+            // TODO Paso 8: si !mostrado, llamar a vm.noSePudoMostrar().
+        }
+    }
+
+    // TODO Paso 2: agregar RequestPermission y consultar el permiso al iniciar.
+    // TODO Paso 5: observar vm.faltan con collectAsState().
+    // TODO Paso 6: observar escuchandoAvion y registrar el receptor con DisposableEffect.
+    // TODO Paso 7: observar vm.avisos y pasarlos a HistorialAvisos.
+    // TODO Paso 8: observar vm.mensaje y mostrar el recuadro de error.
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("AvisosCampus") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            TarjetaAvisos("Permiso de notificaciones") {
+                val (etiqueta, color) = when (permiso) {
+                    PermisoUi.SinPedir -> "Sin pedir" to Color(0xFF616161)
+                    PermisoUi.Concedido -> "Permitido" to Color(0xFF237A3B)
+                    PermisoUi.Denegado -> "Denegado" to Color(0xFFB3261E)
+                }
+                Text(
+                    text = etiqueta,
+                    color = Color.White,
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier
+                        .background(color, RoundedCornerShape(8.dp))
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                )
+                Button(
+                    // TODO Paso 2: habilitar y solicitar el permiso.
+                    onClick = { },
+                    enabled = false
+                ) { Text("Permitir notificaciones") }
+                // TODO Paso 8: agregar el botón Abrir ajustes.
+            }
+
+            TarjetaAvisos("Avisos") {
+                Text("Muestra un aviso de entrega registrada.")
+                Button(
+                    // TODO Paso 3: habilitar y llamar a vm.avisarAhora().
+                    onClick = { },
+                    enabled = false
+                ) { Text("Mostrar aviso") }
+            }
+
+            TarjetaAvisos("Recordatorio") {
+                Text("Sin recordatorio activo")
+                // TODO Paso 5: mostrar Faltan N s y conectar los botones al ViewModel.
+                Button(onClick = { }, enabled = false) { Text("Recordar en 10 s") }
+                OutlinedButton(onClick = { }, enabled = false) { Text("Cancelar") }
+            }
+
+            TarjetaAvisos("Receptor de anuncios") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                ) {
+                    Text("Escuchar el modo avión", modifier = Modifier.weight(1f))
+                    // TODO Paso 6: conectar a escuchandoAvion y cambiarEscucha.
+                    Switch(checked = false, onCheckedChange = { }, enabled = false)
+                }
+            }
+
+            // TODO Paso 7: crear HistorialAvisos.kt y reemplazar esta tarjeta.
+            TarjetaAvisos("Historial") {
+                Text("Sin avisos todavía")
+            }
+        }
+    }
+}
+
+@Composable
+private fun TarjetaAvisos(titulo: String, contenido: @Composable ColumnScope.() -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = titulo,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+            contenido()
+        }
+    }
+}
