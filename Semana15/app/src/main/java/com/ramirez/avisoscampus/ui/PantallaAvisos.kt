@@ -1,4 +1,4 @@
-package com.ramirez.avisoscampus.ui
+﻿package com.ramirez.avisoscampus.ui
 
 import android.Manifest
 import android.content.Intent
@@ -6,50 +6,34 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import com.ramirez.avisoscampus.model.PermisoUi
 import com.ramirez.avisoscampus.notificacion.Notificador
-import com.ramirez.avisoscampus.receiver.ModoAvionReceiver
 import com.ramirez.avisoscampus.receiver.CargadorReceiver
+import com.ramirez.avisoscampus.receiver.ModoAvionReceiver
+import com.ramirez.avisoscampus.ui.theme.Coral
 import com.ramirez.avisoscampus.viewmodel.AvisosViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
@@ -59,193 +43,117 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val escuchandoCargador by vm.escuchandoCargador.collectAsState()
     val avisos by vm.avisos.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
-    val lanzador = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { concedido ->
-        vm.permisoRespondido(concedido)
+    var seccion by rememberSaveable { mutableStateOf(SeccionCampus.Avisos) }
+    val scrollAvisos = rememberScrollState()
+    val scrollReceptores = rememberScrollState()
+    val scrollHistorial = rememberScrollState()
+    val lanzador = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
+        vm.permisoRespondido(it)
     }
 
+    BackHandler(enabled = seccion != SeccionCampus.Avisos) { seccion = SeccionCampus.Avisos }
     LaunchedEffect(vm) {
-        if (Notificador.tienePermiso(contexto)) {
-            vm.permisoRespondido(true)
-        }
+        if (Notificador.tienePermiso(contexto)) vm.permisoRespondido(true)
     }
-
-    // Ejemplo resuelto: el ViewModel emite y la View interactúa con Android.
+    // La escucha de eventos vive por encima de las pestañas; funciona en cualquier sección.
     LaunchedEffect(vm) {
         vm.eventos.collect { aviso ->
-            val mostrado = Notificador.mostrar(contexto, aviso)
-            if (!mostrado) vm.noSePudoMostrar()
+            if (!Notificador.mostrar(contexto, aviso)) vm.noSePudoMostrar()
         }
     }
+    LaunchedEffect(faltan != null) {
+        if (faltan != null && seccion == SeccionCampus.Avisos) scrollAvisos.animateScrollTo(0)
+    }
 
+    // Cambiar de sección no cancela los receptores. Al salir de la pantalla se retiran ambos.
     DisposableEffect(contexto, escuchando, vm) {
         if (escuchando) {
-            val receptor = ModoAvionReceiver { activo -> vm.alCambiarModoAvion(activo) }
-            ContextCompat.registerReceiver(
-                contexto,
-                receptor,
-                IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
-                ContextCompat.RECEIVER_NOT_EXPORTED
-            )
+            val receptor = ModoAvionReceiver(vm::alCambiarModoAvion)
+            ContextCompat.registerReceiver(contexto, receptor,
+                IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED), ContextCompat.RECEIVER_NOT_EXPORTED)
             onDispose { contexto.unregisterReceiver(receptor) }
-        } else {
-            onDispose { }
-        }
+        } else { onDispose { } }
     }
-
     DisposableEffect(contexto, escuchandoCargador, vm) {
         if (escuchandoCargador) {
-            val receptor = CargadorReceiver { conectado -> vm.alCambiarCargador(conectado) }
+            val receptor = CargadorReceiver(vm::alCambiarCargador)
             val filtro = IntentFilter().apply {
                 addAction(Intent.ACTION_POWER_CONNECTED)
                 addAction(Intent.ACTION_POWER_DISCONNECTED)
             }
             ContextCompat.registerReceiver(contexto, receptor, filtro, ContextCompat.RECEIVER_NOT_EXPORTED)
             onDispose { contexto.unregisterReceiver(receptor) }
-        } else {
-            onDispose { }
-        }
+        } else { onDispose { } }
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { Text("AvisosCampus") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
-            )
-        }
+            Box(Modifier.fillMaxWidth().statusBarsPadding(), contentAlignment = Alignment.Center) {
+                Box(Modifier.widthIn(max = 680.dp).fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 16.dp)) {
+                    Text(
+                        buildAnnotatedString {
+                            append("Avisos")
+                            withStyle(SpanStyle(color = Coral)) { append("Campus") }
+                        },
+                        style = MaterialTheme.typography.headlineLarge.copy(letterSpacing = (-1).sp)
+                    )
+                }
+            }
+        },
+        bottomBar = { MenuCampus(seccion) { seccion = it } }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            TarjetaAvisos("Permiso de notificaciones") {
-                val (etiqueta, color) = when (permiso) {
-                    PermisoUi.SinPedir -> "Sin pedir" to Color(0xFF616161)
-                    PermisoUi.Concedido -> "Permitido" to Color(0xFF237A3B)
-                    PermisoUi.Denegado -> "Denegado" to Color(0xFFB3261E)
-                }
-                Text(
-                    text = etiqueta,
-                    color = Color.White,
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier
-                        .background(color, RoundedCornerShape(8.dp))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                )
-                mensaje?.let { texto ->
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    ) {
-                        Text(texto, modifier = Modifier.padding(12.dp))
-                    }
-                }
-                Button(
-                    onClick = {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            lanzador.launch(Manifest.permission.POST_NOTIFICATIONS)
-                        } else {
-                            vm.permisoRespondido(true)
+        val scroll = when (seccion) {
+            SeccionCampus.Avisos -> scrollAvisos
+            SeccionCampus.Receptores -> scrollReceptores
+            SeccionCampus.Historial -> scrollHistorial
+        }
+        Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
+            ContenidoSeccion(seccion, scroll) {
+                when (seccion) {
+                    SeccionCampus.Avisos -> {
+                        val orden = if (faltan != null) listOf(TipoTarjeta.Recordatorio, TipoTarjeta.Aviso, TipoTarjeta.Permiso)
+                                    else listOf(TipoTarjeta.Permiso, TipoTarjeta.Aviso, TipoTarjeta.Recordatorio)
+                        orden.forEach { tarjeta ->
+                            key(tarjeta) {
+                                when (tarjeta) {
+                                    TipoTarjeta.Permiso -> TarjetaPermiso(permiso, mensaje,
+                                        alPedir = {
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                                                lanzador.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                            else vm.permisoRespondido(true)
+                                        },
+                                        alAbrirAjustes = {
+                                            val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                                                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                                    .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+                                            else Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                                Uri.fromParts("package", contexto.packageName, null))
+                                            contexto.startActivity(intent)
+                                        }
+                                    )
+                                    TipoTarjeta.Aviso -> TarjetaAviso(vm::avisarAhora)
+                                    TipoTarjeta.Recordatorio -> TarjetaRecordatorio(faltan, { vm.recordarEn() }, vm::cancelarRecordatorio)
+                                }
+                            }
                         }
                     }
-                ) { Text("Permitir notificaciones") }
-                OutlinedButton(
-                    onClick = {
-                        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
-                                .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
-                        } else {
-                            Intent(
-                                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                                Uri.fromParts("package", contexto.packageName, null)
-                            )
-                        }
-                        contexto.startActivity(intent)
-                    }
-                ) { Text("Abrir ajustes") }
-            }
-
-            TarjetaAvisos("Avisos") {
-                Text("Muestra un aviso de entrega registrada.")
-                Button(
-                    onClick = { vm.avisarAhora() }
-                ) { Text("Mostrar aviso") }
-            }
-
-            TarjetaAvisos("Recordatorio") {
-                Text(faltan?.let { "Faltan $it s" } ?: "Sin recordatorio activo")
-                Button(
-                    onClick = { vm.recordarEn() },
-                    enabled = faltan == null
-                ) { Text("Recordar en 10 s") }
-                OutlinedButton(
-                    onClick = { vm.cancelarRecordatorio() },
-                    enabled = faltan != null
-                ) { Text("Cancelar") }
-            }
-
-            TarjetaAvisos("Receptor de anuncios") {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-                ) {
-                    Text("Escuchar el modo avión", modifier = Modifier.weight(1f))
-                    Switch(
-                        checked = escuchando,
-                        onCheckedChange = { vm.cambiarEscucha(it) },
-                        modifier = Modifier.semantics { contentDescription = "Escuchar el modo avión" }
-                    )
+                    SeccionCampus.Receptores -> TarjetasReceptores(escuchando, escuchandoCargador, vm::cambiarEscucha, vm::cambiarEscuchaCargador)
+                    SeccionCampus.Historial -> HistorialAvisos(avisos)
                 }
             }
-
-            TarjetaAvisos("Cargador") {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
-                ) {
-                    Text("Escuchar el cargador", modifier = Modifier.weight(1f))
-                    Switch(
-                        checked = escuchandoCargador,
-                        onCheckedChange = { vm.cambiarEscuchaCargador(it) },
-                        modifier = Modifier.semantics { contentDescription = "Escuchar el cargador" }
-                    )
-                }
-            }
-
-            HistorialAvisos(avisos)
         }
     }
 }
 
+private enum class TipoTarjeta { Permiso, Aviso, Recordatorio }
+
 @Composable
-private fun TarjetaAvisos(titulo: String, contenido: @Composable ColumnScope.() -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = titulo,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            contenido()
-        }
-    }
+private fun ContenidoSeccion(seccion: SeccionCampus, scroll: ScrollState, contenido: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = Modifier.widthIn(max = 680.dp).fillMaxSize().testTag("pantalla_${seccion.tag}")
+            .verticalScroll(scroll).padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        content = contenido
+    )
 }

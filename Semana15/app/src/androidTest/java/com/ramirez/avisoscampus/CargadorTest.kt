@@ -6,6 +6,7 @@ import android.os.ParcelFileDescriptor
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.lifecycle.ViewModelProvider
@@ -33,6 +34,7 @@ class CargadorTest {
         lateinit var vm: AvisosViewModel
         regla.runOnIdle { vm = ViewModelProvider(regla.activity)[AvisosViewModel::class.java] }
         assertFalse(vm.escuchandoCargador.value)
+        regla.onNodeWithTag("tab_receptores").performClick()
         try {
             shell("dumpsys battery unplug")
             regla.onNodeWithContentDescription("Escuchar el cargador").performScrollTo().performClick()

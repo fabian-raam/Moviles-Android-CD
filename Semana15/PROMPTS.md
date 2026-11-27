@@ -12,6 +12,14 @@ Selección: ante «elige las mejoras mas faciles», la IA propuso texto expandib
 | «ya crea los 3 y luego ya te digo para q subas los 3 commit» - dos canales | Crear Avisos con importancia predeterminada y Urgentes con importancia alta; enviar los recordatorios al segundo. | Se elige por `Origen.RECORDATORIO`, sin comparar títulos ni pasar clases de Android al ViewModel. Se añade prioridad alta para API 24 y 25. | El origen ya expresa qué tipo de aviso decidió el ViewModel. La asignación del canal y su importancia pertenecen al Notificador. |
 | «ya crea los 3 y luego ya te digo para q subas los 3 commit» - receptor del cargador | Añadir un receptor de conexión/desconexión, un switch, estado en el ViewModel y origen Cargador. | El receptor no notifica: solo entrega un booleano. La pantalla lo registra con `RECEIVER_NOT_EXPORTED` y lo retira en su propio `onDispose`. Se distinguen los switches con descripciones accesibles y se adapta la suite existente. | Evita introducir `Context` o `BroadcastReceiver` en el ViewModel, conserva la separación MVVM y permite activar cada escucha por separado. Esta mejora cumple el requisito de modificar el ViewModel. |
 
+## Rediseño solicitado después de las tres mejoras
+
+El usuario adjuntó cuatro referencias de Avisos, Receptores, Historial y recordatorio activo, y añadió: «asegurate de usar cosas nativas de kotlin no importes nada nuevo».
+
+Se implementaron tres secciones con estado guardado, tema coral completo, tipografía nativa personalizada y vectores propios de Compose en archivos separados. Se conservaron las dependencias existentes; no se incorporaron fuentes ni paquetes de iconos externos. Los receptores y la recogida de eventos permanecen en la pantalla raíz para continuar al navegar. La suite existente se adaptó a la separación en pestañas y se añadió una prueba específica de navegación.
+
+Validación del rediseño: compilación en modo sin conexión, Lint sin errores, cinco pruebas de regresión/navegación y una prueba de permiso denegado aprobadas. Las capturas actuales se guardan en `docs/capturas/rediseno/`.
+
 ## Verificación
 
 - Texto expandible: prueba instrumentada de `Notification.EXTRA_BIG_TEXT` con un mensaje largo y saltos de línea.

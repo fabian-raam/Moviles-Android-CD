@@ -9,7 +9,7 @@ El proyecto usa MVVM y Repository, sin pantallas XML, servicios remotos ni clave
 1. Abrir la carpeta `Semana15` en Android Studio.
 2. Sincronizar Gradle y seleccionar un emulador Android API 33 o superior para probar el permiso de notificaciones.
 3. Ejecutar el módulo `app` y pulsar **Permitir notificaciones**.
-4. Probar **Mostrar aviso**, **Recordar en 10 s**, **Cancelar** y **Escuchar el modo avión**.
+4. En **Avisos**, probar **Mostrar aviso**, **Recordar en 10 s** y **Cancelar**. En **Receptores**, activar las escuchas del modo avión o del cargador. En **Historial**, consultar los avisos generados.
 
 La app admite desde API 24; en versiones anteriores a API 33 no aparece el diálogo de `POST_NOTIFICATIONS`. El canal `avisos` se crea desde `AvisosApp` al iniciar, en API 26 o superior. **Abrir ajustes** lleva a la configuración de notificaciones; tras conceder el permiso allí, volver y pulsar **Permitir notificaciones** actualiza la etiqueta y limpia el error.
 
@@ -186,6 +186,22 @@ Para ejecutar las pruebas de las mejoras y la regresión de la fase 1 después d
 ```powershell
 adb shell am instrument -w -r -e class "com.ramirez.avisoscampus.MejorasNotificacionTest,com.ramirez.avisoscampus.CargadorTest,com.ramirez.avisoscampus.AceptacionConPermisoTest" com.ramirez.avisoscampus.test/androidx.test.runner.AndroidJUnitRunner
 ```
+
+## Diseño y navegación nativos
+
+La interfaz sigue las referencias de AvisosCampus: fondo gris claro, tarjetas blancas redondeadas, botones coral, indicadores verdes y cuenta regresiva turquesa. Todo se construye con las dependencias de Kotlin y Compose existentes, sin fuentes, imágenes ni bibliotecas de iconos externas.
+
+- `IconosCampus.kt`: vectores propios de Compose, reutilizados en tarjetas y menú.
+- `ComponentesCampus.kt` y `TarjetasCampus.kt`: tarjetas, botones, etiquetas y switches con un estilo común.
+- `theme/`: escala tipográfica completa con fuente nativa del sistema, tamaños de lectura de 16-17 sp, títulos de 32 sp y colores explícitos. Se conserva el tema claro de la referencia aunque el dispositivo esté en modo oscuro.
+- `NavegacionCampus.kt`: menú inferior accesible con las secciones Avisos, Receptores e Historial. Cada sección conserva su desplazamiento; la selección se guarda al recrear la Activity y Atrás vuelve a Avisos.
+- `PantallaAvisos.kt`: mantiene eventos y receptores fuera del contenido de las pestañas, de modo que cambiar de sección no interrumpe las funciones. Cuando el recordatorio está activo se muestra primero, con progreso y segundos restantes.
+
+`DisenoNavegacionTest` verifica el cambio de secciones, la selección tras recrear la pantalla, el botón Atrás, los receptores activos entre secciones y la finalización del recordatorio mientras se consulta otra pestaña.
+
+Verificado en el emulador: compilación y Lint sin errores; [5 pruebas de regresión y navegación aprobadas](docs/pruebas/rediseno-regresion.txt) y [1 prueba de permiso denegado aprobada](docs/pruebas/rediseno-sin-permiso.txt).
+
+Capturas actuales: [Avisos](docs/capturas/rediseno/01-avisos.png), [Receptores](docs/capturas/rediseno/02-receptores.png), [Historial](docs/capturas/rediseno/03-historial.png), [recordatorio activo](docs/capturas/rediseno/04-recordatorio-activo.png) y [permiso denegado](docs/capturas/rediseno/05-permiso-denegado.png).
 
 ## Referencias
 

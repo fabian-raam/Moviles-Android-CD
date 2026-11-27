@@ -12,6 +12,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -102,11 +103,13 @@ class AceptacionConPermisoTest {
         val modoOriginal = ayuda.shell("settings get global airplane_mode_on").trim() == "1"
         try {
             ayuda.shell("cmd connectivity airplane-mode disable")
+            regla.onNodeWithTag("tab_receptores").performClick()
             regla.onNodeWithContentDescription("Escuchar el modo avión").performScrollTo().performClick()
             regla.waitUntil { vm.escuchandoAvion.value }
             regla.waitForIdle()
             ayuda.shell("cmd connectivity airplane-mode enable")
             regla.waitUntil(5_000) { vm.avisos.value.any { it.origen == Origen.MODO_AVION && it.texto == "Activado" } }
+            regla.onNodeWithTag("tab_historial").performClick()
             regla.onNodeWithText("Activado").performScrollTo().assertIsDisplayed()
             regla.onNodeWithText("Revisa tu laboratorio pendiente").performScrollTo()
             ayuda.captura("03-modo-avion")
@@ -118,6 +121,7 @@ class AceptacionConPermisoTest {
             ayuda.shell("cmd connectivity airplane-mode enable")
             regla.waitUntil(5_000) { vm.avisos.value.first().texto == "Activado" }
 
+            regla.onNodeWithTag("tab_receptores").performClick()
             regla.onNodeWithContentDescription("Escuchar el modo avión").performScrollTo().performClick()
             regla.waitUntil { !vm.escuchandoAvion.value }
             regla.waitForIdle()
@@ -125,6 +129,7 @@ class AceptacionConPermisoTest {
             ayuda.shell("cmd connectivity airplane-mode disable")
             Thread.sleep(1_000)
             assertEquals("Con el switch apagado no debe llegar otro aviso", cantidad, vm.avisos.value.size)
+            regla.onNodeWithTag("tab_historial").performClick()
             regla.onAllNodesWithText("Tu entrega fue registrada")[1].performScrollTo().assertIsDisplayed()
             ayuda.captura("04-historial")
         } finally {

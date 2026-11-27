@@ -1,71 +1,38 @@
-package com.ramirez.avisoscampus.ui
+﻿package com.ramirez.avisoscampus.ui
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ramirez.avisoscampus.model.Aviso
+import com.ramirez.avisoscampus.model.Origen
+import com.ramirez.avisoscampus.ui.theme.*
 
 @Composable
 fun HistorialAvisos(avisos: List<Aviso>) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = "Historial",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            if (avisos.isEmpty()) {
-                Text("Sin avisos todavía")
-            } else {
-                // El Repository entrega primero los más recientes. La pantalla ya se desplaza.
-                avisos.take(20).forEachIndexed { indice, aviso ->
-                    if (indice > 0) HorizontalDivider()
-                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = MaterialTheme.colorScheme.primaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            ) {
-                                Text(
-                                    text = aviso.origen.texto,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
-                            }
-                            Text(
-                                text = aviso.hora,
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+    TarjetaCampus("Historial", IconosCampus.Historial, GrisIcono) {
+        if (avisos.isEmpty()) {
+            Text("Sin avisos todavía", color = TextoSecundario, style = MaterialTheme.typography.bodyMedium)
+        } else {
+            avisos.take(20).forEachIndexed { indice, aviso ->
+                if (indice > 0) HorizontalDivider(color = BordeSuave)
+                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        val (fondo, tinta) = when (aviso.origen) {
+                            Origen.BOTON -> CoralSuave to MaterialTheme.colorScheme.onPrimaryContainer
+                            Origen.RECORDATORIO -> TurquesaSuave to TurquesaTexto
+                            Origen.MODO_AVION -> TurquesaSuave to TurquesaTexto
+                            Origen.CARGADOR -> VerdeSuave to VerdeTexto
                         }
-                        Text(aviso.titulo, style = MaterialTheme.typography.titleSmall)
-                        Text(aviso.texto, style = MaterialTheme.typography.bodyMedium)
+                        EtiquetaCampus(aviso.origen.texto, fondo, tinta)
+                        Spacer(Modifier.weight(1f))
+                        Text(aviso.hora, style = MaterialTheme.typography.labelSmall, color = TextoSecundario)
                     }
+                    Text(aviso.titulo, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
+                    Text(aviso.texto, style = MaterialTheme.typography.bodyMedium, color = TextoSecundario)
                 }
             }
         }
