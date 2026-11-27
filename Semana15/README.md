@@ -166,6 +166,7 @@ Como no se recibió el proyecto base, se preparó en tres commits adicionales an
 ## Fase 2 - Mejoras
 
 1. **Texto expandible:** todas las notificaciones usan `BigTextStyle` con el texto completo del aviso. Los mensajes breves de la fase 1 se conservan; la prueba `MejorasNotificacionTest` publica un texto largo para comprobar el contenido expandido.
+2. **Dos canales:** `avisos` conserva importancia predeterminada y `urgentes` usa importancia alta. El Notificador envía los avisos de origen Recordatorio al canal Urgentes, manteniendo Avisos para los demás. En API 24 y 25 se utiliza prioridad alta para los recordatorios. La ventana emergente puede depender de No molestar y de los ajustes del usuario; recrear el canal no sobrescribe sus preferencias.
 
 El registro de la asistencia y las decisiones está en [PROMPTS.md](PROMPTS.md).
 
@@ -175,4 +176,5 @@ El registro de la asistencia y las decisiones está en [PROMPTS.md](PROMPTS.md).
 - [Permiso de notificaciones](https://developer.android.com/develop/ui/views/notifications/notification-permission)
 - [Pruebas de interfaces Compose](https://developer.android.com/develop/ui/compose/testing/apis)
 - [Notificaciones expandibles](https://developer.android.com/develop/ui/compose/notifications/expanded)
+- [Canales de notificación](https://developer.android.com/develop/ui/compose/notifications/channels)
 - [AndroidX Test: notas de versión](https://developer.android.com/jetpack/androidx/releases/test). Espresso 3.7.0 corrige el uso de `InputManager.getInstance` que impedía iniciar las pruebas con la versión anterior en este emulador.

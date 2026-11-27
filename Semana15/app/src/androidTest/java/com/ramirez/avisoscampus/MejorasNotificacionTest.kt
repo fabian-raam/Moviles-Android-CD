@@ -34,6 +34,27 @@ class MejorasNotificacionTest {
         }
     }
 
+    @Test
+    fun recordatorioUsaUrgentesYBotonUsaAvisos() {
+        assertTrue(Notificador.tienePermiso(contexto))
+        Notificador.crearCanal(contexto)
+        assertEquals("Avisos", manager.getNotificationChannel(Notificador.CANAL).name.toString())
+        val urgente = manager.getNotificationChannel(Notificador.CANAL_URGENTE)
+        assertEquals("Urgentes", urgente.name.toString())
+        assertEquals(NotificationManager.IMPORTANCE_HIGH, urgente.importance)
+        val normal = Aviso(900_002, "Entrega de prueba", "Texto normal", Origen.BOTON, "12:00:00")
+        val recordatorio = Aviso(900_003, "Recordatorio", "Texto urgente", Origen.RECORDATORIO, "12:00:00")
+        try {
+            assertTrue(Notificador.mostrar(contexto, normal))
+            assertTrue(Notificador.mostrar(contexto, recordatorio))
+            assertEquals(Notificador.CANAL, notificacionPublicada(normal.id).channelId)
+            assertEquals(Notificador.CANAL_URGENTE, notificacionPublicada(recordatorio.id).channelId)
+        } finally {
+            manager.cancel(normal.id)
+            manager.cancel(recordatorio.id)
+        }
+    }
+
     private fun notificacionPublicada(id: Int): Notification {
         repeat(100) {
             manager.activeNotifications.find { it.id == id }?.let { return it.notification }

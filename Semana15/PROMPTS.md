@@ -9,7 +9,9 @@ Selección: ante «elige las mejoras mas faciles», la IA propuso texto expandib
 | Prompt que escribí | Qué respondió la IA (Codex) | Qué cambié o descarté | Por qué |
 | --- | --- | --- | --- |
 | «ya crea los 3 y luego ya te digo para q subas los 3 commit» - texto expandible | Añadir `NotificationCompat.BigTextStyle().bigText(aviso.texto)` al Notificador. | Se conserva el texto corto original de la fase 1; una prueba usa un mensaje ficticio largo para comprobar que se publica completo. | La presentación corresponde al Notificador y no requiere cambiar el ViewModel, el historial ni el contenido de los avisos existentes. |
+| «ya crea los 3 y luego ya te digo para q subas los 3 commit» - dos canales | Crear Avisos con importancia predeterminada y Urgentes con importancia alta; enviar los recordatorios al segundo. | Se elige por `Origen.RECORDATORIO`, sin comparar títulos ni pasar clases de Android al ViewModel. Se añade prioridad alta para API 24 y 25. | El origen ya expresa qué tipo de aviso decidió el ViewModel. La asignación del canal y su importancia pertenecen al Notificador. |
 
 ## Verificación
 
 - Texto expandible: prueba instrumentada de `Notification.EXTRA_BIG_TEXT` con un mensaje largo y saltos de línea.
+- Dos canales: prueba de creación de Urgentes con importancia alta y de los canales usados por una notificación de botón y un recordatorio. La aparición emergente depende también de los ajustes de Android y del usuario.
